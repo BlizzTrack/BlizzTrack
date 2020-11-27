@@ -1,0 +1,13 @@
+{
+  "profiles": {
+    "Worker": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "ENVIRONMENT": "Development"
+      }
+    },
+    "Docker (1)": {
+      "commandName": "Docker"
+    }
+  }
+}
