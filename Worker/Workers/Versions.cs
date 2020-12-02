@@ -67,15 +67,15 @@ namespace Worker.Workers
                     var code = msg.Product;
                     (IList data, int seqn) res = msg.Flags switch
                     {
-                        "version" or "versions" => await _bNetClient.Do<List<Version>>(new VersionCommand(code)),
+                        "version" or "versions" => await _bNetClient.Do<List<BNetLib.Models.Versions>>(new VersionCommand(code)),
                         "cdn" or "cdns" => await _bNetClient.Do<List<CDN>>(new CDNCommand(code)),
                         "bgdl" => await _bNetClient.Do<List<BGDL>>(new BGDLCommand(code)),
                         _ => (null, -1)
                     };
 
                     switch (res.data) {
-                        case List<Versions> ver:
-                            await _databaseWriter.WriteAsync(Manifest<Versions[]>.Create(res.seqn, code, ver.ToArray()), cancellationToken);
+                        case List<BNetLib.Models.Versions> ver:
+                            await _databaseWriter.WriteAsync(Manifest<BNetLib.Models.Versions[]>.Create(res.seqn, code, ver.ToArray()), cancellationToken);
                             break;
                         case List<CDN> cdn:
                             await _databaseWriter.WriteAsync(Manifest<CDN[]>.Create(res.seqn, code, cdn.ToArray()), cancellationToken);

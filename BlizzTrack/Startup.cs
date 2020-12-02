@@ -44,7 +44,7 @@ namespace BlizzTrack
                     Configuration.GetConnectionString("ConnectionString"), o =>
                     {
                         o.UseTrigrams();
-                    }).EnableSensitiveDataLogging());
+                    }));/*.EnableSensitiveDataLogging());*/
 
             services.AddMvc(options => options.EnableEndpointRouting = false)
                 .SetCompatibilityVersion(CompatibilityVersion.Latest).AddNewtonsoftJson();

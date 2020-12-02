@@ -35,7 +35,7 @@ namespace Worker
                             hostContext.Configuration.GetConnectionString("ConnectionString"), o =>
                             {
                                 o.UseTrigrams();
-                            }).EnableSensitiveDataLogging());
+                            }));
 
                     services.AddSingleton(x => new BNetLib.Networking.BNetClient(BNetLib.Networking.ServerRegion.US));
 

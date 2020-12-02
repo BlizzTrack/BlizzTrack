@@ -27,7 +27,7 @@ namespace Core.Models
                 if (Debugger.IsAttached)
                 {
                     // Probably shouldn't log sql statements in production
-                    optionsBuilder.UseLoggerFactory(_loggerFactory);
+                    // optionsBuilder.UseLoggerFactory(_loggerFactory);
                 }
             }
         }

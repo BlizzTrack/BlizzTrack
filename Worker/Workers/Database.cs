@@ -42,22 +42,29 @@ namespace Worker.Workers
     {
         private readonly ChannelReader<object> _channelReader;
         private readonly ILogger<Database> _logger;
-        private readonly DBContext _dbContext;
-        public Database(ChannelReader<object> channelReader, ILogger<Database> logger, DBContext dbContext)
+        private readonly IServiceScopeFactory _serviceScopeFactory;
+        public Database(ChannelReader<object> channelReader, ILogger<Database> logger, IServiceScopeFactory serviceScopeFactory)
         {
             _channelReader = channelReader;
             _logger = logger;
-            _dbContext = dbContext;
+            _serviceScopeFactory = serviceScopeFactory;
         }
 
         internal async void Run(CancellationToken cancellationToken)
         {
+            using var sc = _serviceScopeFactory.CreateScope();
+
+            var _dbContext = sc.ServiceProvider.GetRequiredService<DBContext>();
+
             while(await _channelReader.WaitToReadAsync(cancellationToken))
             {
                 if(_channelReader.TryRead(out var item))
                 {
-                    await _dbContext.AddAsync(item, cancellationToken);
-                    await _dbContext.SaveChangesAsync(cancellationToken);
+                    try
+                    {
+                        await _dbContext.AddAsync(item, cancellationToken);
+                        await _dbContext.SaveChangesAsync(cancellationToken);
+                    }catch { continue; }
 
                     switch(item)
                     {

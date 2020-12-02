@@ -1,5 +1,6 @@
 ﻿using BNetLib.Networking;
 using BNetLib.Networking.Commands;
+using Core.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -43,36 +44,46 @@ namespace Worker.Workers
         private readonly ILogger<Summary> _logger;
         private readonly ChannelWriter<BNetLib.Models.Summary> _channelWriter;
         private readonly ChannelWriter<object> _databaseWriter;
-        private readonly Core.Services.ISummary _summary;
+        private readonly IServiceScopeFactory _serviceScope;
 
-        public Summary(BNetClient bNetClient, ILogger<Summary> logger, ChannelWriter<BNetLib.Models.Summary> channelWriter, ChannelWriter<object> databaseWriter, Core.Services.ISummary summary)
+        public Summary(BNetClient bNetClient, ILogger<Summary> logger, ChannelWriter<BNetLib.Models.Summary> channelWriter, ChannelWriter<object> databaseWriter, IServiceScopeFactory scopeFactory)
         {
             _bNetClient = bNetClient;
             _logger = logger;
             _channelWriter = channelWriter;
             _databaseWriter = databaseWriter;
-            _summary = summary;
+            _serviceScope = scopeFactory;
         }
 
         public async void Run(CancellationToken cancellationToken)
         {
-            while(!cancellationToken.IsCancellationRequested)
+            using var sc = _serviceScope.CreateScope();
+            var _summary = sc.ServiceProvider.GetRequiredService<Core.Services.ISummary>();
+            {
+                var latest = await _summary.Latest();
+                foreach (var item in latest.Content)
+                {
+                    await _channelWriter.WriteAsync(item, cancellationToken);
+                }
+            }
+
+            while (!cancellationToken.IsCancellationRequested)
             {
                 (var summary, int seqn) = await _bNetClient.Do<List<BNetLib.Models.Summary>>(new SummaryCommand());
                 var latest = await _summary.Latest();
 
-                if (latest?.Seqn != seqn)
+                if (latest == null || latest.Seqn != seqn)
                 {
                     // Do this first so it's always done first when in the channel
-                    await _databaseWriter.WriteAsync(Core.Models.Manifest<BNetLib.Models.Summary[]>.Create(seqn, "summary", summary.ToArray()), cancellationToken);
+                    await _databaseWriter.WriteAsync(Manifest<BNetLib.Models.Summary[]>.Create(seqn, "summary", summary.ToArray()), cancellationToken);
 
                     var latestItems = latest?.Content.ToList() ?? new List<BNetLib.Models.Summary>();
                     foreach(var item in summary)
                     {
-                        var exist = summary.FirstOrDefault(x => x.Product == item.Product && x.Flags == item.Flags && x.Seqn == item.Seqn);
+                        var exist = latestItems.FirstOrDefault(x => x.Product == item.Product && x.Flags == item.Flags && x.Seqn == item.Seqn);
                         if(exist == null)
                         {
-                            await _channelWriter.WriteAsync(item);
+                            await _channelWriter.WriteAsync(item, cancellationToken);
                         }
                     }
                 }
