@@ -47,14 +47,12 @@ namespace Worker.Workers
         private readonly BNetClient _bNetClient;
         private readonly ChannelReader<BNetLib.Models.Summary> _channelReader;
         private readonly ChannelWriter<object> _databaseWriter;
-        private readonly DBContext _dbContext;
 
-        public Versions(BNetClient bNetClient, ILogger<Versions> logger, ChannelReader<BNetLib.Models.Summary> channelReader, DBContext dbContext, ChannelWriter<object> databaseWriter)
+        public Versions(BNetClient bNetClient, ILogger<Versions> logger, ChannelReader<BNetLib.Models.Summary> channelReader, ChannelWriter<object> databaseWriter)
         {
             _bNetClient = bNetClient;
             _logger = logger;
             _channelReader = channelReader;
-            _dbContext = dbContext;
             _databaseWriter = databaseWriter;
         }
 

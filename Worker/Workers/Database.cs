@@ -5,6 +5,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -64,11 +65,15 @@ namespace Worker.Workers
                     {
                         await _dbContext.AddAsync(item, cancellationToken);
                         await _dbContext.SaveChangesAsync(cancellationToken);
-                    }catch { continue; }
+                    }catch(Exception ex)
+                    {
+                        _logger.LogCritical(ex.ToString());
+                        Debugger.Break();
+                    }
 
                     switch(item)
                     {
-                        case Manifest<Versions[]> ver:
+                        case Manifest<BNetLib.Models.Versions[]> ver:
                             _logger.LogInformation($"Update {ver.Code} versions to {ver.Seqn}");
                             break;
                         case Manifest<BGDL[]> ver:

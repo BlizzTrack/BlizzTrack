@@ -3,7 +3,7 @@ import { BlizzTrack } from "../blizztrack";
 import queryString from 'query-string';
 import { ListGroup, Button, Collapse, Breadcrumb, BreadcrumbItem } from 'reactstrap';
 import { GameInfo } from "./GameInfo";
-import Select, { components } from 'react-select';
+import Select from 'react-select';
 import Moment from 'react-moment';
 
 import './Home.css';
@@ -115,7 +115,7 @@ export class Home extends Component {
 
                   <Collapse isOpen={this.state.actions[`${item.product}_${item.flags}`] ?? false} className="col-12 mt-1">
                     {(this.state.actions[`${item.product}_${item.flags}`] ?? false) &&
-                      <GameInfo history={this.props.history} game={item.product} file={item.flags} seqn={url.seqn ?? item.seqn} />
+                      <GameInfo history={this.props.history} game={item.product} file={item.flags} seqn={url.seqn && this.props.game ? url.seqn : item.seqn} />
                     }
                   </Collapse>
                 </div>

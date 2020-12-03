@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { BlizzTrack } from "../blizztrack";
-import Select, { components } from 'react-select';
+import Select from 'react-select';
 import Moment from 'react-moment';
 
 export class GameInfo extends Component {
@@ -21,7 +21,7 @@ export class GameInfo extends Component {
     }
 
     componentDidUpdate() {
-        if(this.state.latest == undefined) return;
+        if(this.state.latest === undefined) return;
         if(this.state.latest === this.props.seqn) return;
 
         this.update(this.props.seqn);
@@ -46,16 +46,10 @@ export class GameInfo extends Component {
     }
 
     handleInputChange(newValue) {
-        this.props.history.push({ search: `?seqn=${newValue.value}` });
+        this.props.history.push(`/${this.props.game}/${this.props.file}?seqn=${newValue.value}`)
         this.update(newValue.value);
     }
 
-    /*
-    <li class="list-group-item d-flex justify-content-between align-items-center">
-    Cras justo odio
-    <span class="badge badge-primary badge-pill">14</span>
-  </li>
-  */
     render() {
         const Option = props => {
             const { innerProps, innerRef } = props;
@@ -63,7 +57,7 @@ export class GameInfo extends Component {
                 <div ref={innerRef} {...innerProps} className="px-2 mx-1 hover-me menu-item">
                     <h5 className="m-0" style={{ fontWeight: "normal", fontSize: "1.1rem" }}>{props.data.label}</h5>
                     <small className="text-muted text-small" style={{ fontSize: "0.7rem" }}>
-            Indexed <Moment fromNow>{new Date(props.data.indexed + "Z")}</Moment>
+                        Indexed <Moment fromNow>{new Date(props.data.indexed + "Z")}</Moment>
                     </small>
                 </div>
             );

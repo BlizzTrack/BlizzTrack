@@ -59,13 +59,6 @@ namespace Worker.Workers
         {
             using var sc = _serviceScope.CreateScope();
             var _summary = sc.ServiceProvider.GetRequiredService<Core.Services.ISummary>();
-            {
-                var latest = await _summary.Latest();
-                foreach (var item in latest.Content)
-                {
-                    await _channelWriter.WriteAsync(item, cancellationToken);
-                }
-            }
 
             while (!cancellationToken.IsCancellationRequested)
             {
