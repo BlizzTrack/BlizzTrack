@@ -82,7 +82,7 @@ namespace Worker.Workers
                         case Manifest<CDN[]> ver:
                             _logger.LogInformation($"Update {ver.Code} CDNs to {ver.Seqn}");
                             break;
-                        case Manifest<Summary[]> ver:
+                        case Manifest<BNetLib.Models.Summary[]> ver:
                             _logger.LogInformation($"Update {ver.Code} summary to {ver.Seqn}");
                             break;
                     }
