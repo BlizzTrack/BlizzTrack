@@ -6,7 +6,6 @@ namespace Core.Models
 {
     public record Manifest<T> where T : System.Collections.IEnumerable
     {
-        [Key]
         public int Seqn { get; set; }
 
         public string Code { get; set; }

@@ -1,12 +1,6 @@
-﻿using BNetLib.Models;
-using BNetLib.Networking;
-using BNetLib.Networking.Commands;
-using Core.Models;
+﻿using BNetLib.Networking.Commands;
 using Core.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -49,7 +43,7 @@ namespace BlizzTrack.API
 
                             var ver = data?.Content.Select(x => new
                             {
-                                region_name = x.GetName(),
+                                region_name =   x.GetName(),
                                 x.Buildconfig,
                                 x.Buildid,
                                 x.Cdnconfig,

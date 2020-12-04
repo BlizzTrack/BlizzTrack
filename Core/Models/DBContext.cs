@@ -37,15 +37,19 @@ namespace Core.Models
             builder.HasPostgresExtension("pg_trgm");
 
             builder.Entity<Manifest<BNetLib.Models.Versions[]>>().Property(x => x.Indexed).HasDefaultValueSql("CURRENT_TIMESTAMP");
+            builder.Entity<Manifest<BNetLib.Models.Versions[]>>().HasKey(x => new { x.Code, x.Seqn });
             builder.Entity<Manifest<BNetLib.Models.Versions[]>>().ToTable("versions");
 
             builder.Entity<Manifest<BNetLib.Models.BGDL[]>>().Property(x => x.Indexed).HasDefaultValueSql("CURRENT_TIMESTAMP");
+            builder.Entity<Manifest<BNetLib.Models.BGDL[]>>().HasKey(x => new { x.Code, x.Seqn });
             builder.Entity<Manifest<BNetLib.Models.BGDL[]>>().ToTable("bgdl");
 
             builder.Entity<Manifest<BNetLib.Models.CDN[]>>().Property(x => x.Indexed).HasDefaultValueSql("CURRENT_TIMESTAMP");
+            builder.Entity<Manifest<BNetLib.Models.CDN[]>>().HasKey(x => new { x.Code, x.Seqn });
             builder.Entity<Manifest<BNetLib.Models.CDN[]>>().ToTable("cdns");
 
             builder.Entity<Manifest<BNetLib.Models.Summary[]>>().Property(x => x.Indexed).HasDefaultValueSql("CURRENT_TIMESTAMP");
+            builder.Entity<Manifest<BNetLib.Models.Summary[]>>().HasKey(x => x.Seqn);
             builder.Entity<Manifest<BNetLib.Models.Summary[]>>().ToTable("summary");
         }
     }
