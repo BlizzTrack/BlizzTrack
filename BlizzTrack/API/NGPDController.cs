@@ -259,7 +259,7 @@ namespace BlizzTrack.API
                             {
                                 data.Seqn,
                                 data.Indexed,
-                                view = Url.Action("Get", "ngpd", new { code, file = "seqn", seqn = data.Seqn }, scheme),
+                                view = Url.Action("Get", "ngpd", new { code, file = "view", seqn = data.Seqn }, scheme),
                             }).ToList();
 
                             result = new
@@ -271,6 +271,7 @@ namespace BlizzTrack.API
                             };
                             break;
                         }
+                    case "view":
                     default:
                         {
                             var data = await _summary.Single(seqn);
