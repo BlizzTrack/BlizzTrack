@@ -39,7 +39,7 @@ namespace BlizzTrack
 
             services.Configure<MvcNewtonsoftJsonOptions>(x => x.SerializerSettings.NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore);
 
-            services.AddDbContext<DBContext>(options =>
+            services.AddDbContextPool<DBContext>(options =>
                 options.UseNpgsql(
                     Configuration.GetConnectionString("ConnectionString"), o =>
                     {

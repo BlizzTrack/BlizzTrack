@@ -11,25 +11,8 @@ namespace Core.Models
         public DbSet<Manifest<BNetLib.Models.CDN[]>> CDN { get; set; }
         public DbSet<Manifest<BNetLib.Models.Summary[]>> Summary { get; set; }
 
-        private readonly ILoggerFactory _loggerFactory;
-        public DBContext() { }
-
-        public DBContext(DbContextOptions<DBContext> options, ILoggerFactory loggerFactory) : base(options)
+        public DBContext(DbContextOptions<DBContext> options) : base(options)
         {
-            _loggerFactory = loggerFactory;
-        }
-
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            // Allow null if you are using an IDesignTimeDbContextFactory
-            if (_loggerFactory != null)
-            {
-                if (Debugger.IsAttached)
-                {
-                    // Probably shouldn't log sql statements in production
-                    // optionsBuilder.UseLoggerFactory(_loggerFactory);
-                }
-            }
         }
 
         protected override void OnModelCreating(ModelBuilder builder)

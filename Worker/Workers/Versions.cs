@@ -62,7 +62,6 @@ namespace Worker.Workers
 
         public async void Run(CancellationToken cancellationToken)
         {
-
             while (await _channelReader.WaitToReadAsync(cancellationToken))
             {
                 using var sc = _serviceScope.CreateScope();

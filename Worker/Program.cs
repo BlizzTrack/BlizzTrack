@@ -30,7 +30,7 @@ namespace Worker
                 })
                 .ConfigureServices((hostContext, services) =>
                 {
-                    services.AddDbContext<DBContext>(options =>
+                    services.AddDbContextPool<DBContext>(options =>
                         options.UseNpgsql(
                             hostContext.Configuration.GetConnectionString("ConnectionString"), o =>
                             {
@@ -39,11 +39,11 @@ namespace Worker
 
                     services.AddSingleton(x => new BNetLib.Networking.BNetClient(BNetLib.Networking.ServerRegion.US));
 
-                    var channel = Channel.CreateUnbounded<BNetLib.Models.Summary>();
+                    var channel = Channel.CreateBounded<BNetLib.Models.Summary>(1);
                     services.AddSingleton(x => channel.Reader);
                     services.AddSingleton(x => channel.Writer);
 
-                    var database = Channel.CreateUnbounded<object>();
+                    var database = Channel.CreateBounded<object>(1);
                     services.AddSingleton(x => database.Reader);
                     services.AddSingleton(x => database.Writer);
 
