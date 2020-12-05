@@ -3,8 +3,10 @@ using Core.Models;
 using Core.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -19,14 +21,16 @@ namespace BlizzTrack.API
         private readonly ICDNs _cdns;
         private readonly IBGDL _bgdl;
         private readonly DBContext _dbContext;
+        private readonly ILogger<NGPDController> _logger;
 
-        public NGPDController(ISummary summary, IVersions versions, ICDNs cdns, IBGDL bgdl, DBContext dbContext)
+        public NGPDController(ISummary summary, IVersions versions, ICDNs cdns, IBGDL bgdl, DBContext dbContext, ILogger<NGPDController> logger)
         {
             _summary = summary;
             _versions = versions;
             _cdns = cdns;
             _bgdl = bgdl;
             _dbContext = dbContext;
+            _logger = logger;
         }
 
         [HttpGet("{code?}/{file?}")]
@@ -49,7 +53,7 @@ namespace BlizzTrack.API
 
                             var ver = data?.Content.Select(x => new
                             {
-                                region_name =   x.GetName(),
+                                region_name = x.GetName(),
                                 x.Buildconfig,
                                 x.Buildid,
                                 x.Cdnconfig,
@@ -61,7 +65,7 @@ namespace BlizzTrack.API
 
                             result = new
                             {
-                                name = data.Name,
+                                data.Name,
                                 data.Indexed,
                                 data.Seqn,
                                 code,
@@ -89,7 +93,7 @@ namespace BlizzTrack.API
 
                             result = new
                             {
-                                name = data.Name,
+                                data.Name,
                                 data.Indexed,
                                 data.Seqn,
                                 code,
@@ -119,7 +123,7 @@ namespace BlizzTrack.API
 
                             result = new
                             {
-                                name = data.Name,
+                                data.Name,
                                 data.Indexed,
                                 data.Seqn,
                                 code,
@@ -268,55 +272,12 @@ namespace BlizzTrack.API
                             var data = await _summary.Single(seqn);
                             if (data == null) return NotFound(new { error = "Not Found" });
 
-                            // TODO: Move this to it's own system at some point
-                            var items = new List<(DateTime? indexed, string code, string file)>();
-                            foreach(var item in data.Content)
-                            {
-                                items.Add((null, item.Product, item.Flags));
-                            }
-
-                            var versionArray = items.Where(x => x.file == "versions").Select(x => x.code).ToArray();
-                            var versionsUpdated = await _dbContext.Versions.GroupBy(x => x.Code, (x, y) => new
-                            {
-                                Indexed = y.Max(x => x.Indexed),
-                                Code = x
-                            }).ToListAsync();
-
-                            var bgdlArray = items.Where(x => x.file == "bgdl").Select(x => x.code).ToArray();
-                            var bgdlUpdated = await _dbContext.BGDL.GroupBy(x => x.Code, (x, y) => new
-                            {
-                                Indexed = y.Max(x => x.Indexed),
-                                Code = x
-                            }).ToListAsync();
-
-
-                            var cdnArray = items.Where(x => x.file == "cdns" || x.file == "cdn").Select(x => x.code).ToArray();
-                            var cdnUpdated = await _dbContext.CDN.GroupBy(x => x.Code, (x, y) => new
-                            {
-                                Indexed = y.Max(x => x.Indexed),
-                                Code = x
-                            }).ToListAsync();
-
-
-                            for (var i = 0; i < items.Count; i++)
-                            {
-                                var item = items[i];
-                                item.indexed = item.file switch
-                                {
-                                    "versions" or "version" => versionsUpdated.FirstOrDefault(x => x.Code == item.code)?.Indexed,
-                                    "cdn" or "cdns" => cdnUpdated.FirstOrDefault(x => x.Code == item.code)?.Indexed,
-                                    "bdgl" => bgdlUpdated.FirstOrDefault(x => x.Code == item.code)?.Indexed,
-                                    _ => null
-                                };
-
-                                items[i] = item;
-                            }
-
+                        
                             result = new
                             {
                                 data.Seqn,
                                 command = cmd.ToString(),
-                                name = "Summary",
+                                name = "summary",
                                 code = code.ToLower(),
                                 data = data.Content.Select(x => new
                                 {
@@ -324,13 +285,12 @@ namespace BlizzTrack.API
                                     x.Product,
                                     x.Flags,
                                     x.Seqn,
-                                    indexed = items.FirstOrDefault(s => s.code == x.Product && s.file == x.Flags).indexed,
                                     relations = new
                                     {
                                         view = Url.Action("Get", "ngpd", new { code = x.Product, file = x.Flags, seqn = x.Seqn }, Request.Scheme),
                                         seqn = Url.Action("Get", "ngpd", new { code = x.Product, file = "seqn", filter = x.Flags }, Request.Scheme),
                                     }
-                                }).ToList().Where(x => filter == default ? true : x.Product.Contains(filter, System.StringComparison.OrdinalIgnoreCase))
+                                }).ToList().Where(x => filter == default || x.Product.Contains(filter, StringComparison.OrdinalIgnoreCase))
                             };
                             break;
                         }

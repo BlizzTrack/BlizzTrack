@@ -35,27 +35,29 @@ export class Home extends Component {
   componentDidMount() {
     BlizzTrack.Call(`NGPD/summary/seqn`).then(data => {
       var a = data.data.map(a => {
-          return {
-              label: a.seqn,
-              value: a.seqn,
-              indexed: a.indexed
-          }
+        return {
+          label: a.seqn,
+          value: a.seqn,
+          indexed: a.indexed
+        }
       });
 
       this.setState({
-          seqn: a,
+        seqn: a,
       });
 
       this.update(a[0].value);
-  });
+    });
   }
   // tag={Link} to={`/v/${item.product}/${item.flags}?seqn=${item.seqn}`}
   handleInputChange(newValue) {
     var a = this.state.actions;
     Object.keys(a).map(x => a[x] = false);
-    this.setState({actions: a});
+    this.setState({ actions: a });
     this.update(newValue.value);
-}
+
+    this.props.history.push(`/?seqn=${newValue.value}`)
+  }
 
   render() {
     const Option = props => {
@@ -104,9 +106,11 @@ export class Home extends Component {
                         <BreadcrumbItem active>{item.product}</BreadcrumbItem>
                         <BreadcrumbItem active>{item.flags}</BreadcrumbItem>
                         <BreadcrumbItem active>{item.seqn}</BreadcrumbItem>
+                        { /*
                         <BreadcrumbItem active>
                           Updated <Moment fromNow>{new Date(item.indexed + "Z")}</Moment>
-                        </BreadcrumbItem>
+                        </BreadcrumbItem>                         
+                        */}
                       </Breadcrumb>
                     </small>
                   </div>
