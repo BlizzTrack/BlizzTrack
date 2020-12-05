@@ -2,11 +2,8 @@
 using Core.Models;
 using Core.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -36,6 +33,13 @@ namespace BlizzTrack.API
         [HttpGet("{code?}/{file?}")]
         public async Task<IActionResult> Get(string code = "summary", string file = "supported", [FromQuery] string filter = default, [FromQuery] int? seqn = null)
         {
+            var scheme = Request.Scheme;
+            if (Request.Host.Host.Contains("blizztrack", StringComparison.OrdinalIgnoreCase))
+            {
+                scheme = "https";
+            }
+
+
             AbstractCommand cmd = new SummaryCommand();
             if (!code.Equals("summary", System.StringComparison.OrdinalIgnoreCase))
             {
@@ -148,7 +152,7 @@ namespace BlizzTrack.API
                                         {
                                             data.Seqn,
                                             data.Indexed,
-                                            view = Url.Action("Get", "ngpd", new { code, file = "versions", seqn = data.Seqn }, Request.Scheme),
+                                            view = Url.Action("Get", "ngpd", new { code, file = "versions", seqn = data.Seqn }, scheme),
                                         }).ToList();
 
                                         data = new
@@ -170,7 +174,7 @@ namespace BlizzTrack.API
                                         {
                                             data.Seqn,
                                             data.Indexed,
-                                            view = Url.Action("Get", "ngpd", new { code, file = "cdn", seqn = data.Seqn }, Request.Scheme),
+                                            view = Url.Action("Get", "ngpd", new { code, file = "cdn", seqn = data.Seqn }, scheme),
                                         }).ToList();
 
                                         data = new
@@ -192,7 +196,7 @@ namespace BlizzTrack.API
                                         {
                                             data.Seqn,
                                             data.Indexed,
-                                            view = Url.Action("Get", "ngpd", new { code, file = "bdgl", seqn = data.Seqn }, Request.Scheme),
+                                            view = Url.Action("Get", "ngpd", new { code, file = "bdgl", seqn = data.Seqn }, scheme),
                                         }).ToList();
 
                                         data = new
@@ -210,9 +214,9 @@ namespace BlizzTrack.API
                                         error = "Unknown filter",
                                         accepted = new
                                         {
-                                            versions = Url.Action("Get", "ngpd", new { code, file = "seqn", filter = "versions" }, Request.Scheme),
-                                            cdns = Url.Action("Get", "ngpd", new { code, file = "seqn", filter = "cdns" }, Request.Scheme),
-                                            bgdl = Url.Action("Get", "ngpd", new { code, file = "seqn", filter = "bgdl" }, Request.Scheme),
+                                            versions = Url.Action("Get", "ngpd", new { code, file = "seqn", filter = "versions" }, scheme),
+                                            cdns = Url.Action("Get", "ngpd", new { code, file = "seqn", filter = "cdns" }, scheme),
+                                            bgdl = Url.Action("Get", "ngpd", new { code, file = "seqn", filter = "bgdl" }, scheme),
                                         }
                                     });
                             }
@@ -223,16 +227,16 @@ namespace BlizzTrack.API
                     default:
                         result = new
                         {
-                            versions = Url.Action("Get", "ngpd", new { code, file = "version" }, Request.Scheme),
-                            cdns = Url.Action("Get", "ngpd", new { code, file = "cdns" }, Request.Scheme),
-                            bgdl = Url.Action("Get", "ngpd", new { code, file = "bgdl" }, Request.Scheme),
+                            versions = Url.Action("Get", "ngpd", new { code, file = "version" }, scheme),
+                            cdns = Url.Action("Get", "ngpd", new { code, file = "cdns" }, scheme),
+                            bgdl = Url.Action("Get", "ngpd", new { code, file = "bgdl" }, scheme),
                             seqn = new
                             {
-                                versions = Url.Action("Get", "ngpd", new { code, file = "seqn", filter = "versions" }, Request.Scheme),
-                                cdns = Url.Action("Get", "ngpd", new { code, file = "seqn", filter = "cdns" }, Request.Scheme),
-                                bgdl = Url.Action("Get", "ngpd", new { code, file = "seqn", filter = "bgdl" }, Request.Scheme),
+                                versions = Url.Action("Get", "ngpd", new { code, file = "seqn", filter = "versions" }, scheme),
+                                cdns = Url.Action("Get", "ngpd", new { code, file = "seqn", filter = "cdns" }, scheme),
+                                bgdl = Url.Action("Get", "ngpd", new { code, file = "seqn", filter = "bgdl" }, scheme),
                             },
-                            supported = Url.Action("Get", "ngpd", new { code, file = "supported" }, Request.Scheme),
+                            supported = Url.Action("Get", "ngpd", new { code, file = "supported" }, scheme),
                         };
                         break;
                 }
@@ -255,7 +259,7 @@ namespace BlizzTrack.API
                             {
                                 data.Seqn,
                                 data.Indexed,
-                                view = Url.Action("Get", "ngpd", new { code, file = "seqn", seqn = data.Seqn }, Request.Scheme),
+                                view = Url.Action("Get", "ngpd", new { code, file = "seqn", seqn = data.Seqn }, scheme),
                             }).ToList();
 
                             result = new
@@ -287,8 +291,8 @@ namespace BlizzTrack.API
                                     x.Seqn,
                                     relations = new
                                     {
-                                        view = Url.Action("Get", "ngpd", new { code = x.Product, file = x.Flags, seqn = x.Seqn }, Request.Scheme),
-                                        seqn = Url.Action("Get", "ngpd", new { code = x.Product, file = "seqn", filter = x.Flags }, Request.Scheme),
+                                        view = Url.Action("Get", "ngpd", new { code = x.Product, file = x.Flags, seqn = x.Seqn }, scheme),
+                                        seqn = Url.Action("Get", "ngpd", new { code = x.Product, file = "seqn", filter = x.Flags }, scheme),
                                     }
                                 }).ToList().Where(x => filter == default || x.Product.Contains(filter, StringComparison.OrdinalIgnoreCase))
                             };

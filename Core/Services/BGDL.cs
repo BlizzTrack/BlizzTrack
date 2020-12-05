@@ -38,7 +38,7 @@ namespace Core.Services
 
         public async Task<Manifest<BNetLib.Models.BGDL[]>> Single(string code, int? seqn)
         {
-            return await _dbContext.BGDL.OrderByDescending(x => x.Seqn).Where(x => (seqn == null || x.Seqn == seqn) && x.Code.ToLower() == code.ToLower()).FirstOrDefaultAsync();
+            return await _dbContext.BGDL.AsNoTracking().OrderByDescending(x => x.Seqn).Where(x => (seqn == null || x.Seqn == seqn) && x.Code.ToLower() == code.ToLower()).FirstOrDefaultAsync();
         }
     }
 }

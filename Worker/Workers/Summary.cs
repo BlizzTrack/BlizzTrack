@@ -69,15 +69,15 @@ namespace Worker.Workers
                 {
                     // Do this first so it's always done first when in the channel
                     await _databaseWriter.WriteAsync(Manifest<BNetLib.Models.Summary[]>.Create(seqn, "summary", summary.ToArray()), cancellationToken);
-                }
 
-                var latestItems = latest?.Content.ToList() ?? new List<BNetLib.Models.Summary>();
-                foreach (var item in summary)
-                {
-                    var exist = latestItems.FirstOrDefault(x => x.Product == item.Product && x.Flags == item.Flags && x.Seqn == item.Seqn);
-                    if (exist == null)
+                    var latestItems = latest?.Content.ToList() ?? new List<BNetLib.Models.Summary>();
+                    foreach (var item in summary)
                     {
-                        await _channelWriter.WriteAsync(item, cancellationToken);
+                        var exist = latestItems.FirstOrDefault(x => x.Product == item.Product && x.Flags == item.Flags && x.Seqn == item.Seqn);
+                        if (exist == null)
+                        {
+                            await _channelWriter.WriteAsync(item, cancellationToken);
+                        }
                     }
                 }
                 await Task.Delay(TimeSpan.FromSeconds(30), cancellationToken);

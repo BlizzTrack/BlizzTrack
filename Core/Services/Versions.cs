@@ -39,7 +39,7 @@ namespace Core.Services
 
         public async Task<Manifest<BNetLib.Models.Versions[]>> Single(string code, int? seqn)
         {
-            return await _dbContext.Versions.OrderByDescending(x => x.Seqn).Where(x => (seqn == null || x.Seqn == seqn) && x.Code.ToLower() == code.ToLower()).FirstOrDefaultAsync();
+            return await _dbContext.Versions.AsNoTracking().OrderByDescending(x => x.Seqn).Where(x => (seqn == null || x.Seqn == seqn) && x.Code.ToLower() == code.ToLower()).FirstOrDefaultAsync();
         }
     }
 }
