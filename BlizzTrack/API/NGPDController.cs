@@ -41,7 +41,7 @@ namespace BlizzTrack.API
 
 
             AbstractCommand cmd = new SummaryCommand();
-            if (!code.Equals("summary", System.StringComparison.OrdinalIgnoreCase))
+            if (!code.Equals("summary", StringComparison.OrdinalIgnoreCase))
             {
                 code = code.ToLower();
                 object result = null;
@@ -52,10 +52,9 @@ namespace BlizzTrack.API
                         {
                             cmd = new VersionCommand(code);
                             var data = await _versions.Single(code, seqn);
-                            if (data == null || data.Content == null)
-                                return NotFound(new { error = "Not found" });
+                            if (data == null || data.Content == null) return NotFound(new { error = "Not found" });
 
-                            var ver = data?.Content.Select(x => new
+                            var ver = data.Content.Select(x => new
                             {
                                 region_name = x.GetName(),
                                 x.Buildconfig,
@@ -82,8 +81,7 @@ namespace BlizzTrack.API
                         {
                             cmd = new CDNCommand(code);
                             var data = await _cdns.Single(code, seqn);
-                            if (data == null || data.Content == null)
-                                return NotFound(new { error = "Not found" });
+                            if (data == null || data.Content == null) return NotFound(new { error = "Not found" });
 
                             var ver = data.Content.Select(x => new
                             {
@@ -110,8 +108,7 @@ namespace BlizzTrack.API
                         {
                             cmd = new BGDLCommand(code);
                             var data = await _bgdl.Single(code, seqn);
-                            if (data == null || data.Content == null)
-                                return NotFound(new { error = "Not found" });
+                            if (data == null || data.Content == null) return NotFound(new { error = "Not found" });
 
                             var ver = data.Content.Select(x => new
                             {
@@ -145,8 +142,7 @@ namespace BlizzTrack.API
                                 case "version" or "versions":
                                     {
                                         var ver = await _versions.Seqn(code);
-                                        if (ver == null)
-                                            return NotFound(new { error = "Not found" });
+                                        if (ver == null) return NotFound(new { error = "Not found" });
 
                                         var f = ver.Select(data => new
                                         {
@@ -252,8 +248,7 @@ namespace BlizzTrack.API
                     case "seqn":
                         {
                             var summary = await _summary.Seqn();
-                            if (summary == null)
-                                return NotFound(new { error = "Not found" });
+                            if (summary == null) return NotFound(new { error = "Not found" });
 
                             var f = summary.Select(data => new
                             {
@@ -276,8 +271,7 @@ namespace BlizzTrack.API
                         {
                             var data = await _summary.Single(seqn);
                             if (data == null) return NotFound(new { error = "Not Found" });
-
-                        
+        
                             result = new
                             {
                                 data.Seqn,

@@ -57,11 +57,22 @@ namespace Worker.Workers
 
         public async void Run(CancellationToken cancellationToken)
         {
-            using var sc = _serviceScope.CreateScope();
-            var _summary = sc.ServiceProvider.GetRequiredService<Core.Services.ISummary>();
-
+            bool firstRun = true;
             while (!cancellationToken.IsCancellationRequested)
             {
+                using var sc = _serviceScope.CreateScope();
+                var _summary = sc.ServiceProvider.GetRequiredService<Core.Services.ISummary>();
+
+                if (firstRun)
+                {
+                    var f = await _summary.Latest();
+                    foreach (var item in f.Content)
+                    {
+                        await _channelWriter.WriteAsync(item, cancellationToken);
+                    }
+                    firstRun = false;
+                }
+
                 (var summary, int seqn) = await _bNetClient.Do<List<BNetLib.Models.Summary>>(new SummaryCommand());
                 var latest = await _summary.Latest();
 

@@ -48,10 +48,15 @@ namespace Worker
                     services.AddSingleton(x => database.Writer);
 
                     services.AddScoped<Core.Services.ISummary, Core.Services.Summary>();
+                    services.AddScoped<Core.Services.IVersions, Core.Services.Versions>();
+                    services.AddScoped<Core.Services.ICDNs, Core.Services.CDNs>();
+                    services.AddScoped<Core.Services.IBGDL, Core.Services.BGDL>();
 
                     services.AddHostedService<Workers.DatabaseHosted>();
                     services.AddHostedService<Workers.SummaryHosted>();
                     services.AddHostedService<Workers.VersionsHosted>();
+
+                    services.AddScoped<Core.Services.IVersions, Core.Services.Versions>();
                 })
                 .ConfigureLogging((hostingContext, logging) =>
                 {

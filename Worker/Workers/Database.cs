@@ -53,13 +53,12 @@ namespace Worker.Workers
 
         internal async void Run(CancellationToken cancellationToken)
         {
-            using var sc = _serviceScopeFactory.CreateScope();
-
-            var _dbContext = sc.ServiceProvider.GetRequiredService<DBContext>();
-
             while(await _channelReader.WaitToReadAsync(cancellationToken))
             {
-                if(_channelReader.TryRead(out var item))
+                using var sc = _serviceScopeFactory.CreateScope();
+                var _dbContext = sc.ServiceProvider.GetRequiredService<DBContext>();
+
+                if (_channelReader.TryRead(out var item))
                 {
                     try
                     {
