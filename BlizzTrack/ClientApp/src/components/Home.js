@@ -104,6 +104,9 @@ export class Home extends Component {
                         <BreadcrumbItem active>{item.product}</BreadcrumbItem>
                         <BreadcrumbItem active>{item.flags}</BreadcrumbItem>
                         <BreadcrumbItem active>{item.seqn}</BreadcrumbItem>
+                        <BreadcrumbItem active>
+                          Updated <Moment fromNow>{new Date(item.indexed + "Z")}</Moment>
+                        </BreadcrumbItem>
                       </Breadcrumb>
                     </small>
                   </div>

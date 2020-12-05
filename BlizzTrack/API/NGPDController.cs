@@ -1,6 +1,10 @@
 ﻿using BNetLib.Networking.Commands;
+using Core.Models;
 using Core.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -14,13 +18,15 @@ namespace BlizzTrack.API
         private readonly IVersions _versions;
         private readonly ICDNs _cdns;
         private readonly IBGDL _bgdl;
+        private readonly DBContext _dbContext;
 
-        public NGPDController(ISummary summary, IVersions versions, ICDNs cdns, IBGDL bgdl)
+        public NGPDController(ISummary summary, IVersions versions, ICDNs cdns, IBGDL bgdl, DBContext dbContext)
         {
             _summary = summary;
             _versions = versions;
             _cdns = cdns;
             _bgdl = bgdl;
+            _dbContext = dbContext;
         }
 
         [HttpGet("{code?}/{file?}")]
@@ -262,6 +268,50 @@ namespace BlizzTrack.API
                             var data = await _summary.Single(seqn);
                             if (data == null) return NotFound(new { error = "Not Found" });
 
+                            // TODO: Move this to it's own system at some point
+                            var items = new List<(DateTime? indexed, string code, string file)>();
+                            foreach(var item in data.Content)
+                            {
+                                items.Add((null, item.Product, item.Flags));
+                            }
+
+                            var versionArray = items.Where(x => x.file == "versions").Select(x => x.code).ToArray();
+                            var versionsUpdated = await _dbContext.Versions.GroupBy(x => x.Code, (x, y) => new
+                            {
+                                Indexed = y.Max(x => x.Indexed),
+                                Code = x
+                            }).ToListAsync();
+
+                            var bgdlArray = items.Where(x => x.file == "bgdl").Select(x => x.code).ToArray();
+                            var bgdlUpdated = await _dbContext.BGDL.GroupBy(x => x.Code, (x, y) => new
+                            {
+                                Indexed = y.Max(x => x.Indexed),
+                                Code = x
+                            }).ToListAsync();
+
+
+                            var cdnArray = items.Where(x => x.file == "cdns" || x.file == "cdn").Select(x => x.code).ToArray();
+                            var cdnUpdated = await _dbContext.CDN.GroupBy(x => x.Code, (x, y) => new
+                            {
+                                Indexed = y.Max(x => x.Indexed),
+                                Code = x
+                            }).ToListAsync();
+
+
+                            for (var i = 0; i < items.Count; i++)
+                            {
+                                var item = items[i];
+                                item.indexed = item.file switch
+                                {
+                                    "versions" or "version" => versionsUpdated.FirstOrDefault(x => x.Code == item.code)?.Indexed,
+                                    "cdn" or "cdns" => cdnUpdated.FirstOrDefault(x => x.Code == item.code)?.Indexed,
+                                    "bdgl" => bgdlUpdated.FirstOrDefault(x => x.Code == item.code)?.Indexed,
+                                    _ => null
+                                };
+
+                                items[i] = item;
+                            }
+
                             result = new
                             {
                                 data.Seqn,
@@ -274,6 +324,7 @@ namespace BlizzTrack.API
                                     x.Product,
                                     x.Flags,
                                     x.Seqn,
+                                    indexed = items.FirstOrDefault(s => s.code == x.Product && s.file == x.Flags).indexed,
                                     relations = new
                                     {
                                         view = Url.Action("Get", "ngpd", new { code = x.Product, file = x.Flags, seqn = x.Seqn }, Request.Scheme),
