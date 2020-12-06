@@ -14,7 +14,8 @@ namespace BlizzTrack.API
     public class UIController : ControllerBase
     {
         public record NavItem(string Name, string Code, List<NavItemInfo> Items);
-        public record NavItemInfo(string Name, string Product, string Flags, int Seqn);
+        public record NavItemInfo(string Name, string Product, List<SeqnItem> Flags);
+        public record SeqnItem(string File, int seqn);
 
         private readonly ISummary _summary;
         private readonly ILogger<UIController> _logger;
@@ -47,6 +48,8 @@ namespace BlizzTrack.API
 
             foreach (var prefix in p)
             {
+                if (prefix == "storm") continue;
+
                 var i = new List<NavItemInfo>();
 
                 switch (prefix)
@@ -56,6 +59,7 @@ namespace BlizzTrack.API
                     case "catalogs":
                         continue;
                     case "bna":
+                        /*
                         var its = items.Where(x => x.Product == "bna" || x.Product == "catalogs" || x.Product == "agent" || x.Product == "bts");
                         var collection = its as BNetLib.Models.Summary[] ?? its.ToArray();
                         i.AddRange(collection.Select(x => new NavItemInfo(
@@ -67,7 +71,7 @@ namespace BlizzTrack.API
                         itemsAdded.AddRange(collection);
 
                         res.Add(new NavItem(BNetLib.Helpers.GameName.Get(prefix), prefix, i));
-
+                        */
                         continue;
                 }
 
@@ -82,12 +86,19 @@ namespace BlizzTrack.API
 
                     itemsAdded.Add(item);
 
-                    i.Add(new NavItemInfo(
-                        item.GetName(),
-                        item.Product,
-                        item.Flags,
-                        item.Seqn
-                    ));
+                    var exist = i.FirstOrDefault(x => x.Product == item.Product);
+                    if (exist == null) {
+                        exist = new NavItemInfo(
+                            item.GetName(),
+                            item.Product,
+                            new List<SeqnItem>() { new SeqnItem(item.Flags, item.Seqn) }
+                        );
+                        i.Add(exist);
+                    }
+                    else {
+                        exist.Flags.Add(new SeqnItem(item.Flags, item.Seqn));
+                        exist.Flags.OrderByDescending(x => x.File);
+                    }
                 }
 
                 if (i.Count > 0)
@@ -106,12 +117,19 @@ namespace BlizzTrack.API
                 var i = new List<NavItemInfo>();
                 foreach (var item in items)
                 {
-                    i.Add(new NavItemInfo(
-                        item.GetName(),
-                        item.Product,
-                        item.Flags,
-                        item.Seqn
-                    ));
+
+                    var exist = i.FirstOrDefault(x => x.Product == item.Product);
+                    if (exist == null)
+                        i.Add(new NavItemInfo(
+                            item.GetName(),
+                            item.Product,
+                            new List<SeqnItem>() { new SeqnItem(item.Flags, item.Seqn) }
+                        ));
+                    else
+                    {
+                        exist.Flags.Add(new SeqnItem(item.Flags, item.Seqn));
+                        exist.Flags.OrderByDescending(x => x.File);
+                    }
                 }
 
                 res.Add(new NavItem(BNetLib.Helpers.GameName.Get("unknown"), "unknown", i));
