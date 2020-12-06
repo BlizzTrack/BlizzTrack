@@ -13,7 +13,8 @@ namespace BlizzTrack.API
     [ApiController]
     public class UIController : ControllerBase
     {
-        public record NavItem(string Name, string Code, List<object> Items);
+        public record NavItem(string Name, string Code, List<NavItemInfo> Items);
+        public record NavItemInfo(string Name, string Product, string Flags, int Seqn);
 
         private readonly ISummary _summary;
         private readonly ILogger<UIController> _logger;
@@ -24,7 +25,7 @@ namespace BlizzTrack.API
             _summary = summary;
         }
 
-        [HttpGet("game_list")]
+        [HttpGet("home")]
         public async Task<IActionResult> GameList([FromQuery]int? seqn = null)
         {
             Manifest<BNetLib.Models.Summary[]> sum;
@@ -46,7 +47,7 @@ namespace BlizzTrack.API
 
             foreach (var prefix in p)
             {
-                var i = new List<object>();
+                var i = new List<NavItemInfo>();
 
                 switch (prefix)
                 {
@@ -57,13 +58,12 @@ namespace BlizzTrack.API
                     case "bna":
                         var its = items.Where(x => x.Product == "bna" || x.Product == "catalogs" || x.Product == "agent" || x.Product == "bts");
                         var collection = its as BNetLib.Models.Summary[] ?? its.ToArray();
-                        i.AddRange(collection.Select(x => new
-                        {
-                            name = x.GetName(),
+                        i.AddRange(collection.Select(x => new NavItemInfo(
+                            x.GetName(),
                             x.Product,
                             x.Flags,
-                            x.Seqn,
-                        }));
+                            x.Seqn
+                        )));
                         itemsAdded.AddRange(collection);
 
                         res.Add(new NavItem(BNetLib.Helpers.GameName.Get(prefix), prefix, i));
@@ -82,13 +82,12 @@ namespace BlizzTrack.API
 
                     itemsAdded.Add(item);
 
-                    i.Add(new
-                    {
-                        name = item.GetName(),
+                    i.Add(new NavItemInfo(
+                        item.GetName(),
                         item.Product,
                         item.Flags,
-                        item.Seqn,
-                    });
+                        item.Seqn
+                    ));
                 }
 
                 if (i.Count > 0)
@@ -104,16 +103,15 @@ namespace BlizzTrack.API
                 return res;
 
             {
-                var i = new List<object>();
+                var i = new List<NavItemInfo>();
                 foreach (var item in items)
                 {
-                    i.Add(new
-                    {
-                        name = item.GetName(),
+                    i.Add(new NavItemInfo(
+                        item.GetName(),
                         item.Product,
                         item.Flags,
-                        item.Seqn,
-                    });
+                        item.Seqn
+                    ));
                 }
 
                 res.Add(new NavItem(BNetLib.Helpers.GameName.Get("unknown"), "unknown", i));

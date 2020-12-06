@@ -20,7 +20,7 @@ export class Home extends Component {
   }
 
   update(seqn) {
-    BlizzTrack.Call(`ui/game_list?seqn=${seqn ?? ""}`).then(data => {
+    BlizzTrack.Call(`ui/home?seqn=${seqn ?? ""}`).then(data => {
 
       if (this.props.match.params) {
         const a = this.state.actions ?? {};

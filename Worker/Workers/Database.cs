@@ -65,22 +65,25 @@ namespace Worker.Workers
                     {
                         await _dbContext.AddAsync(item, cancellationToken);
                         await _dbContext.SaveChangesAsync(cancellationToken);
-                    }catch(PostgresException ex)
+                    }catch(Exception e)
                     {
-                        switch (item)
+                        if (e.InnerException is PostgresException ex)
                         {
-                            case Manifest<BNetLib.Models.Versions[]> ver:
-                                _logger.LogCritical($"Failed {ver.Code}:versions:{ver.Seqn} -> {ex.Message}");
-                                break;
-                            case Manifest<BGDL[]> ver:
-                                _logger.LogCritical($"Failed {ver.Code}:bgdl:{ver.Seqn} -> {ex.Message}");
-                                break;
-                            case Manifest<CDN[]> ver:
-                                _logger.LogCritical($"Failed {ver.Code}:cdns:{ver.Seqn} -> {ex.Message}");
-                                break;
-                            case Manifest<BNetLib.Models.Summary[]> ver:
-                                _logger.LogCritical($"Failed summary:{ver.Seqn} -> {ex.Message}");
-                                break;
+                            switch (item)
+                            {
+                                case Manifest<BNetLib.Models.Versions[]> ver:
+                                    _logger.LogCritical($"Failed {ver.Code}:versions:{ver.Seqn} -> {ex.Message}");
+                                    break;
+                                case Manifest<BGDL[]> ver:
+                                    _logger.LogCritical($"Failed {ver.Code}:bgdl:{ver.Seqn} -> {ex.Message}");
+                                    break;
+                                case Manifest<CDN[]> ver:
+                                    _logger.LogCritical($"Failed {ver.Code}:cdns:{ver.Seqn} -> {ex.Message}");
+                                    break;
+                                case Manifest<BNetLib.Models.Summary[]> ver:
+                                    _logger.LogCritical($"Failed summary:{ver.Seqn} -> {ex.Message}");
+                                    break;
+                            }
                         }
                         Debugger.Break();
 
