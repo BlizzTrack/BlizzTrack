@@ -1,10 +1,9 @@
 import React, { Component } from 'react';
 import { BlizzTrack } from "../blizztrack";
-import queryString from 'query-string';
-import { ListGroup, Button, Collapse, Breadcrumb, BreadcrumbItem, Card, CardHeader } from 'reactstrap';
-import { GameInfo } from "./GameInfo";
+import { ListGroup, Button, Breadcrumb, BreadcrumbItem, Card, CardHeader } from 'reactstrap';
 import Select from 'react-select';
 import Moment from 'react-moment';
+import { Link } from 'react-router-dom';
 
 import './Home.css';
 
@@ -21,14 +20,7 @@ export class Home extends Component {
 
   update(seqn) {
     BlizzTrack.Call(`ui/home?seqn=${seqn ?? ""}`).then(data => {
-
-      if (this.props.match.params) {
-        const a = this.state.actions ?? {};
-        a[`${this.props.match.params.game}_${this.props.match.params.file}`] = true;
-        this.setState({ summary: data, actions: a });
-      } else {
-        this.setState({ summary: data });
-      }
+     this.setState({ summary: data });
     });
   }
 
@@ -92,16 +84,6 @@ export class Home extends Component {
                 </CardHeader>
                 <ListGroup className="list-group-flush px-1 card-block w-100">
                   {item.items.map((item) => {
-                    const clicked = () => {
-                      var a = this.state.actions ?? {};
-                      // Object.keys(a).forEach(key => key != `${item.product}_${item.flags}` ? a[key] = false : undefined );
-                      a[`${item.product}_${item.flags}`] = `${item.product}_${item.flags}` in a ? !a[`${item.product}_${item.flags}`] : true;
-                      this.setState({
-                        actions: a
-                      });
-                    }
-                    const url = queryString.parse(this.props.location.search);
-
                     return <div className="row p-1 game-item" key={`${item.product}_${item.flags}`}>
                       <div className="col-9">
                         <div className="d-flex w-100 justify-content-between">
@@ -116,16 +98,10 @@ export class Home extends Component {
                         </small>
                       </div>
                       <div className="col text-right">
-                        <Button onClick={clicked} className="mt-2" outline color="dark">
+                        <Button tag={Link} to={`/${item.product}/${item.flags}?seqn=${item.seqn}`} className="mt-2" outline color="dark">
                           View Manifest
-                    </Button>
+                        </Button>
                       </div>
-
-                      <Collapse isOpen={this.state.actions[`${item.product}_${item.flags}`] ?? false} className="col-12 mt-1">
-                        {(this.state.actions[`${item.product}_${item.flags}`] ?? false) &&
-                          <GameInfo history={this.props.history} game={item.product} file={item.flags} seqn={url.seqn && this.props.game ? url.seqn : item.seqn} />
-                        }
-                      </Collapse>
                     </div>
                   })}
                 </ListGroup>

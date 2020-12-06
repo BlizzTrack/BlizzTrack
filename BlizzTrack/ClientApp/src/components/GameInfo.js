@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import { BlizzTrack } from "../blizztrack";
 import Select from 'react-select';
 import Moment from 'react-moment';
+import queryString from 'query-string';
 
 export class GameInfo extends Component {
     constructor() {
@@ -15,20 +16,22 @@ export class GameInfo extends Component {
     }
 
     update(seqn) {
-        BlizzTrack.Call(`NGPD/${this.props.game}/${this.props.file}?seqn=${seqn}`).then(data => {
+        BlizzTrack.Call(`NGPD/${this.props.match.params.game}/${this.props.match.params.file}?seqn=${seqn ?? ""}`).then(data => {
             this.setState({ game: data, seqn: this.state.seqn, latest: seqn });
         });
     }
 
     componentDidUpdate() {
-        if(this.state.latest === undefined) return;
-        if(this.state.latest === this.props.seqn) return;
+        this.url = queryString.parse(this.props.location.search);
 
-        this.update(this.props.seqn);
+        if(this.state.latest === undefined) return;
+        if(this.state.latest === this.url.seqn) return;
+
+        this.update(this.url.seqn ?? undefined);
     }
 
     componentDidMount() {
-        BlizzTrack.Call(`NGPD/${this.props.game}/seqn?filter=${this.props.file}`).then(data => {
+        BlizzTrack.Call(`NGPD/${this.props.match.params.game}/seqn?filter=${this.props.match.params.file}`).then(data => {
             var a = data.data.map(a => {
                 return {
                     label: a.seqn,
@@ -46,7 +49,7 @@ export class GameInfo extends Component {
     }
 
     handleInputChange(newValue) {
-        this.props.history.push(`/${this.props.game}/${this.props.file}?seqn=${newValue.value}`)
+        this.props.history.push(`/${this.props.match.params.game}/${this.props.match.params.file}?seqn=${newValue.value}`)
         this.update(newValue.value);
     }
 
