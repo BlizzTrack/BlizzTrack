@@ -85,11 +85,12 @@ export class Home extends Component {
                 } />
             </div>
             {this.state.summary.map((item) =>
-              <Card className="mb-1">
-                <CardHeader>
-                  {item.name}
+              <Card className="mb-1 flex-row">
+                <CardHeader className="text-center border-0">
+                  {item.name}<br />
+                  <img src="//placehold.it/200" alt="" />
                 </CardHeader>
-                <ListGroup className="list-group-flush">
+                <ListGroup className="list-group-flush px-1 card-block w-100">
                   {item.items.map((item) => {
                     const clicked = () => {
                       var a = this.state.actions ?? {};
@@ -102,7 +103,7 @@ export class Home extends Component {
                     const url = queryString.parse(this.props.location.search);
 
                     return <div className="row p-1 game-item" key={`${item.product}_${item.flags}`}>
-                      <div className="col-10">
+                      <div className="col-9">
                         <div className="d-flex w-100 justify-content-between">
                           <h5 className="mb-1">{item.name}</h5>
                         </div>
@@ -114,7 +115,7 @@ export class Home extends Component {
                           </Breadcrumb>
                         </small>
                       </div>
-                      <div className="col-2 text-right">
+                      <div className="col text-right">
                         <Button onClick={clicked} className="mt-2" outline color="dark">
                           View Manifest
                     </Button>
