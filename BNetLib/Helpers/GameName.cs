@@ -5,7 +5,7 @@ namespace BNetLib.Helpers
 {
     public static class GameName
     {
-        private static readonly Dictionary<string, string> Suffix = new Dictionary<string, string>()
+        public static readonly Dictionary<string, string> Suffix = new Dictionary<string, string>()
         {
             {"t", "PTR"},
             {"ptr", "PTR"},
@@ -80,7 +80,7 @@ namespace BNetLib.Helpers
             {"cdlstaff", "League Staff" }
         };
 
-        private static Dictionary<string, string> _prefix { get; } = new Dictionary<string, string>()
+        public static Dictionary<string, string> Prefix { get; } = new Dictionary<string, string>()
         {
             {"pro", "Overwatch"},
             {"wowclassic", "World of Warcraft Classic"},
@@ -114,15 +114,14 @@ namespace BNetLib.Helpers
             switch (code)
             {
                 case "hsb":
-                    return _prefix["hs"];
+                    return Prefix["hs"];
                 case "hsc":
-                    return _prefix["hs"] + " " + Suffix["c"];
+                    return Prefix["hs"] + " " + Suffix["c"];
             }
 
             var name = "";
 
-
-            foreach (var (k, v) in _prefix)
+            foreach (var (k, v) in Prefix)
             {
                 if (!code.StartsWith(k)) continue;
                 name += v;
