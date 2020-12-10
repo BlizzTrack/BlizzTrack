@@ -39,22 +39,12 @@ namespace Worker
 
                     services.AddSingleton(x => new BNetLib.Networking.BNetClient(BNetLib.Networking.ServerRegion.US));
 
-                    var channel = Channel.CreateBounded<BNetLib.Models.Summary>(1);
-                    services.AddSingleton(x => channel.Reader);
-                    services.AddSingleton(x => channel.Writer);
-
-                    var database = Channel.CreateBounded<object>(1);
-                    services.AddSingleton(x => database.Reader);
-                    services.AddSingleton(x => database.Writer);
-
                     services.AddScoped<Core.Services.ISummary, Core.Services.Summary>();
                     services.AddScoped<Core.Services.IVersions, Core.Services.Versions>();
                     services.AddScoped<Core.Services.ICDNs, Core.Services.CDNs>();
                     services.AddScoped<Core.Services.IBGDL, Core.Services.BGDL>();
 
-                    services.AddHostedService<Workers.DatabaseHosted>();
                     services.AddHostedService<Workers.SummaryHosted>();
-                    services.AddHostedService<Workers.VersionsHosted>();
 
                     services.AddScoped<Core.Services.IVersions, Core.Services.Versions>();
                 })
