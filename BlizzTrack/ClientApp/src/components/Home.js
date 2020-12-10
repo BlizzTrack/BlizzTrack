@@ -70,7 +70,7 @@ export class Home extends Component {
                         </small>
                       </div>
                       <div className="col text-right">
-                        <Button tag={Link} to={`/${item.product}/manifests`} className="mt-2" outline color="dark">
+                        <Button tag={Link} to={`/v/${item.product}/manifests`} className="mt-2" outline color="dark">
                           View Manifests
                         </Button>
                       </div>

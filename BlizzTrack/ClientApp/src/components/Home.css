@@ -3,6 +3,24 @@
     border: 1px #343a40 solid;
 }
 
+.game-item {
+    padding: 1rem
+}
+
+.game-link {
+    transition: background-color 0.5s ease;
+    background-color: transparent;
+}
+
+.game-link:hover {
+    text-decoration: none;
+    background-color: black;
+}
+
+.game-link .title {
+    color: black;
+}
+
 .game-item:not(:last-child) {
     margin-bottom: 5px;
 }

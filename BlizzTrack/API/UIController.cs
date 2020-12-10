@@ -14,7 +14,20 @@ namespace BlizzTrack.API
     public class UIController : ControllerBase
     {
         public record NavItem(string Name, string Code, List<NavItemInfo> Items);
-        public record NavItemInfo(string Name, string Product, List<SeqnItem> Flags);
+        public class NavItemInfo
+        {
+            public NavItemInfo(string Name, string Product, List<SeqnItem> Flags)
+            {
+                this.Name = Name;
+                this.Product = Product;
+                this.Flags = Flags;
+            }
+
+            public string Name { get; set; }
+            public string Product { get; set; }
+            public List<SeqnItem> Flags { get; set; }
+        }
+
         public record SeqnItem(string File, int seqn);
 
         private readonly ISummary _summary;
@@ -48,7 +61,6 @@ namespace BlizzTrack.API
 
             foreach (var prefix in p)
             {
-                if (prefix == "storm") continue;
 
                 var i = new List<NavItemInfo>();
 
@@ -59,25 +71,43 @@ namespace BlizzTrack.API
                     case "catalogs":
                         continue;
                     case "bna":
-                        /*
                         var its = items.Where(x => x.Product == "bna" || x.Product == "catalogs" || x.Product == "agent" || x.Product == "bts");
-                        var collection = its as BNetLib.Models.Summary[] ?? its.ToArray();
-                        i.AddRange(collection.Select(x => new NavItemInfo(
-                            x.GetName(),
-                            x.Product,
-                            x.Flags,
-                            x.Seqn
-                        )));
-                        itemsAdded.AddRange(collection);
+
+                        foreach (var item in its)
+                        {
+                            var exist = i.FirstOrDefault(x => x.Product == item.Product);
+                            if (exist == null)
+                            {
+                                exist = new NavItemInfo(
+                                    item.GetName(),
+                                    item.Product,
+                                    new List<SeqnItem>() { new SeqnItem(item.Flags, item.Seqn) }
+                                );
+                                i.Add(exist);
+                            }
+                            else
+                            {
+                                exist.Flags.Add(new SeqnItem(item.Flags, item.Seqn));
+                                exist.Flags = exist.Flags.OrderByDescending(x => x.File).ToList();
+                            }
+
+                            itemsAdded.Add(item);
+                        }
 
                         res.Add(new NavItem(BNetLib.Helpers.GameName.Get(prefix), prefix, i));
-                        */
+                       
                         continue;
                 }
 
                 foreach (var item in items.Where(item => item.Product.ToLower().Replace("_", "")
                     .StartsWith(prefix, StringComparison.CurrentCultureIgnoreCase)))
                 {
+                    if (item.Product == "storm")
+                    {
+                        itemsAdded.Add(item);
+                        continue;
+                    }
+
                     if (item.Product.StartsWith("wow_classic") && prefix == "wow")
                     {
                         itemsAdded.Add(item);
@@ -97,7 +127,7 @@ namespace BlizzTrack.API
                     }
                     else {
                         exist.Flags.Add(new SeqnItem(item.Flags, item.Seqn));
-                        exist.Flags.OrderByDescending(x => x.File);
+                        exist.Flags = exist.Flags.OrderByDescending(x => x.File).ToList();
                     }
                 }
 
@@ -128,7 +158,7 @@ namespace BlizzTrack.API
                     else
                     {
                         exist.Flags.Add(new SeqnItem(item.Flags, item.Seqn));
-                        exist.Flags.OrderByDescending(x => x.File);
+                        exist.Flags = exist.Flags.OrderByDescending(x => x.File).ToList();
                     }
                 }
 
