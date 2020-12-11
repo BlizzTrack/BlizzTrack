@@ -8,9 +8,9 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
-using System.Threading.Channels;
 using System.Threading.Tasks;
 
 namespace Worker.Workers
@@ -68,9 +68,9 @@ namespace Worker.Workers
                     foreach (var item in latest.Content)
                     {
                         await AddItemToData(item, _dbContext, cancellationToken);
+                        _dbContext.SaveChanges();
                     }
 
-                    await _dbContext.SaveChangesAsync(cancellationToken);
 
                     firstRun = false;
                 }
@@ -94,8 +94,6 @@ namespace Worker.Workers
                     {
                         try
                         {
-                            _logger.LogInformation($"Added {item.Product}-{item.Flags}-{item.Seqn}");
-
                             await AddItemToData(item, _dbContext, cancellationToken);
                             _dbContext.SaveChanges();
                         }
@@ -119,7 +117,7 @@ namespace Worker.Workers
             {
                 case "versions" or "version":
                     {
-                        var exist = await db.Versions.AsNoTracking().FirstOrDefaultAsync(x => x.Code == code && x.Seqn == msg.Seqn, cancellationToken: cancellationToken);
+                        var exist = await db.Versions.AsNoTracking().OrderByDescending(x => x.Seqn).FirstOrDefaultAsync(x => x.Code == code && x.Seqn == msg.Seqn, cancellationToken: cancellationToken);
 
                         if (exist != null)
                         {
@@ -130,7 +128,7 @@ namespace Worker.Workers
                     }
                 case "cdn" or "cdns":
                     {
-                        var exist = await db.CDN.AsNoTracking().FirstOrDefaultAsync(x => x.Code == code && x.Seqn == msg.Seqn, cancellationToken: cancellationToken);
+                        var exist = await db.CDN.AsNoTracking().OrderByDescending(x => x.Seqn).FirstOrDefaultAsync(x => x.Code == code && x.Seqn == msg.Seqn, cancellationToken: cancellationToken);
 
                         if (exist != null)
                         {
@@ -141,7 +139,7 @@ namespace Worker.Workers
                     }
                 case "bgdl":
                     {
-                        var exist = await db.BGDL.AsNoTracking().FirstOrDefaultAsync(x => x.Code == code && x.Seqn == msg.Seqn, cancellationToken: cancellationToken);
+                        var exist = await db.BGDL.AsNoTracking().OrderByDescending(x => x.Seqn).FirstOrDefaultAsync(x => x.Code == code && x.Seqn == msg.Seqn, cancellationToken: cancellationToken);
 
                         if (exist != null)
                         {
@@ -152,13 +150,9 @@ namespace Worker.Workers
                     }
             }
 
-            (IList data, int seqn) res = msg.Flags switch
-            {
-                "version" or "versions" => await _bNetClient.Do<List<BNetLib.Models.Versions>>(new VersionCommand(code)),
-                "cdn" or "cdns" => await _bNetClient.Do<List<BNetLib.Models.CDN>>(new CDNCommand(code)),
-                "bgdl" => await _bNetClient.Do<List<BNetLib.Models.BGDL>>(new BGDLCommand(code)),
-                _ => (null, -1)
-            };
+            _logger.LogInformation($"We didn't skip: {code}-{msg.Seqn}-{msg.Flags}");
+
+            var res = await GetMetaData(msg);
 
             switch (res.data)
             {
@@ -184,6 +178,25 @@ namespace Worker.Workers
                     _logger.LogCritical("Unhandled type");
                     break;
             }
+        }
+
+        private async Task<(IList data, int seqn)> GetMetaData(BNetLib.Models.Summary msg)
+        {
+            (IList data, int seqn) res = msg.Flags switch
+            {
+                "version" or "versions" => await _bNetClient.Do<List<BNetLib.Models.Versions>>(new VersionCommand(msg.Product)),
+                "cdn" or "cdns" => await _bNetClient.Do<List<BNetLib.Models.CDN>>(new CDNCommand(msg.Product)),
+                "bgdl" => await _bNetClient.Do<List<BNetLib.Models.BGDL>>(new BGDLCommand(msg.Product)),
+                _ => (null, -1)
+            };
+
+            if (res.seqn != msg.Seqn)
+            {
+                await Task.Delay(TimeSpan.FromSeconds(1));
+                return await GetMetaData(msg);
+            }
+
+            return (res.data, res.seqn);
         }
     }
 }
