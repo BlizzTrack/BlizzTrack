@@ -60,12 +60,12 @@ namespace Worker.Workers
             {
                 using var sc = _serviceScope.CreateScope();
                 var _summary = sc.ServiceProvider.GetRequiredService<Core.Services.ISummary>();
-                var _dbContext = sc.ServiceProvider.GetRequiredService<Core.Models.DBContext>();
+                var _dbContext = sc.ServiceProvider.GetRequiredService<DBContext>();
 
+                var latest = await _summary.Latest();
                 if (firstRun)
                 {
-                    var f = await _summary.Latest();
-                    foreach (var item in f.Content)
+                    foreach (var item in latest.Content)
                     {
                         await AddItemToData(item, _dbContext, cancellationToken);
                     }
@@ -76,23 +76,36 @@ namespace Worker.Workers
                 }
 
                 (var summary, int seqn) = await _bNetClient.Do<List<BNetLib.Models.Summary>>(new SummaryCommand());
-                var latest = await _summary.Latest();
-
-                if (latest == null || latest.Seqn != seqn)
+                if (latest?.Seqn < seqn)
                 {
-                    await _dbContext.AddAsync(Manifest<BNetLib.Models.Summary[]>.Create(seqn, "summary", summary.ToArray()), cancellationToken);
+                    latest = Manifest<BNetLib.Models.Summary[]>.Create(seqn, "summary", summary.ToArray());
+                    try
+                    {
+                        _dbContext.Summary.Add(latest);
+                        _dbContext.SaveChanges();
+                    }
+                    catch(Exception ex)
+                    {
+                        _logger.LogCritical($"Failed to write summary: {ex}");
+                    }
 
                     var latestItems = latest?.Content.ToList() ?? new List<BNetLib.Models.Summary>();
                     foreach (var item in summary)
                     {
-                        var exist = latestItems.FirstOrDefault(x => x.Product == item.Product && x.Flags == item.Flags && x.Seqn == item.Seqn);
-                        if (exist == null)
+                        try
                         {
+                            _logger.LogInformation($"Added {item.Product}-{item.Flags}-{item.Seqn}");
+
                             await AddItemToData(item, _dbContext, cancellationToken);
+                            _dbContext.SaveChanges();
                         }
+                        catch (Exception ex)
+                        {
+                            _logger.LogCritical($"Failed to write {item.Product}-{item.Flags}-{item.Seqn}: {ex}");
+                        }
+
                     }
 
-                    await _dbContext.SaveChangesAsync(cancellationToken);
                 }
                 await Task.Delay(TimeSpan.FromSeconds(30), cancellationToken);
             }
@@ -106,7 +119,7 @@ namespace Worker.Workers
             {
                 case "versions" or "version":
                     {
-                        var exist = await db.Versions.FirstOrDefaultAsync(x => x.Code == code && x.Seqn == msg.Seqn, cancellationToken: cancellationToken);
+                        var exist = await db.Versions.AsNoTracking().FirstOrDefaultAsync(x => x.Code == code && x.Seqn == msg.Seqn, cancellationToken: cancellationToken);
 
                         if (exist != null)
                         {
@@ -117,7 +130,7 @@ namespace Worker.Workers
                     }
                 case "cdn" or "cdns":
                     {
-                        var exist = await db.CDN.FirstOrDefaultAsync(x => x.Code == code && x.Seqn == msg.Seqn, cancellationToken: cancellationToken);
+                        var exist = await db.CDN.AsNoTracking().FirstOrDefaultAsync(x => x.Code == code && x.Seqn == msg.Seqn, cancellationToken: cancellationToken);
 
                         if (exist != null)
                         {
@@ -128,7 +141,7 @@ namespace Worker.Workers
                     }
                 case "bgdl":
                     {
-                        var exist = await db.BGDL.FirstOrDefaultAsync(x => x.Code == code && x.Seqn == msg.Seqn, cancellationToken: cancellationToken);
+                        var exist = await db.BGDL.AsNoTracking().FirstOrDefaultAsync(x => x.Code == code && x.Seqn == msg.Seqn, cancellationToken: cancellationToken);
 
                         if (exist != null)
                         {
@@ -152,19 +165,19 @@ namespace Worker.Workers
                 case List<BNetLib.Models.Versions> ver:
                     {
                         var f = Manifest<BNetLib.Models.Versions[]>.Create(res.seqn, code, ver.ToArray());
-                        await db.AddAsync(f, cancellationToken);
+                        db.Versions.Add(f);
                         break;
                     }
                 case List<BNetLib.Models.CDN> cdn:
                     {
                         var f = Manifest<BNetLib.Models.CDN[]>.Create(res.seqn, code, cdn.ToArray());
-                        await db.AddAsync(f, cancellationToken);
+                        db.CDN.Add(f);
                         break;
                     }
                 case List<BNetLib.Models.BGDL> bgdl:
                     {
                         var f = Manifest<BNetLib.Models.BGDL[]>.Create(res.seqn, code, bgdl.ToArray());
-                        await db.AddAsync(f, cancellationToken);
+                        db.BGDL.Add(f);
                         break;
                     }
                 default:
