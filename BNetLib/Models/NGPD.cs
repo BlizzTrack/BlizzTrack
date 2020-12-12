@@ -41,14 +41,16 @@ namespace BNetLib.Models
         }
     }
 
-    public record BGDL : Versions
+    public record BGDL(string Buildconfig, int Buildid, string Cdnconfig, string Keyring, string Region, string Versionsname, string Productconfig) : NGPD
     {
-        public BGDL() : base(null)
+        public override string GetName()
         {
+            return Helpers.RegionName.Get(Region);
         }
 
-        public BGDL(string Buildconfig, int Buildid, string Cdnconfig, string Keyring, string Region, string Versionsname, string Productconfig) : base(Buildconfig, Buildid, Cdnconfig, Keyring, Region, Versionsname, Productconfig)
+        public override string ToString()
         {
+            return JsonConvert.SerializeObject(this);
         }
     }
 

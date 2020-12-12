@@ -14,6 +14,7 @@ export default class App extends Component {
       <Layout>
         <Route exact path='/' component={Home} />
         <Route path='/v/:game/manifests' component={ManfestViewer} />
+        <Route path='/:game/manifests' component={ManfestViewer} />
       </Layout>
     );
   }

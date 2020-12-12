@@ -39,6 +39,7 @@ namespace BlizzTrack.API
             _summary = summary;
         }
 
+        #region /Home
         [HttpGet("home")]
         public async Task<IActionResult> GameList([FromQuery]int? seqn = null)
         {
@@ -51,7 +52,7 @@ namespace BlizzTrack.API
             return Ok(Create(sum.Content.ToList()));
         }
 
-        public List<NavItem> Create(List<BNetLib.Models.Summary> items)
+        private List<NavItem> Create(List<BNetLib.Models.Summary> items)
         {
             var p = BNetLib.Helpers.GameName.Prefix.Keys.OrderBy(x => x).ToList();
 
@@ -167,5 +168,78 @@ namespace BlizzTrack.API
 
             return res;
         }
+        #endregion
+
+        #region /game/:code
+        [HttpGet("game/{code}")]
+        public async Task<IActionResult> Manifests([FromServices]IVersions versionService, [FromServices] IBGDL bgdlService, [FromServices] ICDNs cdnService, string code)
+        {
+            var versions = await versionService.Latest(code);
+            var bgdl = await bgdlService.Latest(code);
+            var cdn = await cdnService.Latest(code);
+            var latest = await _summary.Latest();
+
+            return Ok(new
+            {
+                metadata = new {
+                    name = BNetLib.Helpers.GameName.Get(code),
+                    code = code.ToLower(),
+                    files = latest.Content.Where(x => x.Product.Equals(code, StringComparison.OrdinalIgnoreCase)).Select(x => new
+                    {
+                        x.Flags,
+                        x.Seqn
+                    }).OrderByDescending(x => x.Flags).ToList(),
+                },
+                files = new
+                {
+                    versions = versions == null ? null : new
+                    {
+                        versions.Indexed,
+                        versions.Seqn,
+                        command = new BNetLib.Networking.Commands.VersionCommand(code).ToString(),
+                        Content = versions.Content.Select(x => new
+                        {
+                            region = x.GetName(),
+                            x.Versionsname,
+                            x.Buildid,
+                            x.Buildconfig,
+                            x.Productconfig,
+                            x.Cdnconfig
+                        }).ToList(),
+                    },
+                    bgdl = bgdl == null ? null : new
+                    {
+                        bgdl.Indexed,
+                        bgdl.Seqn,
+                        command = new BNetLib.Networking.Commands.BGDLCommand(code).ToString(),
+                        Content = bgdl.Content.Select(x => new
+                        {
+                            region = x.GetName(),
+                            x.Versionsname,
+                            x.Buildid,
+                            x.Buildconfig,
+                            x.Productconfig,
+                            x.Cdnconfig
+                        }).ToList(),
+                    },
+                    cdn = cdn == null ? null : new
+                    {
+                        cdn.Indexed,
+                        cdn.Seqn,
+                        command = new BNetLib.Networking.Commands.CDNCommand(code).ToString(),
+                        content = cdn.Content.Select(x => new
+                        {
+                            name = x.GetName(),
+                            x.Path,
+                            hosts = x.Hosts.Split(" "),
+                            servers = x.Servers.Split(" "),
+                            x.ConfigPath
+                        }).ToList()
+                    },
+                }
+            });
+        }
+
+        #endregion
     }
 }

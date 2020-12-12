@@ -152,25 +152,25 @@ namespace Worker.Workers
 
             _logger.LogInformation($"We didn't skip: {code}-{msg.Seqn}-{msg.Flags}");
 
-            var res = await GetMetaData(msg);
+            var (data, seqn) = await GetMetaData(msg);
 
-            switch (res.data)
+            switch (data)
             {
                 case List<BNetLib.Models.Versions> ver:
                     {
-                        var f = Manifest<BNetLib.Models.Versions[]>.Create(res.seqn, code, ver.ToArray());
+                        var f = Manifest<BNetLib.Models.Versions[]>.Create(seqn, code, ver.ToArray());
                         db.Versions.Add(f);
                         break;
                     }
                 case List<BNetLib.Models.CDN> cdn:
                     {
-                        var f = Manifest<BNetLib.Models.CDN[]>.Create(res.seqn, code, cdn.ToArray());
+                        var f = Manifest<BNetLib.Models.CDN[]>.Create(seqn, code, cdn.ToArray());
                         db.CDN.Add(f);
                         break;
                     }
                 case List<BNetLib.Models.BGDL> bgdl:
                     {
-                        var f = Manifest<BNetLib.Models.BGDL[]>.Create(res.seqn, code, bgdl.ToArray());
+                        var f = Manifest<BNetLib.Models.BGDL[]>.Create(seqn, code, bgdl.ToArray());
                         db.BGDL.Add(f);
                         break;
                     }
