@@ -10,6 +10,10 @@ namespace Core.Services
     {
         Task<Manifest<BNetLib.Models.Summary[]>> Latest();
 
+        Task<Manifest<BNetLib.Models.Summary[]>> Previous();
+
+        Task<List<Manifest<BNetLib.Models.Summary[]>>> Take(int amount);
+
         Task<Manifest<BNetLib.Models.Summary[]>> Single(int? seqn);
 
         Task<List<SeqnType>> Seqn();
@@ -29,7 +33,12 @@ namespace Core.Services
             return await _dbContext.Summary.AsNoTracking().OrderByDescending(x => x.Seqn).FirstOrDefaultAsync();
         }
 
-       public async Task<List<SeqnType>> Seqn()
+        public async Task<Manifest<BNetLib.Models.Summary[]>> Previous()
+        {
+            return await _dbContext.Summary.AsNoTracking().OrderByDescending(x => x.Seqn).Skip(1).Take(1).FirstOrDefaultAsync();
+        }
+
+        public async Task<List<SeqnType>> Seqn()
        {
            var data = await _dbContext.Summary.AsNoTracking().Select(x => new { x.Seqn, x.Indexed }).OrderByDescending(x => x.Seqn).ToListAsync();
 
@@ -39,6 +48,11 @@ namespace Core.Services
         public async Task<Manifest<BNetLib.Models.Summary[]>> Single(int? seqn)
         {
             return await _dbContext.Summary.AsNoTracking().OrderByDescending(x => x.Seqn).Where(x => (seqn == null || x.Seqn == seqn)).FirstOrDefaultAsync();
+        }
+
+        public async Task<List<Manifest<BNetLib.Models.Summary[]>>> Take(int amount)
+        {
+            return await _dbContext.Summary.AsNoTracking().OrderByDescending(x => x.Seqn).Take(amount).ToListAsync();
         }
     }
 }

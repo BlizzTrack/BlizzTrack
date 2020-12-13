@@ -1,9 +1,11 @@
 import React, { Component } from 'react'
 import { BlizzTrack } from "../blizztrack";
-import { TabContent, TabPane, Nav, NavItem, NavLink, Table, Row, Col, Jumbotron, Breadcrumb, BreadcrumbItem } from 'reactstrap';
+import { TabContent, TabPane, Nav, NavItem, NavLink, Row, Jumbotron } from 'reactstrap';
 import classnames from 'classnames';
-import Moment from 'react-moment';
 import queryString from 'query-string';
+import { Versions } from '../objects/versions';
+
+import "./ManfestViewer.css";
 
 export class ManfestViewer extends Component {
     constructor() {
@@ -39,6 +41,14 @@ export class ManfestViewer extends Component {
         this.update();
     }
 
+    renderSwitch(file, content) {
+        switch (file) {
+            case "versions":
+            case "bgdl":
+                return <Versions content={content} />;
+        }
+    }
+
     render() {
         return (
             <div>
@@ -58,7 +68,7 @@ export class ManfestViewer extends Component {
                                             className={classnames({ active: this.state.activeTab === item.flags })}
                                             onClick={() => { this.switchTab(item.flags); }}
                                         >
-                                            {item.flags} ({item.seqn})
+                                            {item.flags}
                                         </NavLink>
                                     </NavItem>
                                 )}
@@ -66,34 +76,10 @@ export class ManfestViewer extends Component {
                             <TabContent activeTab={this.state.activeTab}>
                                 {Object.entries(this.state.meta.files).map(([key, value]) =>
                                     <TabPane tabId={key}>
-                                        <Row>
-                                            <Col style={{ overflow: value.content.length > 0 ? "auto" : "hidden" }}>
-                                                <Breadcrumb className="breadcrumb-nav mt-2 mb-2 text-muted">
-                                                    <BreadcrumbItem active>{value.seqn}</BreadcrumbItem>
-                                                    <BreadcrumbItem active>{key}</BreadcrumbItem>
-                                                    <BreadcrumbItem active>Indexed <Moment fromNow>{value.indexed}</Moment></BreadcrumbItem>
-                                                    <BreadcrumbItem active><Moment>{value.indexed}</Moment></BreadcrumbItem>
-                                                </Breadcrumb>
-                                                {value.content.length > 0 ?
-                                                    <Table striped responsive className="m-0">
-                                                        <thead>
-                                                            <tr className="text-center">
-                                                                {Object.keys(value.content[0]).map(item => <th>{item}</th>)}
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            {Object.entries(value.content).map(([key, value]) =>
-                                                                <tr>
-                                                                    {Object.entries(value).map(([key, value]) =>
-                                                                        <td>{value instanceof Array ? <ul>{value.map(item => <li>{item}</li>)}</ul> : value === "versions" ? "N/A" : value}</td>
-                                                                    )}
-                                                                </tr>
-                                                            )}
-                                                        </tbody>
-                                                    </Table>
-                                                    : <div className="display-4 text-center h-25">Manifest empty</div>
-                                                }
-                                            </Col>
+                                        <Row className="mt-1">
+                                            {
+                                                this.renderSwitch(key, value)
+                                            }
                                         </Row>
                                     </TabPane>
                                 )}

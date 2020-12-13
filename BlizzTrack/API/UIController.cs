@@ -174,10 +174,31 @@ namespace BlizzTrack.API
         [HttpGet("game/{code}")]
         public async Task<IActionResult> Manifests([FromServices]IVersions versionService, [FromServices] IBGDL bgdlService, [FromServices] ICDNs cdnService, string code)
         {
-            var versions = await versionService.Latest(code);
-            var bgdl = await bgdlService.Latest(code);
-            var cdn = await cdnService.Latest(code);
+            var versions = await versionService.Take(code, 2);
+            var bgdl = await bgdlService.Take(code, 2);
+            var cdn = await cdnService.Take(code, 2);
             var latest = await _summary.Latest();
+
+            var lastestVersions = versions.First();
+            var previousVersions = versions.Last();
+
+            Manifest<BNetLib.Models.BGDL[]> latestBgdl = null;
+            Manifest<BNetLib.Models.BGDL[]> previousBgdl = null;
+
+            if(bgdl?.Count > 0)
+            {
+                latestBgdl = bgdl.First();
+                previousBgdl = bgdl.Last();
+            }
+
+            Manifest<BNetLib.Models.CDN[]> latestCdn = null;
+            Manifest<BNetLib.Models.CDN[]> previousCdn = null;
+
+            if (cdn?.Count > 0)
+            {
+                latestCdn = cdn.First();
+                previousCdn = cdn.Last();
+            }
 
             return Ok(new
             {
@@ -192,50 +213,100 @@ namespace BlizzTrack.API
                 },
                 files = new
                 {
-                    versions = versions == null ? null : new
+                    versions = new
                     {
-                        versions.Indexed,
-                        versions.Seqn,
                         command = new BNetLib.Networking.Commands.VersionCommand(code).ToString(),
-                        Content = versions.Content.Select(x => new
+                        latest = new
                         {
-                            region = x.GetName(),
-                            x.Versionsname,
-                            x.Buildid,
-                            x.Buildconfig,
-                            x.Productconfig,
-                            x.Cdnconfig
-                        }).ToList(),
+                            lastestVersions.Indexed,
+                            lastestVersions.Seqn,
+                            Content = lastestVersions.Content.Select(x => new
+                            {
+                                region = x.GetName(),
+                                x.Versionsname,
+                                x.Buildid,
+                                x.Buildconfig,
+                                x.Productconfig,
+                                x.Cdnconfig
+                            }).ToList(),
+                        },
+                        previous = new
+                        {
+                            previousVersions.Indexed,
+                            previousVersions.Seqn,
+                            Content = previousVersions.Content.Select(x => new
+                            {
+                                region = x.GetName(),
+                                x.Versionsname,
+                                x.Buildid,
+                                x.Buildconfig,
+                                x.Productconfig,
+                                x.Cdnconfig
+                            }).ToList(),
+                        },
                     },
-                    bgdl = bgdl == null ? null : new
+                    bgdl = latestBgdl == null ? null : new
                     {
-                        bgdl.Indexed,
-                        bgdl.Seqn,
                         command = new BNetLib.Networking.Commands.BGDLCommand(code).ToString(),
-                        Content = bgdl.Content.Select(x => new
+                        latest = new
                         {
-                            region = x.GetName(),
-                            x.Versionsname,
-                            x.Buildid,
-                            x.Buildconfig,
-                            x.Productconfig,
-                            x.Cdnconfig
-                        }).ToList(),
+                            latestBgdl.Indexed,
+                            latestBgdl.Seqn,
+                            Content = latestBgdl.Content.Select(x => new
+                            {
+                                region = x.GetName(),
+                                x.Versionsname,
+                                x.Buildid,
+                                x.Buildconfig,
+                                x.Productconfig,
+                                x.Cdnconfig
+                            }).ToList(),
+                        },
+                        previous = new
+                        {
+                            previousBgdl.Indexed,
+                            previousBgdl.Seqn,
+                            Content = previousBgdl.Content.Select(x => new
+                            {
+                                region = x.GetName(),
+                                x.Versionsname,
+                                x.Buildid,
+                                x.Buildconfig,
+                                x.Productconfig,
+                                x.Cdnconfig
+                            }).ToList(),
+                        },
                     },
-                    cdn = cdn == null ? null : new
+                    cdn = latestCdn == null ? null : new
                     {
-                        cdn.Indexed,
-                        cdn.Seqn,
                         command = new BNetLib.Networking.Commands.CDNCommand(code).ToString(),
-                        content = cdn.Content.Select(x => new
+                        latest = new
                         {
-                            name = x.GetName(),
-                            x.Path,
-                            hosts = x.Hosts.Split(" "),
-                            servers = x.Servers.Split(" "),
-                            x.ConfigPath
-                        }).ToList()
-                    },
+                            latestCdn.Indexed,
+                            latestCdn.Seqn,
+                            Content = latestCdn.Content.Select(x => new
+                            {
+                                name = x.GetName(),
+                                x.Path,
+                                hosts = x.Hosts.Split(" "),
+                                servers = x.Servers.Split(" "),
+                                x.ConfigPath
+                            }).ToList(),
+                        },
+                        previous = new
+                        {
+                            previousCdn.Indexed,
+                            previousCdn.Seqn,
+                            Content = previousCdn.Content.Select(x => new
+                            {
+                                name = x.GetName(),
+                                x.Path,
+                                hosts = x.Hosts.Split(" "),
+                                servers = x.Servers.Split(" "),
+                                x.ConfigPath
+                            }).ToList(),
+                        },
+                    }
                 }
             });
         }

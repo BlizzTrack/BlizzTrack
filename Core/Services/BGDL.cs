@@ -10,6 +10,10 @@ namespace Core.Services
     {
         Task<Manifest<BNetLib.Models.BGDL[]>> Latest(string code);
 
+        Task<Manifest<BNetLib.Models.BGDL[]>> Previous(string code);
+
+        Task<List<Manifest<BNetLib.Models.BGDL[]>>> Take(string code, int amount);
+
         Task<Manifest<BNetLib.Models.BGDL[]>> Single(string code, int? seqn);
 
         Task<List<SeqnType>> Seqn(string code);
@@ -29,6 +33,11 @@ namespace Core.Services
             return await _dbContext.BGDL.AsNoTracking().OrderByDescending(x => x.Seqn).Where(x => x.Code.ToLower() == code.ToLower()).FirstOrDefaultAsync();
         }
 
+        public async Task<Manifest<BNetLib.Models.BGDL[]>> Previous(string code)
+        {
+            return await _dbContext.BGDL.AsNoTracking().OrderByDescending(x => x.Seqn).Where(x => x.Code.ToLower() == code.ToLower()).Skip(1).Take(1).FirstOrDefaultAsync();
+        }
+
         public async Task<List<SeqnType>> Seqn(string code)
         {
             var data = await _dbContext.BGDL.AsNoTracking().Select(x => new { x.Seqn, x.Code, x.Indexed }).OrderByDescending(x => x.Seqn).Where(x => x.Code.ToLower() == code.ToLower()).ToListAsync();
@@ -39,6 +48,11 @@ namespace Core.Services
         public async Task<Manifest<BNetLib.Models.BGDL[]>> Single(string code, int? seqn)
         {
             return await _dbContext.BGDL.AsNoTracking().OrderByDescending(x => x.Seqn).Where(x => (seqn == null || x.Seqn == seqn) && x.Code.ToLower() == code.ToLower()).FirstOrDefaultAsync();
+        }
+
+        public async Task<List<Manifest<BNetLib.Models.BGDL[]>>> Take(string code, int amount)
+        {
+            return await _dbContext.BGDL.AsNoTracking().OrderByDescending(x => x.Seqn).Where(x => x.Code.ToLower() == code.ToLower()).Take(amount).ToListAsync();
         }
     }
 }
