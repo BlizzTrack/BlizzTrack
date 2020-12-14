@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Core.Models
 {
@@ -20,5 +15,6 @@ namespace Core.Models
     public class ConfigItems
     {
         public bool Encrypted { get; set; } = false;
+        public string EncryptedKey { get; set; } = string.Empty;
     }
 }

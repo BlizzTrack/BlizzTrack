@@ -73,19 +73,8 @@ namespace Worker.Workers
                     foreach (var item in latest.Content)
                     {
                         await AddItemToData(item, _dbContext, cancellationToken);
+                        await CheckifEncrypted(item, _dbContext, cancellationToken, _logger);
                         _dbContext.SaveChanges();
-                    }
-
-                    foreach (var item in latest.Content)
-                    {
-                        try
-                        {
-                            await CheckifEncrypted(item, _dbContext, cancellationToken);
-                            _dbContext.SaveChanges();
-                        }catch
-                        {
-                            // ignore
-                        }
                     }
 
                     firstRun = false;
@@ -111,26 +100,13 @@ namespace Worker.Workers
                         try
                         {
                             await AddItemToData(item, _dbContext, cancellationToken);
+                            await CheckifEncrypted(item, _dbContext, cancellationToken, _logger);
                             _dbContext.SaveChanges();
                         }
                         catch (Exception ex)
                         {
                             _logger.LogCritical($"Failed to write {item.Product}-{item.Flags}-{item.Seqn}: {ex}");
                         }
-                    }
-
-                    foreach (var item in summary)
-                    {
-                        try
-                        {
-                            await CheckifEncrypted(item, _dbContext, cancellationToken);
-                            _dbContext.SaveChanges();
-                        }
-                        catch (Exception ex)
-                        {
-                            _logger.LogCritical($"Failed to write {item.Product}-config-{item.Seqn}: {ex}");
-                        }
-
                     }
 
                 }
@@ -228,21 +204,50 @@ namespace Worker.Workers
             return (res.data, res.seqn);
         }
 
-        private async Task CheckifEncrypted(BNetLib.Models.Summary msg, DBContext dbContext, CancellationToken cancellationToken)
+        private async Task CheckifEncrypted(BNetLib.Models.Summary msg, DBContext dbContext, CancellationToken cancellationToken, ILogger<Summary> _logger)
         {
+            
             if (msg.Flags == "cdn" || msg.Flags == "bgdl") return; 
             var versionConfig = await dbContext.Versions.AsNoTracking().OrderByDescending(x => x.Seqn).FirstOrDefaultAsync(x => x.Code == msg.Product, cancellationToken: cancellationToken);
 
             var config = versionConfig.Content.FirstOrDefault(x => x.Region == "us");
             if (msg.Product == "catalogs") config = versionConfig.Content.Last();
             if (config == null) return;
-
-            var file = await _productConfig.GetRaw(config.Productconfig);
-
             var currentGameConfig = await dbContext.GameConfigs.FirstOrDefaultAsync(x => x.Code == msg.Product, cancellationToken: cancellationToken);
+
+            string file = string.Empty;
+            try
+            {
+                file = await _productConfig.GetRaw(config.Productconfig);
+            }catch
+            {
+                // Add missing game even if it's 404, this is for a later feature
+                _logger.LogCritical($"{msg.Product} product config doesn't exist");
+                if (currentGameConfig == null)
+                {
+                    await dbContext.GameConfigs.AddAsync(new GameConfig()
+                    {
+                        Code = msg.Product,
+                        Config = new ConfigItems()
+                        {
+                            Encrypted = false,
+                        }
+                    }, cancellationToken);
+                }
+                else
+                {
+                    currentGameConfig.Config.Encrypted = false;
+                    dbContext.GameConfigs.Update(currentGameConfig);
+                }
+                return;
+            }
+
+            _logger.LogInformation($"checking {msg.Product} if encrypted or not ");
 
             if (file.Contains("\"decryption_key_name\""))
             {
+                dynamic f = JObject.Parse(file);
+
                 if(currentGameConfig == null)
                 {
                     await dbContext.GameConfigs.AddAsync(new GameConfig()
@@ -251,11 +256,13 @@ namespace Worker.Workers
                         Config = new ConfigItems()
                         {
                             Encrypted = true,
+                            EncryptedKey = f.all.config.decryption_key_name,
                         }
                     }, cancellationToken);
                 } else
                 {
                     currentGameConfig.Config.Encrypted = true;
+                    currentGameConfig.Config.EncryptedKey = f.all.config.decryption_key_name;
                     dbContext.GameConfigs.Update(currentGameConfig);
                 }
             }  else
