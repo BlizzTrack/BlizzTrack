@@ -4,6 +4,10 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="robots" content="index, follow" />
+    <meta name="tags"
+          content="blizzard, overwatch, world of warcraft, version tracker, wow, ow, diablo 3, starcraft 2, public test realm, ptr, hearthstone, heroes of the storm, starcraft, starcraft ii, overwatch ptr patch notes, heroes of the storm ptr patch notes" />
+
     <link rel="apple-touch-icon" sizes="76x76" href="../assets/img/apple-icon.png">
     <title>
         @ViewData["Title"] - BlizzTrack
@@ -11,6 +15,37 @@
     <link href="https://fonts.googleapis.com/css?family=Poppins:200,300,400,600,700,800" rel="stylesheet" />
     <link href="~/css/style.css" rel="stylesheet" asp-append-version="true" />
     <link href="~/lib/font-awesome/css/all.min.css" rel="stylesheet" asp-append-version="true" />
+
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+    <link rel="preconnect" href="https://cdn.blizztrack.com/" crossorigin>
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com/">
+    <link rel="dns-prefetch" href="https://cdn.blizztrack.com/">
+
+    <meta Name="description" Content="A powerful website which lets you view the Versions of all the games that Blizzard Entertainment has on Battle.net!" />
+    <meta Name="og:description" Content="A powerful website which lets you view the Versions of all the games that Blizzard Entertainment has on Battle.net!" />
+    <meta Name="og:type" Content="website" />
+    <meta Name="og:title" Content="BlizzTrack" />
+    <meta Name="og:site_name" Content="BlizzTrack" />
+    <meta Name="twitter:title" Content="BlizzTrack" />
+
+    @if (IsSectionDefined("Header"))
+    {
+        @RenderSection("Header", required: false)
+    }
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-86267615-5"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+
+        function gtag() {
+            dataLayer.push(arguments);
+        }
+
+        gtag('js', new Date());
+
+        gtag('config', 'UA-86267615-5');
+    </script>
+
 </head>
 
 <body class="">
@@ -31,7 +66,7 @@
                 <ul class="nav">
                     <li class="active">
                         <a asp-page="/Index" style="display: inline-flex">
-                            <i data-feather="home" class="tim-icons" style="margin-right: 15px"></i>
+                            <i class="tim-icons fa fa-home"></i>
                             <p>All Games</p>
                         </a>
                     </li>
@@ -61,7 +96,7 @@
                         <ul class="navbar-nav ml-auto">
                             <li class="search-bar input-group">
                                 <button class="btn btn-link" id="search-button" data-toggle="modal" data-target="#searchModal">
-                                    <i data-feather="search" class="tim-icons icon-zoom-split"></i>
+                                    <i class="tim-icons fa fa-search"></i>
                                     <span class="d-lg-none d-md-block">Search</span>
                                 </button>
                             </li>
@@ -131,8 +166,8 @@
                 <li class="adjustments-line">
                     <a href="javascript:void(0)" class="switch-trigger background-color">
                         <div class="badge-colors text-center">
-                            <span class="badge filter badge-primary active" data-color="primary"></span>
-                            <span class="badge filter badge-info" data-color="blue"></span>
+                            <span class="badge filter badge-primary" data-color="primary"></span>
+                            <span class="badge filter badge-info active" data-color="blue"></span>
                             <span class="badge filter badge-success" data-color="green"></span>
                         </div>
                         <div class="clearfix"></div>
@@ -248,6 +283,11 @@
                     if ($sidebar_responsive.length != 0) {
                         $sidebar_responsive.attr('data', new_color);
                     }
+
+                    const $events = $(".fixed-plugin .background-color span");
+                    $events.siblings().removeClass('active');
+
+                    $("span.badge[data-color='" + new_color + "']").addClass("active");
                 }
 
 

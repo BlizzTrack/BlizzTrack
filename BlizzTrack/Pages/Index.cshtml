@@ -58,9 +58,9 @@
                                         <td>@item.Product</td>
                                         <td>@item.Flags</td>
                                         <td>@item.Seqn</td>
-                                        <td>
+                                        <td class="text-center">
                                             <a asp-page="/ViewGame" asp-route-code="@item.Product" asp-route-file="@item.Flags" asp-route-latest-seqn="@item.Seqn">
-                                                View
+                                                View Manifest
                                             </a>
                                         </td>
                                     </tr>
@@ -115,9 +115,9 @@
                                     <td>@item.newest.Flags</td>
                                     <td>@item.newest.Seqn</td>
                                     <td>@item.previous.Seqn</td>
-                                    <td>
+                                    <td class="text-center">
                                         <a asp-page="/ViewGame" asp-route-code="@item.newest.Product" asp-route-file="@item.newest.Flags" asp-route-previous-seqn="@item.previous.Seqn" asp-route-latest-seqn="@item.newest.Seqn">
-                                            View
+                                            View Manifest
                                         </a>
                                     </td>
                                 </tr>
