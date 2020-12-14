@@ -45,6 +45,9 @@
                                     <th>
                                         Current Seqn
                                     </th>
+                                    <th>
+                                        Previous Seqn
+                                    </th>
                                     <th></th>
                                 </tr>
                             </thead>
@@ -52,12 +55,13 @@
                                 @foreach (var item in Model.Manifests.First().Content.Where(x => x.GetName().Contains(Model.Search, StringComparison.OrdinalIgnoreCase) || x.Product.Contains(Model.Search, StringComparison.OrdinalIgnoreCase)))
                                 {
                                     if (item.Flags == "cdn") continue;
-
+                                    var f = Model.Manifests.Last().Content.FirstOrDefault(x => x.Product == item.Product && x.Flags == item.Flags);
                                     <tr>
                                         <td>@BNetLib.Helpers.GameName.Get(item.Product)</td>
                                         <td>@item.Product</td>
                                         <td>@item.Flags</td>
                                         <td>@item.Seqn</td>
+                                        <td>@(f == null ? "N/A" : f.Seqn)</td>
                                         <td class="text-center">
                                             <a asp-page="/ViewGame" asp-route-code="@item.Product" asp-route-file="@item.Flags" asp-route-latest-seqn="@item.Seqn">
                                                 View Manifest
