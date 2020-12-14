@@ -19563,6 +19563,18 @@ Copyright (c) 2015 Daniel Eden
     background: #f5f6fa;
 }
 
+    .white-content .breadcrumb {
+        background: #ffffff;
+    }
+
+        .white-content .breadcrumb .breadcrumb-item.active {
+            color: rgba(34, 42, 66, 0.7) !important;
+        }
+
+        .white-content .breadcrumb .breadcrumb-item + .breadcrumb-item::before {
+            color: rgba(34, 42, 66, 0.7) !important;
+        }
+
     .white-content .navbar.navbar-transparent .navbar-brand {
         color: #1d253b;
     }

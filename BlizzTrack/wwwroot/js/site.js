@@ -242,6 +242,15 @@ blackDashboard = {
 
 };
 
+if (window.navigator && navigator.serviceWorker) {
+    navigator.serviceWorker.getRegistrations()
+        .then(function (registrations) {
+            for (let registration of registrations) {
+                registration.unregister();
+            }
+        });
+}
+
 function hexToRGB(hex, alpha) {
     var r = parseInt(hex.slice(1, 3), 16),
         g = parseInt(hex.slice(3, 5), 16),

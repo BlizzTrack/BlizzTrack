@@ -15,12 +15,17 @@
       "destination": "wwwroot/lib/jquery/"
     },
     {
-      "library": "popper.js@2.5.4",
+      "library": "popper.js@1.12.9",
       "destination": "wwwroot/lib/popper.js/"
     },
     {
       "library": "jquery.perfect-scrollbar@1.5.0",
       "destination": "wwwroot/lib/jquery.perfect-scrollbar/"
     }
-  ]
+  ,
+{
+  "library": "font-awesome@5.15.1",
+  "destination": "wwwroot/lib/font-awesome/"
+}
+]
 }
