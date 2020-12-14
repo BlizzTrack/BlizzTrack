@@ -33,7 +33,11 @@ namespace BlizzTrack.Pages
             foreach(var item in latest)
             {
                 var exist = previous.FirstOrDefault(x => x.Product == item.Product && x.Flags == item.Flags);
-                if (exist == null) continue; // TODO
+                if (exist == null)
+                {
+                    SummaryDiff.Add((item, null));
+                    continue;
+                }// TODO
                 if(exist.Seqn != item.Seqn)
                 {
                     SummaryDiff.Add((item, exist));

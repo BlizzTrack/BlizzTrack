@@ -118,9 +118,9 @@
                                     <td>@item.newest.Product</td>
                                     <td>@item.newest.Flags</td>
                                     <td>@item.newest.Seqn</td>
-                                    <td>@item.previous.Seqn</td>
+                                    <td>@(item.previous == null ? "N/A" : item.previous.Seqn)</td>
                                     <td class="text-center">
-                                        <a asp-page="/ViewGame" asp-route-code="@item.newest.Product" asp-route-file="@item.newest.Flags" asp-route-previous-seqn="@item.previous.Seqn" asp-route-latest-seqn="@item.newest.Seqn">
+                                        <a asp-page="/ViewGame" asp-route-code="@item.newest.Product" asp-route-file="@item.newest.Flags" asp-route-previous-seqn="@item.previous?.Seqn" asp-route-latest-seqn="@item.newest.Seqn">
                                             View Manifest
                                         </a>
                                     </td>
