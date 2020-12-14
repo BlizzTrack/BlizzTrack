@@ -61,7 +61,7 @@
                                         <td>@item.Product</td>
                                         <td>@item.Flags</td>
                                         <td>@item.Seqn</td>
-                                        <td>@(f == null ? "N/A" : f.Seqn)</td>
+                                        <td>@(f == null ? "N/A" : f.Seqn.ToString())</td>
                                         <td class="text-center">
                                             <a asp-page="/ViewGame" asp-route-code="@item.Product" asp-route-file="@item.Flags" asp-route-latest-seqn="@item.Seqn">
                                                 View Manifest
@@ -172,7 +172,7 @@
                                     <td>@item.Seqn</td>
                                     <td>
                                         <a asp-page="/ViewGame" asp-route-code="@item.Product" asp-route-file="@item.Flags" asp-route-latest-seqn="@item.Seqn">
-                                            View
+                                            View Manifest
                                         </a>
                                     </td>
                                 </tr>
@@ -222,9 +222,9 @@
                                     <td>@item.Product</td>
                                     <td>@item.Flags</td>
                                     <td>@item.Seqn</td>
-                                    <td>
+                                    <td class="text-center">
                                         <a asp-page="/ViewGame" asp-route-code="@item.Product" asp-route-file="@item.Flags" asp-route-previous-seqn="@item.Seqn">
-                                            View
+                                            View Manifest
                                         </a>
                                     </td>
                                 </tr>

@@ -35,10 +35,20 @@
     --font-family-monospace: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 }
 
-.row-has-changes td:not(:last-of-type) {
-    color: var(--danger) !important;
+.main-panel[data="blue"] .has-changed-data,
+.main-panel[data="blue"] .row-has-changes > td:not(:last-of-type) {
+    color: #1d8cf8 !important;
+    filter: brightness(1.25);
 }
 
-.row-has-changes-full td {
-    color: var(--danger) !important;
+.main-panel[data="green"] .has-changed-data,
+.main-panel[data="green"] .row-has-changes > td:not(:last-of-type) {
+    color: #00f2c3 !important;
+    filter: brightness(1.25);
+}
+
+.main-panel[data="primary"] .has-changed-data,
+.main-panel[data="primary"] .row-has-changes > td:not(:last-of-type) {
+    color: #e14eca !important;
+    filter: brightness(1.25);
 }

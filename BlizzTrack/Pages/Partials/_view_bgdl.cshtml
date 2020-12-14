@@ -2,7 +2,7 @@
 @{
 }
 
-<div class="col-lg-6 col-sm-12">
+<div class="col-sm-12">
     <div class="card ">
         <div class="card-header">
             <div class="col-sm-12 text-left">
@@ -24,17 +24,32 @@
                             <th>
                                 Build Config
                             </th>
-
+                            <th>
+                                CDN Config
+                            </th>
+                            <th>
+                                Product Config
+                            </th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach (var item in Model.First().Content)
                         {
-                        <tr class="@(item != Model.Last().Content.FirstOrDefault(x => x.Region == item.Region) ? "row-has-changes-full" : "")">
-                            <td>@item.GetName()</td>
-                            <td>@item.Versionsname</td>
-                            <td>@item.Buildconfig</td>
-                        </tr>
+                            <tr>
+                                <td>@item.GetName()</td>
+                                <td class="@(item.Versionsname != Model.Last().Content.FirstOrDefault(x => x.Region == item.Region)?.Versionsname ? "has-changed-data" : "")">
+                                    @item.Versionsname
+                                </td>
+                                <td class="@(item.Buildconfig != Model.Last().Content.FirstOrDefault(x => x.Region == item.Region)?.Buildconfig ? "has-changed-data" : "")">
+                                    @item.Buildconfig
+                                </td>
+                                <td class="@(item.Cdnconfig != Model.Last().Content.FirstOrDefault(x => x.Region == item.Region)?.Cdnconfig ? "has-changed-data" : "")">
+                                    @item.Cdnconfig
+                                </td>
+                                <td class="@(item.Productconfig != Model.Last().Content.FirstOrDefault(x => x.Region == item.Region)?.Productconfig ? "has-changed-data" : "")">
+                                    @(item.Productconfig == "versions" ? "N/A" : item.Productconfig)
+                                </td>
+                            </tr>
                         }
                     </tbody>
                 </table>
@@ -43,7 +58,7 @@
     </div>
 </div>
 
-<div class="col-lg-6 col-sm-12">
+<div class="col-sm-12">
     <div class="card ">
         <div class="card-header">
             <div class="col-sm-12 text-left">
@@ -54,7 +69,7 @@
         <div class="card-body">
             <div class="table-responsive">
                 <table class="table tablesorter table-hover ps" id="">
-                    <thead class=" text-primary">
+                    <thead class="text-primary">
                         <tr>
                             <th>
                                 Region
@@ -65,16 +80,32 @@
                             <th>
                                 Build Config
                             </th>
+                            <th>
+                                CDN Config
+                            </th>
+                            <th>
+                                Product Config
+                            </th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach (var item in Model.Last().Content)
                         {
-                        <tr>
-                            <td>@item.GetName()</td>
-                            <td>@item.Versionsname</td>
-                            <td>@item.Buildconfig</td>
-                        </tr>
+                            <tr>
+                                <td>@item.GetName()</td>
+                                <td class="@(item.Versionsname != Model.First().Content.FirstOrDefault(x => x.Region == item.Region)?.Versionsname ? "has-changed-data" : "")">
+                                    @item.Versionsname
+                                </td>
+                                <td class="@(item.Buildconfig != Model.First().Content.FirstOrDefault(x => x.Region == item.Region)?.Buildconfig ? "has-changed-data" : "")">
+                                    @item.Buildconfig
+                                </td>
+                                <td class="@(item.Cdnconfig != Model.First().Content.FirstOrDefault(x => x.Region == item.Region)?.Cdnconfig ? "has-changed-data" : "")">
+                                    @item.Cdnconfig
+                                </td>
+                                <td class="@(item.Productconfig != Model.First().Content.FirstOrDefault(x => x.Region == item.Region)?.Productconfig ? "has-changed-data" : "")">
+                                    @(item.Productconfig == "versions" ? "N/A" : item.Productconfig)
+                                </td>
+                            </tr>
                         }
                     </tbody>
                 </table>
