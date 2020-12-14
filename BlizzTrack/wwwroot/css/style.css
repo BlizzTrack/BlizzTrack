@@ -4800,6 +4800,7 @@ input[type="button"].btn-block {
     font-size: 0.99925rem;
     line-height: inherit;
     white-space: nowrap;
+    font-weight: 600;
 }
 
     .navbar-brand:hover,
@@ -17838,7 +17839,7 @@ table.tablesorter thead tr .headerSortDown {
     }
 
     .main-panel[data="blue"] a {
-        color: #1d8cf8 !important;
+        color: #1d8cf8;
         transition: all 0.05s;
     }
 
