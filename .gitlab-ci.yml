@@ -16,9 +16,3 @@ build-website:
   script:
     - docker build --pull -t "$CI_REGISTRY_IMAGE:latest" . -f BlizzTrack/Dockerfile
     - docker push "$CI_REGISTRY_IMAGE:latest"
-
-build-worker:
-  stage: build
-  script:
-    - docker build --pull -t "$CI_REGISTRY_IMAGE/worker:latest" . -f Worker/Dockerfile
-    - docker push "$CI_REGISTRY_IMAGE/worker:latest"
