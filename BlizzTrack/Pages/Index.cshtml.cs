@@ -11,10 +11,12 @@ namespace BlizzTrack.Pages
     public class IndexModel : PageModel
     {
         private readonly ISummary _summary;
+        private readonly IGameConfig _gameConfig;
 
-        public IndexModel(ISummary summary)
+        public IndexModel(ISummary summary, IGameConfig gameConfig)
         {
             _summary = summary;
+            _gameConfig = gameConfig;
         }
 
         public List<Manifest<BNetLib.Models.Summary[]>> Manifests = null;
@@ -23,12 +25,16 @@ namespace BlizzTrack.Pages
         [BindProperty(SupportsGet = true, Name = "search")]
         public string Search { get; set; }
 
+        public List<Core.Models.GameConfig> Configs;
+
         public async Task OnGetAsync()
         {
             Manifests = await _summary.Take(2);
 
             var latest = Manifests.First().Content;
             var previous = Manifests.Last().Content;
+
+            Configs = await _gameConfig.In(latest.Where(x => x.Flags == "versions").Select(x => x.Product).ToArray());
 
             foreach(var item in latest)
             {

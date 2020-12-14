@@ -34,6 +34,9 @@
                         <table class="table tablesorter table-hover" id="">
                             <thead class=" text-primary">
                                 <tr>
+                                    <th style="width: 25px;" data-toggle="tooltip" data-placement="right" title="Is game encrypted">
+                                        <i class="fa fa-lock"></i>
+                                    </th>
                                     <th>
                                         Name
                                     </th>
@@ -57,7 +60,12 @@
                                 {
                                     if (item.Flags == "cdn") continue;
                                     var f = Model.Manifests.Last().Content.FirstOrDefault(x => x.Product == item.Product && x.Flags == item.Flags);
+                                    var config = Model.Configs.FirstOrDefault(x => x.Code == item.Product);
+
                                     <tr>
+                                        <td>
+                                            <i class="fa fa-@(config != null && config.Config.Encrypted ? "lock" : "lock-open")"></i>
+                                        </td>
                                         <td>@BNetLib.Helpers.GameName.Get(item.Product)</td>
                                         <td>@item.Product</td>
                                         <td>@item.Flags</td>
@@ -91,6 +99,9 @@
                     <table class="table tablesorter table-hover" id="">
                         <thead class=" text-primary">
                             <tr>
+                                <th style="width: 25px;" data-toggle="tooltip" data-placement="right" title="Is game encrypted">
+                                    <i class="fa fa-lock"></i>
+                                </th>
                                 <th>
                                     Name
                                 </th>
@@ -113,21 +124,25 @@
                             @foreach (var item in Model.SummaryDiff.OrderByAlphaNumeric(x => x.newest.Product))
                             {
                                 if (item.newest.Flags == "cdn") continue;
+                                var config = Model.Configs.FirstOrDefault(x => x.Code == item.newest.Product);
 
                                 <tr>
+                                    <td>
+                                        <i class="fa fa-@(config != null && config.Config.Encrypted ? "lock" : "lock-open")"></i>
+                                    </td>
                                     <td>@BNetLib.Helpers.GameName.Get(item.newest.Product)</td>
                                     <td>@item.newest.Product</td>
                                     <td>@item.newest.Flags</td>
                                     <td>@item.newest.Seqn</td>
-                                    <td>@(item.previous == null ? "N/A" : item.previous.Seqn)</td>
+                                    <td>@(item.previous == null ? "N/A" : item.previous.Seqn.ToString())</td>
                                     <td class="text-center">
                                         <a asp-page="/ViewGame" asp-route-code="@item.newest.Product" asp-route-file="@item.newest.Flags" asp-route-previous-seqn="@item.previous?.Seqn" asp-route-latest-seqn="@item.newest.Seqn">
                                             View Manifest
                                         </a>
                                     </td>
                                 </tr>
-                            }
-                        </tbody>
+                                }
+                            </tbody>
                     </table>
                 </div>
             </div>
@@ -146,6 +161,9 @@
                     <table class="table tablesorter table-hover" id="">
                         <thead class=" text-primary">
                             <tr>
+                                <th style="width: 25px;"  data-toggle="tooltip" data-placement="right" title="Is game encrypted">
+                                    <i class="fa fa-lock"></i>
+                                </th>
                                 <th>
                                     Name
                                 </th>
@@ -165,8 +183,12 @@
                             @foreach (var item in Model.Manifests.First().Content.OrderByAlphaNumeric(x => x.Product))
                             {
                                 if (item.Flags == "cdn") continue;
+                                var config = Model.Configs.FirstOrDefault(x => x.Code == item.Product);
 
                                 <tr class="@(item != Model.Manifests.Last().Content.FirstOrDefault(x => x.Product == item.Product && x.Flags == item.Flags && x.Seqn == item.Seqn) ? "row-has-changes" : "")">
+                                    <td>
+                                        <i class="fa fa-@(config != null && config.Config.Encrypted ? "lock" : "lock-open")"></i>
+                                    </td>
                                     <td>@BNetLib.Helpers.GameName.Get(item.Product)</td>
                                     <td>@item.Product</td>
                                     <td>@item.Flags</td>
@@ -198,6 +220,9 @@
                     <table class="table tablesorter table-hover" id="">
                         <thead class="text-primary">
                             <tr>
+                                <th style="width: 25px;" data-toggle="tooltip" data-placement="right" title="Is game encrypted">
+                                    <i class="fa fa-lock"></i>
+                                </th>
                                 <th>
                                     Name
                                 </th>
@@ -217,8 +242,12 @@
                             @foreach (var item in Model.Manifests.Last().Content.OrderByAlphaNumeric(x => x.Product))
                             {
                                 if (item.Flags == "cdn") continue;
+                                var config = Model.Configs.FirstOrDefault(x => x.Code == item.Product);
 
                                 <tr>
+                                    <td>
+                                        <i class="fa fa-@(config != null && config.Config.Encrypted ? "lock" : "lock-open")"></i>
+                                    </td>
                                     <td>@BNetLib.Helpers.GameName.Get(item.Product)</td>
                                     <td>@item.Product</td>
                                     <td>@item.Flags</td>

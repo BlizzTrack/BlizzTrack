@@ -38,11 +38,13 @@ namespace Worker
                             }));
 
                     services.AddSingleton(x => new BNetLib.Networking.BNetClient(BNetLib.Networking.ServerRegion.US));
+                    services.AddSingleton<BNetLib.Http.ProductConfig>();
 
                     services.AddScoped<Core.Services.ISummary, Core.Services.Summary>();
                     services.AddScoped<Core.Services.IVersions, Core.Services.Versions>();
                     services.AddScoped<Core.Services.ICDNs, Core.Services.CDNs>();
                     services.AddScoped<Core.Services.IBGDL, Core.Services.BGDL>();
+                    
 
                     services.AddHostedService<Workers.SummaryHosted>();
 

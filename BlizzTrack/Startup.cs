@@ -53,6 +53,7 @@ namespace BlizzTrack
             services.AddScoped<Core.Services.IVersions, Core.Services.Versions>();
             services.AddScoped<Core.Services.ICDNs, Core.Services.CDNs>();
             services.AddScoped<Core.Services.IBGDL, Core.Services.BGDL>();
+            services.AddScoped<Core.Services.IGameConfig, Core.Services.GameConfig>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

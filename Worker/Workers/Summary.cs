@@ -1,14 +1,17 @@
-﻿using BNetLib.Networking;
+﻿using BNetLib.Http;
+using BNetLib.Networking;
 using BNetLib.Networking.Commands;
 using Core.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Dynamic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -43,12 +46,14 @@ namespace Worker.Workers
     class Summary
     {
         private readonly BNetClient _bNetClient;
+        private readonly ProductConfig _productConfig;
         private readonly ILogger<Summary> _logger;
         private readonly IServiceScopeFactory _serviceScope;
 
-        public Summary(BNetClient bNetClient, ILogger<Summary> logger, IServiceScopeFactory scopeFactory)
+        public Summary(BNetClient bNetClient, ProductConfig productConfig, ILogger<Summary> logger, IServiceScopeFactory scopeFactory)
         {
             _bNetClient = bNetClient;
+            _productConfig = productConfig;
             _logger = logger;
             _serviceScope = scopeFactory;
         }
@@ -71,6 +76,17 @@ namespace Worker.Workers
                         _dbContext.SaveChanges();
                     }
 
+                    foreach (var item in latest.Content)
+                    {
+                        try
+                        {
+                            await CheckifEncrypted(item, _dbContext, cancellationToken);
+                            _dbContext.SaveChanges();
+                        }catch
+                        {
+                            // ignore
+                        }
+                    }
 
                     firstRun = false;
                 }
@@ -100,6 +116,19 @@ namespace Worker.Workers
                         catch (Exception ex)
                         {
                             _logger.LogCritical($"Failed to write {item.Product}-{item.Flags}-{item.Seqn}: {ex}");
+                        }
+                    }
+
+                    foreach (var item in summary)
+                    {
+                        try
+                        {
+                            await CheckifEncrypted(item, _dbContext, cancellationToken);
+                            _dbContext.SaveChanges();
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogCritical($"Failed to write {item.Product}-config-{item.Seqn}: {ex}");
                         }
 
                     }
@@ -197,6 +226,57 @@ namespace Worker.Workers
             }
 
             return (res.data, res.seqn);
+        }
+
+        private async Task CheckifEncrypted(BNetLib.Models.Summary msg, DBContext dbContext, CancellationToken cancellationToken)
+        {
+            if (msg.Flags == "cdn" || msg.Flags == "bgdl") return; 
+            var versionConfig = await dbContext.Versions.AsNoTracking().OrderByDescending(x => x.Seqn).FirstOrDefaultAsync(x => x.Code == msg.Product, cancellationToken: cancellationToken);
+
+            var config = versionConfig.Content.FirstOrDefault(x => x.Region == "us");
+            if (msg.Product == "catalogs") config = versionConfig.Content.Last();
+            if (config == null) return;
+
+            var file = await _productConfig.GetRaw(config.Productconfig);
+
+            var currentGameConfig = await dbContext.GameConfigs.FirstOrDefaultAsync(x => x.Code == msg.Product, cancellationToken: cancellationToken);
+
+            if (file.Contains("\"decryption_key_name\""))
+            {
+                if(currentGameConfig == null)
+                {
+                    await dbContext.GameConfigs.AddAsync(new GameConfig()
+                    {
+                        Code = msg.Product,
+                        Config = new ConfigItems()
+                        {
+                            Encrypted = true,
+                        }
+                    }, cancellationToken);
+                } else
+                {
+                    currentGameConfig.Config.Encrypted = true;
+                    dbContext.GameConfigs.Update(currentGameConfig);
+                }
+            }  else
+            {
+                if (currentGameConfig == null)
+                {
+                    await dbContext.GameConfigs.AddAsync(new GameConfig()
+                    {
+                        Code = msg.Product,
+                        Config = new ConfigItems()
+                        {
+                            Encrypted = false,
+                        }
+                    }, cancellationToken);
+                }
+                else
+                {
+                    currentGameConfig.Config.Encrypted = false;
+                    dbContext.GameConfigs.Update(currentGameConfig);
+                }
+            }
         }
     }
 }
