@@ -1,6 +1,7 @@
 ﻿@page
 @model BlizzTrack.Pages.IndexModel
 
+@using static BlizzTrack.Extensions.ListExtensions
 @{
     ViewData["Title"] = "All Games";
 }
@@ -109,7 +110,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach (var item in Model.SummaryDiff)
+                            @foreach (var item in Model.SummaryDiff.OrderByAlphaNumeric(x => x.newest.Product))
                             {
                                 if (item.newest.Flags == "cdn") continue;
 
@@ -161,7 +162,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach (var item in Model.Manifests.First().Content)
+                            @foreach (var item in Model.Manifests.First().Content.OrderByAlphaNumeric(x => x.Product))
                             {
                                 if (item.Flags == "cdn") continue;
 
@@ -213,7 +214,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach (var item in Model.Manifests.Last().Content)
+                            @foreach (var item in Model.Manifests.Last().Content.OrderByAlphaNumeric(x => x.Product))
                             {
                                 if (item.Flags == "cdn") continue;
 
