@@ -1,0 +1,234 @@
+﻿@page
+@model BlizzTrack.Pages.IndexModel
+
+@{
+    ViewData["Title"] = "Home";
+}
+
+<div class="row">
+    <div class="col-12" aria-label="breadcrumb col-12" role="navigation">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item active">All Games</li>
+            @if (!string.IsNullOrEmpty(Model.Search))
+            {
+                <li class="breadcrumb-item">
+                    <a asp-page="/Index">Reset Search</a>
+                </li>
+            }
+        </ol>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Model.Search))
+    {
+        <div class="col-12">
+            <div class="card ">
+                <div class="card-header">
+                    <div class="col-sm-12 text-left">
+                        <h5 class="card-category">Search Results in latest manifest</h5>
+                        <h2 class="card-title">Games matching your search</h2>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive ps">
+                        <table class="table tablesorter table-hover" id="">
+                            <thead class=" text-primary">
+                                <tr>
+                                    <th>
+                                        Name
+                                    </th>
+                                    <th>
+                                        Code
+                                    </th>
+                                    <th>
+                                        File
+                                    </th>
+                                    <th>
+                                        Current Seqn
+                                    </th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.Manifests.First().Content.Where(x => x.GetName().Contains(Model.Search, StringComparison.OrdinalIgnoreCase)))
+                                {
+                                    if (item.Flags == "cdn") continue;
+
+                                    <tr>
+                                        <td>@BNetLib.Helpers.GameName.Get(item.Product)</td>
+                                        <td>@item.Product</td>
+                                        <td>@item.Flags</td>
+                                        <td>@item.Seqn</td>
+                                        <td>
+                                            <a asp-page="/ViewGame" asp-route-code="@item.Product" asp-route-file="@item.Flags" asp-route-latest-seqn="@item.Seqn">
+                                                View
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <div class="col-12">
+        <div class="card ">
+            <div class="card-header">
+                <div class="col-sm-12 text-left">
+                    <h5 class="card-category">Recent Updates @Model.Manifests.First().Seqn &#x2B05; @Model.Manifests.Last().Seqn</h5>
+                    <h2 class="card-title">What's changed between versions</h2>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive ps">
+                    <table class="table tablesorter table-hover" id="">
+                        <thead class=" text-primary">
+                            <tr>
+                                <th>
+                                    Name
+                                </th>
+                                <th>
+                                    Code
+                                </th>
+                                <th>
+                                    File
+                                </th>
+                                <th>
+                                    Current Seqn
+                                </th>
+                                <th>
+                                    Previous Seqn
+                                </th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.SummaryDiff)
+                            {
+                                if (item.newest.Flags == "cdn") continue;
+
+                                <tr>
+                                    <td>@BNetLib.Helpers.GameName.Get(item.newest.Product)</td>
+                                    <td>@item.newest.Product</td>
+                                    <td>@item.newest.Flags</td>
+                                    <td>@item.newest.Seqn</td>
+                                    <td>@item.previous.Seqn</td>
+                                    <td>
+                                        <a asp-page="/ViewGame" asp-route-code="@item.newest.Product" asp-route-file="@item.newest.Flags" asp-route-previous-seqn="@item.previous.Seqn" asp-route-latest-seqn="@item.newest.Seqn">
+                                            View
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6 col-sm-12">
+        <div class="card ">
+            <div class="card-header">
+                <div class="col-sm-12 text-left">
+                    <h5 class="card-category">@Model.Manifests.First().Seqn was indexed on @Model.Manifests.First().Indexed.ToString("dddd, dd MMMM yyyy 'at' HH:MM:ss")</h5>
+                    <h2 class="card-title">Current Seqn</h2>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive ps">
+                    <table class="table tablesorter table-hover" id="">
+                        <thead class=" text-primary">
+                            <tr>
+                                <th>
+                                    Name
+                                </th>
+                                <th>
+                                    Code
+                                </th>
+                                <th>
+                                    File
+                                </th>
+                                <th>
+                                    Seqn
+                                </th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.Manifests.First().Content)
+                            {
+                                if (item.Flags == "cdn") continue;
+
+                                <tr>
+                                    <td>@BNetLib.Helpers.GameName.Get(item.Product)</td>
+                                    <td>@item.Product</td>
+                                    <td>@item.Flags</td>
+                                    <td>@item.Seqn</td>
+                                    <td>
+                                        <a asp-page="/ViewGame" asp-route-code="@item.Product" asp-route-file="@item.Flags" asp-route-latest-seqn="@item.Seqn">
+                                            View
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6 col-sm-12">
+        <div class="card ">
+            <div class="card-header">
+                <div class="col-sm-12 text-left">
+                    <h5 class="card-category">@Model.Manifests.Last().Seqn was indexed on @Model.Manifests.Last().Indexed.ToString("dddd, dd MMMM yyyy 'at' HH:MM:ss")</h5>
+                    <h2 class="card-title">Previous Seqn</h2>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive ps">
+                    <table class="table tablesorter table-hover" id="">
+                        <thead class="text-primary">
+                            <tr>
+                                <th>
+                                    Name
+                                </th>
+                                <th>
+                                    Code
+                                </th>
+                                <th>
+                                    File
+                                </th>
+                                <th>
+                                    Seqn
+                                </th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.Manifests.Last().Content)
+                            {
+                                if (item.Flags == "cdn") continue;
+
+                                <tr>
+                                    <td>@BNetLib.Helpers.GameName.Get(item.Product)</td>
+                                    <td>@item.Product</td>
+                                    <td>@item.Flags</td>
+                                    <td>@item.Seqn</td>
+                                    <td>
+                                        <a asp-page="/ViewGame" asp-route-code="@item.Product" asp-route-file="@item.Flags" asp-route-previous-seqn="@item.Seqn">
+                                            View
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

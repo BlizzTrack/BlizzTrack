@@ -2,7 +2,7 @@ using Core.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
+using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -22,20 +22,18 @@ namespace BlizzTrack
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllersWithViews();
+            services.AddResponseCompression();
 
-            // In production, the React files will be served from this directory
-            services.AddSpaStaticFiles(configuration =>
+            services.Configure<RazorViewEngineOptions>(o =>
             {
-                configuration.RootPath = "ClientApp/build";
+                o.ViewLocationFormats.Add
+                    ("/Pages/Partials/{0}" + RazorViewEngine.ViewExtension);
+                o.PageViewLocationFormats.Add("/Pages/Partials/{0}" + RazorViewEngine.ViewExtension);
             });
 
-#if DEBUG
             services.AddControllers().AddNewtonsoftJson(options => options.SerializerSettings.Formatting = Newtonsoft.Json.Formatting.Indented);
-#else 
-            services.AddControllers().AddNewtonsoftJson();
-#endif
-
+            services.AddControllersWithViews().AddNewtonsoftJson(options => options.SerializerSettings.Formatting = Newtonsoft.Json.Formatting.Indented);
+            services.AddRazorPages().AddNewtonsoftJson(options => options.SerializerSettings.Formatting = Newtonsoft.Json.Formatting.Indented);
             services.Configure<MvcNewtonsoftJsonOptions>(x => x.SerializerSettings.NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore);
 
             services.AddDbContextPool<DBContext>(options =>
@@ -48,7 +46,6 @@ namespace BlizzTrack
             services.AddMvc(options => options.EnableEndpointRouting = false)
                 .SetCompatibilityVersion(CompatibilityVersion.Latest).AddNewtonsoftJson();
 
-            services.AddControllers().AddJsonOptions(options => options.JsonSerializerOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull);
             services.AddSingleton(x => new BNetLib.Networking.BNetClient());
             services.AddSingleton(x => new BNetLib.Http.ProductConfig());
 
@@ -72,24 +69,20 @@ namespace BlizzTrack
                 app.UseExceptionHandler("/Error");
             }
 
+            app.UseResponseCompression();
+
             app.UseStaticFiles();
-            app.UseSpaStaticFiles();
 
             app.UseRouting();
+
+            app.UseAuthorization();
+
+            app.UseMvcWithDefaultRoute();
 
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
-            });
-
-            app.UseSpa(spa =>
-            {
-                spa.Options.SourcePath = "ClientApp";
-
-                if (env.IsDevelopment())
-                {
-                    spa.UseProxyToSpaDevelopmentServer("http://localhost:3000");
-                }
+                endpoints.MapRazorPages();
             });
         }
 

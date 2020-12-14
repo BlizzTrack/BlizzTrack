@@ -12,7 +12,6 @@ COPY ["BlizzTrack/BlizzTrack.csproj", "BlizzTrack/"]
 RUN dotnet restore "BlizzTrack/BlizzTrack.csproj"
 COPY . .
 WORKDIR "/src/BlizzTrack"
-RUN cd ClientApp && npx browserslist@latest --update-db
 RUN dotnet build "BlizzTrack.csproj" -c Release -o /app/build
 
 FROM build AS publish

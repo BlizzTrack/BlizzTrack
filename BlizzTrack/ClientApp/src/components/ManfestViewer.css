@@ -1,9 +1,0 @@
-/* For small screen */
-
-.row-striped:nth-of-type(odd) {
-    background-color: #efefef;
-}
-
-.row-striped:nth-of-type(even) {
-    background-color: #ffffff;
-}

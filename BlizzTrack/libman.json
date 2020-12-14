@@ -1,0 +1,26 @@
+{
+  "version": "1.0",
+  "defaultProvider": "cdnjs",
+  "libraries": [
+    {
+      "library": "twitter-bootstrap@4.5.3",
+      "destination": "wwwroot/lib/bootstrap/"
+    },
+    {
+      "library": "feather-icons@4.28.0",
+      "destination": "wwwroot/lib/feather-icons/"
+    },
+    {
+      "library": "jquery@3.5.1",
+      "destination": "wwwroot/lib/jquery/"
+    },
+    {
+      "library": "popper.js@2.5.4",
+      "destination": "wwwroot/lib/popper.js/"
+    },
+    {
+      "library": "jquery.perfect-scrollbar@1.5.0",
+      "destination": "wwwroot/lib/jquery.perfect-scrollbar/"
+    }
+  ]
+}
