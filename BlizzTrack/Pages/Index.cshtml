@@ -49,7 +49,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach (var item in Model.Manifests.First().Content.Where(x => x.GetName().Contains(Model.Search, StringComparison.OrdinalIgnoreCase)))
+                                @foreach (var item in Model.Manifests.First().Content.Where(x => x.GetName().Contains(Model.Search, StringComparison.OrdinalIgnoreCase) || x.Product.Contains(Model.Search, StringComparison.OrdinalIgnoreCase)))
                                 {
                                     if (item.Flags == "cdn") continue;
 
@@ -161,7 +161,7 @@
                             {
                                 if (item.Flags == "cdn") continue;
 
-                                <tr>
+                                <tr class="@(item != Model.Manifests.Last().Content.FirstOrDefault(x => x.Product == item.Product && x.Flags == item.Flags && x.Seqn == item.Seqn) ? "row-has-changes" : "")">
                                     <td>@BNetLib.Helpers.GameName.Get(item.Product)</td>
                                     <td>@item.Product</td>
                                     <td>@item.Flags</td>

@@ -13,6 +13,7 @@
         @ViewData["Title"] - BlizzTrack
     </title>
     <link href="https://fonts.googleapis.com/css?family=Poppins:200,300,400,600,700,800" rel="stylesheet" />
+    <link href="~/css/overrides.css" rel="stylesheet" asp-append-version="true" />
     <link href="~/css/style.css" rel="stylesheet" asp-append-version="true" />
     <link href="~/lib/font-awesome/css/all.min.css" rel="stylesheet" asp-append-version="true" />
 
@@ -22,7 +23,7 @@
     <link rel="dns-prefetch" href="https://cdn.blizztrack.com/">
 
     <link rel="manifest" href="/manifest.webmanifest">
-    
+
     <link rel="apple-touch-icon" sizes="57x57" href="~/images/apple-touch-icon-57x57.png">
     <link rel="apple-touch-icon" sizes="114x114" href="~/images/apple-touch-icon-114x114.png">
     <link rel="apple-touch-icon" sizes="72x72" href="~/images/apple-touch-icon-72x72.png">
@@ -143,8 +144,8 @@
             <div class="modal modal-search fade" id="searchModal" tabindex="-1" role="dialog" aria-labelledby="searchModal" aria-hidden="true">
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
-                        <form method="get" action="/" class="modal-header">
-                            <input name="search" type="text" class="form-control" id="inlineFormInputGroup" placeholder="SEARCH FOR GAME">
+                        <form method="get" action="/" class="modal-header" autocomplete="off">
+                            <input autocomplete="off" name="search" type="text" class="form-control" id="inlineFormInputGroup" placeholder="SEARCH FOR GAME">
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                 <i data-feather="x" class="tim-icons icon-simple-remove"></i>
                             </button>

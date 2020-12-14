@@ -30,7 +30,7 @@
                     <tbody>
                         @foreach (var item in Model.First().Content)
                         {
-                            <tr>
+                            <tr class="@(item != Model.Last().Content.FirstOrDefault(x => x.Region == item.Region) ? "row-has-changes-full" : "")">
                                 <td>@item.GetName()</td>
                                 <td>@item.Versionsname</td>
                                 <td>@item.Buildconfig</td>
@@ -72,8 +72,8 @@
                         {
                         <tr>
                             <td>@item.GetName()</td>
-                            <td style="@(item.Versionsname != Model.First().Content.FirstOrDefault(x => x.Region == item.Region)?.Versionsname ? "color: var(--danger) !important" : "")">@item.Versionsname</td>
-                            <td style="@(item.Buildconfig != Model.First().Content.FirstOrDefault(x => x.Region == item.Region)?.Buildconfig ? "color: var(--danger) !important" : "")">@item.Buildconfig</td>
+                            <td>@item.Versionsname</td>
+                            <td>@item.Buildconfig</td>
                         </tr>
                         }
                     </tbody>
