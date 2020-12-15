@@ -16,6 +16,7 @@
     <link href="~/css/overrides.css" rel="stylesheet" asp-append-version="true" />
     <link href="~/css/style.css" rel="stylesheet" asp-append-version="true" />
     <link href="~/lib/font-awesome/css/all.min.css" rel="stylesheet" asp-append-version="true" />
+    <link href="~/lib/jquery.terminal/css/jquery.terminal.min.css" rel="stylesheet" asp-append-version="true" />
 
     <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
     <link rel="preconnect" href="https://cdn.blizztrack.com/" crossorigin>
@@ -79,10 +80,16 @@
                     </a>
                 </div>
                 <ul class="nav">
-                    <li class="active">
+                    <li class="@(string.IsNullOrEmpty(ViewData["Page"] as string) ? "active" : "")">
                         <a asp-page="/Index" style="display: inline-flex">
                             <i class="tim-icons fa fa-home"></i>
-                            <p>All Games</p>
+                            <p class="nav-item-title">All Games</p>
+                        </a>
+                    </li>
+                    <li class="@(ViewData["Page"] == "Terminal" ? "active" : "")">
+                        <a asp-page="/Term" style="display: inline-flex">
+                            <i class="tim-icons fa fa-terminal"></i>
+                            <p class="nav-item-title">Ribbit Terminal</p>
                         </a>
                     </li>
                 </ul>
@@ -101,7 +108,7 @@
                             </button>
                         </div>
                         <a class="navbar-brand" asp-page="/Index">
-                           BlizzTrack
+                            BlizzTrack
                         </a>
                     </div>
                     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navigation" aria-expanded="false" aria-label="Toggle navigation">
@@ -204,6 +211,8 @@
     <script src="~/lib/popper.js/umd/popper.min.js" asp-append-version="true"></script>
     <script src="~/lib/bootstrap/js/bootstrap.min.js" asp-append-version="true"></script>
     <script src="~/lib/jquery.perfect-scrollbar/perfect-scrollbar.min.js" asp-append-version="true"></script>
+    <script src="~/lib/jquery.terminal/js/jquery.terminal.min.js" asp-append-version="true"></script>
+
     <script src="~/lib/feather-icons/feather.min.js" asp-append-version="true"></script>
     <script>
         feather.replace();
@@ -212,6 +221,8 @@
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="~/js/bootstrap-notify.js" asp-append-version="true"></script>
     <script src="~/js/storage.js" asp-append-version="true"></script>
+
+    @RenderSection("Scripts", required: false)
 
     <script>
         $(document).ready(function () {

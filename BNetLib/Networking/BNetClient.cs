@@ -54,5 +54,35 @@ namespace BNetLib.Networking
             ms.Close();
             return default;
         }
+
+        public async Task<string> Call(string command)
+        {
+            using var client = new TcpClient();
+            await client.ConnectAsync(_serverUrl, 1119);
+
+            await using var ms = client.GetStream();
+
+            var payload = Encoding.UTF8.GetBytes($"{command}\r\n");
+            await ms.WriteAsync(payload.AsMemory(0, payload.Length));
+
+            if (ms.CanRead)
+            {
+                using var reader = new StreamReader(ms, Encoding.UTF8);
+                try
+                {
+                    var result = await reader.ReadToEndAsync();
+                    return result;
+                }
+                finally
+                {
+                    client.Close();
+                    ms.Close();
+                }
+            }
+
+            client.Close();
+            ms.Close();
+            return string.Empty;
+        }
     }
 }

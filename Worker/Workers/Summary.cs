@@ -233,7 +233,7 @@ namespace Worker.Workers
                             Encrypted = false,
                         }
                     }, cancellationToken);
-                }
+                }   
                 else
                 {
                     currentGameConfig.Config.Encrypted = false;

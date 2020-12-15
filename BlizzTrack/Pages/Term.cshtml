@@ -1,0 +1,47 @@
+﻿@page
+@model BlizzTrack.Pages.TermModel
+@{
+    ViewData["Title"] = "Version Terminal";
+    ViewData["Page"] = "Terminal";
+}
+
+<div class="row">
+
+    <div class="col-12" aria-label="breadcrumb col-12" role="navigation">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-page="/Index">All Games</a></li>
+            <li class="breadcrumb-item active">Version Terminal</li>
+        </ol>
+    </div>
+
+    <div class="col-12">
+        <div class="card card-nav-tabs">
+            <div class="card-header mb-2">
+                <div class="col-sm-12 text-left">
+                    <h2 class="card-title">Ribbit Terminal</h2>
+                    <h5 class="card-category">Use <code>help</code> to list all commands</h5>
+                </div>
+            </div>            
+            <div class="card-body" id="terminal">
+
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(function () {
+            $('#terminal').terminal(function (command, term) {
+                term.pause();
+                $.post('', { command: command }).then(function (response) {
+                    term.echo(response).resume();
+                });
+            }, {
+                height: 650,
+                prompt: 'Ribbit> ',
+                greetings: 'Type in your the Ribbit command to view it\'s output\n\nCommands:\n1) `help` View all game codes \n2) `get {ribbit_code}` Get raw game manifest\n\n'
+            });
+        });
+    </script>
+}
