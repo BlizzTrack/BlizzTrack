@@ -18,6 +18,14 @@
         </ol>
     </div>
 
+    @if(Model.GameConfig == null || Model.GameConfig.Config.Encrypted)
+    {
+        <div class="col-12">
+            <div class="alert alert-danger" role="alert">
+                <i class="fa fa-lock pr-3"></i>Hey, just so you know this game is encrypted and is most likely a developer build of the game!
+            </div>
+        </div>
+    }
     <!--
     <div class="col-12">
         <div class="card card-nav-tabs text-center">

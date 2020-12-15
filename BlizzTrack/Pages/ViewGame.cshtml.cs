@@ -15,13 +15,15 @@ namespace BlizzTrack.Pages
         private readonly ICDNs _cdns;
         private readonly IBGDL _bgdl;
         private readonly ISummary _summary;
+        private readonly IGameConfig _gameConfig;
 
-        public ViewGameModel(ISummary summary, IBGDL bgdl, ICDNs cdns, IVersions versions)
+        public ViewGameModel(ISummary summary, IBGDL bgdl, ICDNs cdns, IVersions versions, IGameConfig gameConfig)
         {
             _summary = summary;
             _bgdl = bgdl;
             _cdns = cdns;
             _versions = versions;
+            _gameConfig = gameConfig;
         }
 
         [BindProperty(SupportsGet = true, Name = "code")]
@@ -40,11 +42,15 @@ namespace BlizzTrack.Pages
 
         public object Manifest { get; set; }
 
+        public Core.Models.GameConfig GameConfig { get; set; }
+
         public async Task<IActionResult> OnGetAsync()
         {
             var summary = await _summary.Latest();
             var exist = summary.Content.FirstOrDefault(x => x.Product.Equals(Code, System.StringComparison.OrdinalIgnoreCase) && x.Flags.Equals(File, System.StringComparison.OrdinalIgnoreCase));
             if (exist == null) return NotFound();
+
+            GameConfig = await _gameConfig.Get(exist.Product);
 
             Meta = exist;
 

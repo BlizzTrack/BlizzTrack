@@ -9,6 +9,8 @@ namespace Core.Services
 {
     public interface IGameConfig
     {
+        Task<Models.GameConfig> Get(string code);
+
         Task<List<Models.GameConfig>> In(string[] codes);
     }
     public class GameConfig : IGameConfig
@@ -17,6 +19,11 @@ namespace Core.Services
         public GameConfig(DBContext dbContext)
         {
             _dbContext = dbContext;
+        }
+
+        public async Task<Models.GameConfig> Get(string code)
+        {
+            return await _dbContext.GameConfigs.FirstOrDefaultAsync(x => x.Code.ToLower() == code.ToLower());
         }
 
         public async Task<List<Models.GameConfig>> In(string[] codes)

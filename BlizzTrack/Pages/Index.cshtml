@@ -64,7 +64,7 @@
 
                                     <tr>
                                         <td>
-                                            <i class="fa fa-@(config != null && config.Config.Encrypted ? "lock" : "lock-open")"></i>
+                                            <i class="fa fa-@(config == null || config.Config.Encrypted ? "lock" : "lock-open")"></i>
                                         </td>
                                         <td>@BNetLib.Helpers.GameName.Get(item.Product)</td>
                                         <td>@item.Product</td>
@@ -128,7 +128,7 @@
 
                                 <tr>
                                     <td>
-                                        <i class="fa fa-@(config != null && config.Config.Encrypted ? "lock" : "lock-open")"></i>
+                                        <i class="fa fa-@(config == null || config.Config.Encrypted ? "lock" : "lock-open")"></i>
                                     </td>
                                     <td>@BNetLib.Helpers.GameName.Get(item.newest.Product)</td>
                                     <td>@item.newest.Product</td>
@@ -187,7 +187,7 @@
 
                                 <tr class="@(item != Model.Manifests.Last().Content.FirstOrDefault(x => x.Product == item.Product && x.Flags == item.Flags && x.Seqn == item.Seqn) ? "row-has-changes" : "")">
                                     <td>
-                                        <i class="fa fa-@(config != null && config.Config.Encrypted ? "lock" : "lock-open")"></i>
+                                        <i class="fa fa-@(config == null || config.Config.Encrypted ? "lock" : "lock-open")"></i>
                                     </td>
                                     <td>@BNetLib.Helpers.GameName.Get(item.Product)</td>
                                     <td>@item.Product</td>
@@ -246,7 +246,7 @@
 
                                 <tr>
                                     <td>
-                                        <i class="fa fa-@(config != null && config.Config.Encrypted ? "lock" : "lock-open")"></i>
+                                        <i class="fa fa-@(config == null || config.Config.Encrypted ? "lock" : "lock-open")"></i>
                                     </td>
                                     <td>@BNetLib.Helpers.GameName.Get(item.Product)</td>
                                     <td>@item.Product</td>
