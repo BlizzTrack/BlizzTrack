@@ -212,6 +212,7 @@ namespace Worker.Workers
 
             var config = versionConfig.Content.FirstOrDefault(x => x.Region == "us");
             if (msg.Product == "catalogs") config = versionConfig.Content.Last();
+            if (msg.Product == "bts") config = versionConfig.Content.FirstOrDefault(x => x.Region == "launcher");
             if (config == null) return;
             var currentGameConfig = await dbContext.GameConfigs.FirstOrDefaultAsync(x => x.Code == msg.Product, cancellationToken: cancellationToken);
 

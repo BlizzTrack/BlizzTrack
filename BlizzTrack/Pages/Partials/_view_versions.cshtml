@@ -47,7 +47,7 @@
                                 @item.Cdnconfig
                             </td>
                             <td class="@(item.Productconfig != Model.Last().Content.FirstOrDefault(x => x.Region == item.Region)?.Productconfig ? "has-changed-data" : "")">
-                                @item.Productconfig
+                                @(item.Productconfig == "versions" ? "N/A" : item.Productconfig)
                             </td>
                         </tr>
                         }
@@ -103,7 +103,7 @@
                                 @item.Cdnconfig
                             </td>
                             <td class="@(item.Productconfig != Model.First().Content.FirstOrDefault(x => x.Region == item.Region)?.Productconfig ? "has-changed-data" : "")">
-                                @item.Productconfig
+                                @(item.Productconfig == "versions" ? "N/A" : item.Productconfig)
                             </td>
                         </tr>
                         }

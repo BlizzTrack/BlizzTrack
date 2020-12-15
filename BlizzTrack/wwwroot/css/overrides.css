@@ -67,7 +67,14 @@
     margin-bottom: 10px; 
 }
 
-.markdown code {
-    padding: 0 5px;
+code {
+    padding: 8px;
+    margin: 10px 0; 
     font-size: 13px;
+    width: 100%;
+    border-radius: 5px;
+}
+
+code {
+    background: #27293d;
 }
