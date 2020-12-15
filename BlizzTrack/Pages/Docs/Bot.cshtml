@@ -1,0 +1,42 @@
+﻿@page
+@model BlizzTrack.Pages.Docs.BotModel
+@{
+    ViewData["Title"] = "Discord Bot";
+    ViewData["Page"] = "Discord Bot";
+}
+
+<div class="row">
+
+    <div class="col-12" aria-label="breadcrumb col-12" role="navigation">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-page="/Index">All Games</a></li>
+            <li class="breadcrumb-item active">Docs</li>
+            <li class="breadcrumb-item active">Discord Bot</li>
+        </ol>
+    </div>
+
+    <div class="col-12">
+        <div class="alert alert-danger" role="alert">
+            <i class="fa fa-bullhorn pr-3"></i>Hey, just so you know this bot is in active development and is subject to change!
+        </div>
+    </div>
+
+    <div class="col-12">
+        <div class="card ">
+            <div class="card-header">
+                <div class="col-sm-12 text-left">
+                    <h2 class="card-title">Discord bot Docs</h2>
+                    <h5 class="card-category">How to use are discord bot!</h5>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <a href="https://discord.com/oauth2/authorize?client_id=272526395337342977&scope=bot" class="btn btn-outline-light text-white"><i class="fa fa-robot mr-2"></i>Invite me to your server!</a>
+                </div>
+                <div class="markdown">
+                    @Html.Raw(BlizzTrack.Helpers.Markdown.Parse(Model.BotDoc))
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
