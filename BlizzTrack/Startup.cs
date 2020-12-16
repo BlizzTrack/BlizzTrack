@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using StackExchange.Redis.Extensions.Core.Configuration;
+using StackExchange.Redis.Extensions.Newtonsoft;
 
 namespace BlizzTrack
 {
@@ -46,9 +48,36 @@ namespace BlizzTrack
             services.AddMvc(options => options.EnableEndpointRouting = false)
                 .SetCompatibilityVersion(CompatibilityVersion.Latest).AddNewtonsoftJson();
 
+            var conf = new RedisConfiguration()
+            {
+                AbortOnConnectFail = false,
+                KeyPrefix = "BD_",
+                Hosts = new RedisHost[]
+                {
+                    new RedisHost { Host = Configuration.GetConnectionString("redis") ?? "localhost", Port = 6379 }
+                },
+                AllowAdmin = true,
+                ConnectTimeout = 1000,
+                PoolSize = 20,
+                Database = 0,
+                ServerEnumerationStrategy = new ServerEnumerationStrategy()
+                {
+                    Mode = ServerEnumerationStrategy.ModeOptions.All,
+                    TargetRole = ServerEnumerationStrategy.TargetRoleOptions.Any,
+                    UnreachableServerAction = ServerEnumerationStrategy.UnreachableServerActionOptions.Throw
+                }
+            };
+
+            services.AddStackExchangeRedisExtensions<NewtonsoftSerializer>(conf);
+
+            // Blizzard services
             services.AddSingleton(x => new BNetLib.Networking.BNetClient());
             services.AddSingleton(x => new BNetLib.Http.ProductConfig());
 
+            // System Services
+            services.AddSingleton<Services.IBlizzardAlerts, Services.BlizzardAlerts>();
+
+            // Shared services
             services.AddScoped<Core.Services.ISummary, Core.Services.Summary>();
             services.AddScoped<Core.Services.IVersions, Core.Services.Versions>();
             services.AddScoped<Core.Services.ICDNs, Core.Services.CDNs>();

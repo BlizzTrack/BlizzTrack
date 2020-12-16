@@ -1,3 +1,4 @@
+using BlizzTrack.Services;
 using Core.Models;
 using Core.Services;
 using Microsoft.AspNetCore.Components;
@@ -16,14 +17,16 @@ namespace BlizzTrack.Pages
         private readonly IBGDL _bgdl;
         private readonly ISummary _summary;
         private readonly IGameConfig _gameConfig;
+        private readonly IBlizzardAlerts _blizzardAlerts;
 
-        public ViewGameModel(ISummary summary, IBGDL bgdl, ICDNs cdns, IVersions versions, IGameConfig gameConfig)
+        public ViewGameModel(ISummary summary, IBGDL bgdl, ICDNs cdns, IVersions versions, IGameConfig gameConfig, IBlizzardAlerts blizzardAlerts)
         {
             _summary = summary;
             _bgdl = bgdl;
             _cdns = cdns;
             _versions = versions;
             _gameConfig = gameConfig;
+            _blizzardAlerts = blizzardAlerts;
         }
 
         [BindProperty(SupportsGet = true, Name = "code")]
@@ -44,6 +47,8 @@ namespace BlizzTrack.Pages
 
         public Core.Models.GameConfig GameConfig { get; set; }
 
+        public string Alert { get; set; }
+
         public async Task<IActionResult> OnGetAsync()
         {
             var summary = await _summary.Latest();
@@ -51,6 +56,8 @@ namespace BlizzTrack.Pages
             if (exist == null) return NotFound();
 
             GameConfig = await _gameConfig.Get(exist.Product);
+
+            Alert = await _blizzardAlerts.Get(exist.Product);
 
             Meta = exist;
 

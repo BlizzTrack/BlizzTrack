@@ -18,7 +18,7 @@
         </ol>
     </div>
 
-    @if(Model.GameConfig == null || Model.GameConfig.Config.Encrypted)
+    @if (Model.GameConfig == null || Model.GameConfig.Config.Encrypted)
     {
         <div class="col-12">
             <div class="alert alert-danger" role="alert">
@@ -26,17 +26,15 @@
             </div>
         </div>
     }
-    <!--
-    <div class="col-12">
-        <div class="card card-nav-tabs text-center">
-            <div class="card-body">
-                <h4 class="display-2 p-5 m-0">
-                    @BNetLib.Helpers.GameName.Get(Model.Meta.Product)
-                </h4>
+
+    @if (!string.IsNullOrEmpty(Model.Alert))
+    {
+        <div class="col-12">
+            <div class="alert alert-info" role="alert">
+                <i class="fa fa-bullhorn pr-3"></i>Blizzard: @Model.Alert
             </div>
         </div>
-    </div>
-        -->
+    }
     @{
         switch (Model.Manifest)
         {

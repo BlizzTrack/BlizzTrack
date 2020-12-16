@@ -5,15 +5,24 @@
     <CopyRefAssembliesToPublishDirectory>false</CopyRefAssembliesToPublishDirectory>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
   </PropertyGroup>
-
+  
+  <!-- Third Party Deps -->
   <ItemGroup>
     <PackageReference Include="Markdig" Version="0.22.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="5.0.1" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL.Trigrams" Version="5.0.1" />
+    <PackageReference Include="System.Threading.Tasks" Version="4.3.0" />
+    <PackageReference Include="StackExchange.Redis.Extensions.AspNetCore" Version="7.0.0-pre" />
+    <PackageReference Include="StackExchange.Redis.Extensions.Core" Version="7.0.0-pre" />
+    <PackageReference Include="StackExchange.Redis.Extensions.Newtonsoft" Version="7.0.0-pre" />
+  </ItemGroup>
+
+  <!-- Microsoft Deps -->
+  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="5.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="5.0.1" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.10.9" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="5.0.1">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -22,10 +31,6 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="5.0.1" />
-    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL.Trigrams" Version="5.0.1" />
-    <PackageReference Include="System.Threading.Tasks" Version="4.3.0" />
   </ItemGroup>
 
   <ItemGroup>
