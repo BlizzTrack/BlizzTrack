@@ -79,11 +79,7 @@ code {
     background: #27293d;
 }
 
-.dropdown-menu a {
-    color: black !important;
-}
-
-.navbar.navbar-transparent a {
+.navbar.navbar-transparent a:not(.dropdown-item) {
     color: white !important;
 }
 
@@ -91,7 +87,10 @@ code {
     color: #1d253b !important;
 }
 
-
 .navbar-nav a:hover {
     filter: unset !important;
+}
+
+.dropdown-menu a {
+    color: black !important;
 }

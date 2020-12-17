@@ -14478,6 +14478,7 @@ a.text-darker:focus {
     .dropdown-menu.dropdown-navbar:after {
         left: auto;
         right: 17px;
+        display: none;
     }
 
 .btn {

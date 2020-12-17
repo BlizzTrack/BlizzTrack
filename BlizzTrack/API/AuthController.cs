@@ -78,6 +78,8 @@ namespace BlizzTrack.API
                 currentUser.Email = $"{name.Replace("#", "-")}@battle.net";
                 currentUser.UserName = name.Replace("#", "-");
 
+                user = currentUser;
+
                 await _userManager.UpdateAsync(currentUser);
             }
             else
@@ -89,16 +91,6 @@ namespace BlizzTrack.API
 
             await HttpContext.SignOutAsync();
 
-            var identity = new ClaimsIdentity(CookieAuthenticationDefaults.AuthenticationScheme, ClaimTypes.Name, ClaimTypes.Role);
-
-            identity.AddClaim(new Claim(ClaimTypes.NameIdentifier, user.Id));
-            identity.AddClaim(new Claim(ClaimTypes.Name, user.UserName));
-            identity.AddClaim(new Claim("urn:battle_tag", user.BattleTag));
-
-            var f = new ClaimsPrincipal(identity);
-
-            user = await _userManager.GetUserAsync(f);
-
             if (!await _userManager.IsInRoleAsync(user, "User"))
                 await _userManager.AddToRoleAsync(user, "User");
 
@@ -108,10 +100,18 @@ namespace BlizzTrack.API
                     await _userManager.AddToRoleAsync(user, "Admin");
             }
 
+            var identity = new ClaimsIdentity(CookieAuthenticationDefaults.AuthenticationScheme, ClaimTypes.Name, ClaimTypes.Role);
+
+            identity.AddClaim(new Claim(ClaimTypes.NameIdentifier, user.Id));
+            identity.AddClaim(new Claim(ClaimTypes.Name, user.UserName));
+            identity.AddClaim(new Claim("urn:battle_tag", user.BattleTag));
+
             foreach (var role in await _userManager.GetRolesAsync(user))
             {
-                f.Claims.ToList().Add(new Claim(ClaimTypes.Role, role));
+                identity.AddClaim(new Claim(ClaimTypes.Role, role));
             }
+
+            var f = new ClaimsPrincipal(identity);
 
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, f);
 

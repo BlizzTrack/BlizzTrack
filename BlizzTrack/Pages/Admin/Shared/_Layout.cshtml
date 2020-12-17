@@ -76,7 +76,7 @@
                         <img width="32" src="~/images/logos/bt.svg" alt="BlizzTrack" />
                     </a>
                     <a href="javascript:void(0)" class="simple-text logo-normal">
-                        BlizzTrack
+                        Dashboard
                     </a>
                 </div>
                 <ul class="nav">
@@ -124,12 +124,6 @@
                     </button>
                     <div class="collapse navbar-collapse" id="navigation">
                         <ul class="navbar-nav ml-auto">
-                            <li class="search-bar input-group" style="width: auto !important;">
-                                <button class="btn btn-link" id="search-button" data-toggle="modal" data-target="#searchModal">
-                                    <i class="tim-icons fa fa-search"></i>
-                                    <span class="d-lg-none d-md-block">Search</span>
-                                </button>
-                            </li>
                             @if (Context.User.Identity.IsAuthenticated)
                             {
                                 <li class="dropdown nav-item">
@@ -142,22 +136,7 @@
                                             @(Context.User.Claims.First(x => x.Type == "urn:battle_tag").Value)
                                         </p>
                                     </a>
-                                    <ul class="dropdown-menu dropdown-navbar">
-                                        <li class="nav-link">
-                                            <a href="javascript:void(0)" class="nav-item dropdown-item">
-                                                <i class="fa fa-user tim-icons"></i> My Profile
-                                            </a>
-                                        </li>
-                                        <li class="dropdown-divider"></li>
-                                        @if (Context.User.IsInRole("Admin"))
-                                        {
-                                            <li class="nav-link">
-                                                <a asp-page="/Admin/Index" class="nav-item dropdown-item">
-                                                    <i class="fab fa-mandalorian tim-icons"></i> Admin Panel
-                                                </a>
-                                            </li>
-                                            <li class="dropdown-divider"></li>
-                                        }
+                                    <ul class="dropdown-menu dropdown-navbar">  
                                         <li class="nav-link">
                                             <a asp-controller="Auth" asp-action="Logout" class="nav-item dropdown-item">
                                                 <i class="fa fa-door-closed tim-icons"></i> Log Out
@@ -168,7 +147,7 @@
                             } else {
                                 <li class="nav-item" style="padding: 5px">
                                     <a class="nav-link" asp-controller="Auth" asp-action="Login" style="padding: 8px; display: inline-flex">
-                                             <i class="fa fa-user tim-icons mr-2"></i> Login with Battle.net
+                                        <i class="fa fa-user tim-icons mr-2"></i> Login with Battle.net
                                     </a>
                                 </li>
                             }
@@ -177,18 +156,6 @@
                     </div>
                 </div>
             </nav>
-            <div class="modal modal-search fade" id="searchModal" tabindex="-1" role="dialog" aria-labelledby="searchModal" aria-hidden="true">
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                        <form method="get" action="/" class="modal-header" autocomplete="off">
-                            <input autocomplete="off" name="search" type="text" class="form-control" id="inlineFormInputGroup" placeholder="SEARCH FOR GAME">
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <i data-feather="x" class="tim-icons icon-simple-remove"></i>
-                            </button>
-                        </form>
-                    </div>
-                </div>
-            </div>
             <!-- End Navbar -->
             <div class="content">
                 @RenderBody()

@@ -71,6 +71,7 @@ namespace BlizzTrack
                 options.Cookie.IsEssential = true;
                 options.LoginPath = "/Auth/Login";
                 options.LogoutPath = "/Auth/Logout";
+                options.AccessDeniedPath = "/"; // We don't really care
             })
            .AddBattleNet(options =>
            {
