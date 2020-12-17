@@ -16,6 +16,8 @@
     <PackageReference Include="StackExchange.Redis.Extensions.AspNetCore" Version="7.0.0-pre" />
     <PackageReference Include="StackExchange.Redis.Extensions.Core" Version="7.0.0-pre" />
     <PackageReference Include="StackExchange.Redis.Extensions.Newtonsoft" Version="7.0.0-pre" />
+
+    <PackageReference Include="AspNet.Security.OAuth.BattleNet" Version="5.0.0" />
   </ItemGroup>
 
   <!-- Microsoft Deps -->
@@ -31,6 +33,8 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="5.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="5.0.0" />
   </ItemGroup>
 
   <ItemGroup>

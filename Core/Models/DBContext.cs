@@ -1,8 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 
 namespace Core.Models
 {
-    public class DBContext : DbContext
+    public class DBContext : IdentityDbContext<User>
     {
         public DbSet<Manifest<BNetLib.Models.Versions[]>> Versions { get; set; }
         public DbSet<Manifest<BNetLib.Models.BGDL[]>> BGDL { get; set; }
@@ -16,6 +17,8 @@ namespace Core.Models
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
+            base.OnModelCreating(builder);
+
             builder.HasPostgresExtension("pg_trgm");
 
             builder.Entity<GameConfig>().ToTable("game_configs");

@@ -124,31 +124,45 @@
                     </button>
                     <div class="collapse navbar-collapse" id="navigation">
                         <ul class="navbar-nav ml-auto">
-                            <li class="search-bar input-group">
+                            <li class="search-bar input-group" style="width: auto !important;">
                                 <button class="btn btn-link" id="search-button" data-toggle="modal" data-target="#searchModal">
                                     <i class="tim-icons fa fa-search"></i>
                                     <span class="d-lg-none d-md-block">Search</span>
                                 </button>
                             </li>
-                            <!---
-                            <li class="dropdown nav-item">
-                                <a href="#" class="dropdown-toggle nav-link" data-toggle="dropdown">
-                                    <div class="photo">
-                                        <img src="../assets/img/anime3.png" alt="Profile Photo">
-                                    </div>
-                                    <b class="caret d-none d-lg-block d-xl-block"></b>
-                                    <p class="d-lg-none">
-                                        Log out
-                                    </p>
-                                </a>
-                                <ul class="dropdown-menu dropdown-navbar">
-                                    <li class="nav-link"><a href="javascript:void(0)" class="nav-item dropdown-item">Profile</a></li>
-                                    <li class="nav-link"><a href="javascript:void(0)" class="nav-item dropdown-item">Settings</a></li>
-                                    <li class="dropdown-divider"></li>
-                                    <li class="nav-link"><a href="javascript:void(0)" class="nav-item dropdown-item">Log out</a></li>
-                                </ul>
-                            </li>
-                             -->
+                            @if (Context.User.Identity.IsAuthenticated)
+                            {
+                                <li class="dropdown nav-item">
+                                    <a href="#" class="dropdown-toggle nav-link" data-toggle="dropdown">
+                                        <div class="photo">
+                                            <img src="~/images/user/placeholder.png" alt="Profile Photo">
+                                        </div>
+                                        <b class="caret d-none d-lg-block d-xl-block"></b>
+                                        <p class="d-lg-none">
+                                            Log out
+                                        </p>
+                                    </a>
+                                    <ul class="dropdown-menu dropdown-navbar">
+                                        <li class="nav-link">
+                                            <a href="javascript:void(0)" class="nav-item dropdown-item">
+                                                <i class="fa fa-user tim-icons"></i> My Profile
+                                            </a>
+                                        </li>
+                                        <li class="dropdown-divider"></li>
+                                        <li class="nav-link">
+                                            <a asp-controller="Auth" asp-action="Logout" class="nav-item dropdown-item">
+                                                <i class="fa fa-door-closed tim-icons"></i> Log out
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+                            } else {
+                                <li class="nav-item text-white" style="padding: 5px">
+                                    <a class="nav-link text-white" asp-controller="Auth" asp-action="Login" style="padding: 8px; display: inline-flex">
+                                        <i class="fa fa-user tim-icons mr-2"></i> Login with Battle.net
+                                    </a>
+                                </li>
+                            }
                             <li class="separator d-lg-none"></li>
                         </ul>
                     </div>

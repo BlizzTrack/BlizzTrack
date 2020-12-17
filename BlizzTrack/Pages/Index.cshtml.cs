@@ -12,11 +12,13 @@ namespace BlizzTrack.Pages
     {
         private readonly ISummary _summary;
         private readonly IGameConfig _gameConfig;
+        private readonly IVersions _versions;
 
-        public IndexModel(ISummary summary, IGameConfig gameConfig)
+        public IndexModel(ISummary summary, IGameConfig gameConfig, IVersions versions)
         {
             _summary = summary;
             _gameConfig = gameConfig;
+            _versions = versions;
         }
 
         public List<Manifest<BNetLib.Models.Summary[]>> Manifests = null;
@@ -35,8 +37,8 @@ namespace BlizzTrack.Pages
             var previous = Manifests.Last().Content;
 
             Configs = await _gameConfig.In(latest.Where(x => x.Flags == "versions").Select(x => x.Product).ToArray());
-
-            foreach(var item in latest)
+                
+            foreach (var item in latest)
             {
                 var exist = previous.FirstOrDefault(x => x.Product == item.Product && x.Flags == item.Flags);
                 if (exist == null)

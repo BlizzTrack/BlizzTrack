@@ -1,6 +1,10 @@
 using Core.Models;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.EntityFrameworkCore;
@@ -9,6 +13,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using StackExchange.Redis.Extensions.Core.Configuration;
 using StackExchange.Redis.Extensions.Newtonsoft;
+using System;
+using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace BlizzTrack
 {
@@ -38,6 +45,11 @@ namespace BlizzTrack
             services.AddRazorPages().AddNewtonsoftJson(options => options.SerializerSettings.Formatting = Newtonsoft.Json.Formatting.Indented);
             services.Configure<MvcNewtonsoftJsonOptions>(x => x.SerializerSettings.NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore);
 
+
+            services.AddDefaultIdentity<User>(options => { options.SignIn.RequireConfirmedAccount = false; })
+                  .AddRoles<IdentityRole>()
+                  .AddEntityFrameworkStores<DBContext>();
+
             services.AddDbContextPool<DBContext>(options =>
                 options.UseNpgsql(
                     Configuration.GetConnectionString("ConnectionString"), o =>
@@ -47,6 +59,49 @@ namespace BlizzTrack
 
             services.AddMvc(options => options.EnableEndpointRouting = false)
                 .SetCompatibilityVersion(CompatibilityVersion.Latest).AddNewtonsoftJson();
+
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+            }).AddCookie(options =>
+            {
+                options.Cookie.Name = "BT.Auth";
+                options.Cookie.IsEssential = true;
+                options.LoginPath = "/Auth/Login";
+                options.LogoutPath = "/Auth/Logout";
+            })
+           .AddBattleNet(options =>
+           {
+               options.ClientId = Configuration.GetValue("BattleNet:ClientID", "");
+               options.ClientSecret = Configuration.GetValue("BattleNet:ClientSecret", "");
+
+               options.SaveTokens = true;
+               options.CorrelationCookie.SameSite = SameSiteMode.Unspecified;
+
+               options.Events = new OAuthEvents
+               {
+                   OnCreatingTicket = ctx =>
+                   {
+                       ctx.Identity.AddClaim(new Claim("urn:bnet:access_token", ctx.AccessToken)); 
+                       return Task.CompletedTask;
+                   },
+
+                   OnTicketReceived = ctx =>
+                   {
+                       var username = ctx.Principal.FindFirstValue(ClaimTypes.NameIdentifier);
+                       if (string.IsNullOrWhiteSpace(username))
+                       {
+                           ctx.HandleResponse();
+                           ctx.Response.Redirect("/");
+                           return Task.CompletedTask;
+                       }
+
+                       return Task.CompletedTask;
+                   }
+               };
+           });
 
             var conf = new RedisConfiguration()
             {
@@ -105,8 +160,8 @@ namespace BlizzTrack
 
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
-
             app.UseMvcWithDefaultRoute();
 
             app.UseEndpoints(endpoints =>

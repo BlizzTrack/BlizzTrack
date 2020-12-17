@@ -78,3 +78,11 @@ code {
 code {
     background: #27293d;
 }
+
+.dropdown-menu a {
+    color: black !important;
+}
+
+.navbar-nav a:hover {
+    filter: unset !important;
+}
