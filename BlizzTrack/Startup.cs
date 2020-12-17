@@ -11,9 +11,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.FeatureManagement;
 using StackExchange.Redis.Extensions.Core.Configuration;
 using StackExchange.Redis.Extensions.Newtonsoft;
-using System;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
@@ -32,6 +32,8 @@ namespace BlizzTrack
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddResponseCompression();
+
+            services.AddFeatureManagement(Configuration.GetSection("Features"));
 
             services.Configure<RazorViewEngineOptions>(o =>
             {

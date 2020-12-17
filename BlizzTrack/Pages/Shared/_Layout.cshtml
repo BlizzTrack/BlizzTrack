@@ -1,6 +1,8 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
 
+@inject IConfiguration config;
+
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -130,49 +132,53 @@
                                     <span class="d-lg-none d-md-block">Search</span>
                                 </button>
                             </li>
-                            @if (Context.User.Identity.IsAuthenticated)
-                            {
-                                <li class="dropdown nav-item">
-                                    <a href="#" class="dropdown-toggle nav-link" data-toggle="dropdown">
-                                        <div class="photo">
-                                            <img src="~/images/user/placeholder.png" alt="Profile Photo">
-                                        </div>
-                                        <b class="caret d-none d-lg-block d-xl-block"></b>
-                                        <p class="d-lg-none">
-                                            @(Context.User.Claims.First(x => x.Type == "urn:battle_tag").Value)
-                                        </p>
-                                    </a>
-                                    <ul class="dropdown-menu dropdown-navbar">
-                                        <li class="nav-link">
-                                            <a href="javascript:void(0)" class="nav-item dropdown-item">
-                                                <i class="fa fa-user tim-icons"></i> My Profile
-                                            </a>
-                                        </li>
-                                        <li class="dropdown-divider"></li>
-                                        @if (Context.User.IsInRole("Admin"))
-                                        {
+                            <feature name="auth">
+                                @if (Context.User.Identity.IsAuthenticated)
+                                {
+                                    <li class="dropdown nav-item">
+                                        <a href="#" class="dropdown-toggle nav-link" data-toggle="dropdown">
+                                            <div class="photo">
+                                                <img src="~/images/user/placeholder.png" alt="Profile Photo">
+                                            </div>
+                                            <b class="caret d-none d-lg-block d-xl-block"></b>
+                                            <p class="d-lg-none">
+                                                @(Context.User.Claims.First(x => x.Type == "urn:battle_tag").Value)
+                                            </p>
+                                        </a>
+                                        <ul class="dropdown-menu dropdown-navbar">
                                             <li class="nav-link">
-                                                <a asp-page="/Admin/Index" class="nav-item dropdown-item">
-                                                    <i class="fab fa-mandalorian tim-icons"></i> Admin Panel
+                                                <a href="javascript:void(0)" class="nav-item dropdown-item">
+                                                    <i class="fa fa-user tim-icons"></i> My Profile
                                                 </a>
                                             </li>
                                             <li class="dropdown-divider"></li>
-                                        }
-                                        <li class="nav-link">
-                                            <a asp-controller="Auth" asp-action="Logout" class="nav-item dropdown-item">
-                                                <i class="fa fa-door-closed tim-icons"></i> Log Out
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </li>
-                            } else {
-                                <li class="nav-item" style="padding: 5px">
-                                    <a class="nav-link" asp-controller="Auth" asp-action="Login" style="padding: 8px; display: inline-flex">
-                                             <i class="fa fa-user tim-icons mr-2"></i> Login with Battle.net
-                                    </a>
-                                </li>
-                            }
-                            <li class="separator d-lg-none"></li>
+                                            @if (Context.User.IsInRole("Admin"))
+                                            {
+                                                <li class="nav-link">
+                                                    <a asp-page="/Admin/Index" class="nav-item dropdown-item">
+                                                        <i class="fab fa-mandalorian tim-icons"></i> Admin Panel
+                                                    </a>
+                                                </li>
+                                                <li class="dropdown-divider"></li>
+                                            }
+                                            <li class="nav-link">
+                                                <a asp-controller="Auth" asp-action="Logout" class="nav-item dropdown-item">
+                                                    <i class="fa fa-door-closed tim-icons"></i> Log Out
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                }
+                                else
+                                {
+                                    <li class="nav-item" style="padding: 5px">
+                                        <a class="nav-link" asp-controller="Auth" asp-action="Login" style="padding: 8px; display: inline-flex">
+                                            <i class="fa fa-user tim-icons mr-2"></i> Login with Battle.net
+                                        </a>
+                                    </li>
+                                }
+                                <li class="separator d-lg-none"></li>
+                            </feature>
                         </ul>
                     </div>
                 </div>

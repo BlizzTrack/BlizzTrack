@@ -4,6 +4,7 @@ using Core.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -19,8 +20,9 @@ namespace BlizzTrack.API
         private readonly IBGDL _bgdl;
         private readonly DBContext _dbContext;
         private readonly ILogger<NGPDController> _logger;
+        private readonly IGameConfig _gameConfig;
 
-        public NGPDController(ISummary summary, IVersions versions, ICDNs cdns, IBGDL bgdl, DBContext dbContext, ILogger<NGPDController> logger)
+        public NGPDController(ISummary summary, IVersions versions, ICDNs cdns, IBGDL bgdl, DBContext dbContext, ILogger<NGPDController> logger, IGameConfig gameConfig)
         {
             _summary = summary;
             _versions = versions;
@@ -28,6 +30,52 @@ namespace BlizzTrack.API
             _bgdl = bgdl;
             _dbContext = dbContext;
             _logger = logger;
+            _gameConfig = gameConfig;
+        }
+
+        [HttpGet("summary/changes")]
+        public async Task<IActionResult> GetChanges()
+        {
+            var scheme = Request.Scheme;
+            if (Request.Host.Host.Contains("blizztrack", StringComparison.OrdinalIgnoreCase))
+            {
+                scheme = "https";
+            }
+
+            var Manifests = await _summary.Take(2);
+
+            var latest = Manifests.First();
+            var previous = Manifests.Last();
+
+            var SummaryDiff = new List<object>();
+            var configs = await _gameConfig.In(latest.Content.Select(x => x.Product).ToArray());
+
+            foreach (var item in latest.Content)
+            {
+                var x = previous.Content.FirstOrDefault(x => x.Product == item.Product && x.Flags == item.Flags);
+                if (x == null || x.Seqn != item.Seqn)
+                {
+                    SummaryDiff.Add(new {
+                        name = x.GetName(),
+                        x.Product,
+                        x.Flags,
+                        x.Seqn,
+                        encrypted = configs.FirstOrDefault(f => f.Code == x.Product)?.Config.Encrypted,
+                        relations = new
+                        {
+                            view = Url.Action("Get", "ngpd", new { code = x.Product, file = x.Flags, seqn = x.Seqn }, scheme),
+                            seqn = Url.Action("Get", "ngpd", new { code = x.Product, file = "seqn", filter = x.Flags }, scheme),
+                        }
+                    });
+                }
+            }
+
+            return Ok(new
+            {
+                changes = SummaryDiff,
+                latest,
+                previous,
+            });
         }
 
         [HttpGet("{code?}/{file?}")]
@@ -38,7 +86,6 @@ namespace BlizzTrack.API
             {
                 scheme = "https";
             }
-
 
             AbstractCommand cmd = new SummaryCommand();
             if (!code.Equals("summary", StringComparison.OrdinalIgnoreCase))
@@ -53,6 +100,7 @@ namespace BlizzTrack.API
                             cmd = new VersionCommand(code);
                             var data = await _versions.Single(code, seqn);
                             if (data == null || data.Content == null) return NotFound(new { error = "Not found" });
+                            var config = await _gameConfig.Get(code);
 
                             var ver = data.Content.Select(x => new
                             {
@@ -72,6 +120,7 @@ namespace BlizzTrack.API
                                 data.Indexed,
                                 data.Seqn,
                                 code,
+                                encrypted = config.Config.Encrypted,
                                 command = cmd.ToString(),
                                 data = ver
                             };
@@ -82,6 +131,7 @@ namespace BlizzTrack.API
                             cmd = new CDNCommand(code);
                             var data = await _cdns.Single(code, seqn);
                             if (data == null || data.Content == null) return NotFound(new { error = "Not found" });
+                            var config = await _gameConfig.Get(code);
 
                             var ver = data.Content.Select(x => new
                             {
@@ -99,6 +149,7 @@ namespace BlizzTrack.API
                                 data.Indexed,
                                 data.Seqn,
                                 code,
+                                encrypted = config.Config.Encrypted,
                                 command = cmd.ToString(),
                                 data = ver
                             };
@@ -109,6 +160,7 @@ namespace BlizzTrack.API
                             cmd = new BGDLCommand(code);
                             var data = await _bgdl.Single(code, seqn);
                             if (data == null || data.Content == null) return NotFound(new { error = "Not found" });
+                            var config = await _gameConfig.Get(code);
 
                             var ver = data.Content.Select(x => new
                             {
@@ -128,6 +180,7 @@ namespace BlizzTrack.API
                                 data.Indexed,
                                 data.Seqn,
                                 code,
+                                encrypted = config.Config.Encrypted,
                                 command = cmd.ToString(),
                                 data = ver
                             };
@@ -143,6 +196,7 @@ namespace BlizzTrack.API
                                     {
                                         var ver = await _versions.Seqn(code);
                                         if (ver == null) return NotFound(new { error = "Not found" });
+                                        var config = await _gameConfig.Get(code);
 
                                         var f = ver.Select(data => new
                                         {
@@ -155,6 +209,7 @@ namespace BlizzTrack.API
                                         {
                                             name = BNetLib.Helpers.GameName.Get(code),
                                             code = code.ToLower(),
+                                            encrypted = config.Config.Encrypted,
                                             latest = f.First(),
                                             data = f
                                         };
@@ -165,6 +220,7 @@ namespace BlizzTrack.API
                                         var cdn = await _cdns.Seqn(code);
                                         if (cdn == null)
                                             return NotFound(new { error = "Not found" });
+                                        var config = await _gameConfig.Get(code);
 
                                         var f = cdn.Select(data => new
                                         {
@@ -177,6 +233,7 @@ namespace BlizzTrack.API
                                         {
                                             name = BNetLib.Helpers.GameName.Get(code),
                                             code = code.ToLower(),
+                                            encrypted = config.Config.Encrypted,
                                             latest = f.First(),
                                             data = f
                                         };
@@ -187,6 +244,7 @@ namespace BlizzTrack.API
                                         var bgdl = await _bgdl.Seqn(code);
                                         if (bgdl == null)
                                             return NotFound(new { error = "Not found" });
+                                        var config = await _gameConfig.Get(code);
 
                                         var f = bgdl.Select(data => new
                                         {
@@ -199,6 +257,8 @@ namespace BlizzTrack.API
                                         {
                                             name = BNetLib.Helpers.GameName.Get(code),
                                             code = code.ToLower(),
+                                            encrypted = config.Config.Encrypted,
+
                                             latest = f.First(),
                                             data = f
                                         };
@@ -271,7 +331,8 @@ namespace BlizzTrack.API
                         {
                             var data = await _summary.Single(seqn);
                             if (data == null) return NotFound(new { error = "Not Found" });
-        
+                            var configs = await _gameConfig.In(data.Content.Select(x => x.Product).ToArray());
+
                             result = new
                             {
                                 data.Seqn,
@@ -284,6 +345,7 @@ namespace BlizzTrack.API
                                     x.Product,
                                     x.Flags,
                                     x.Seqn,
+                                    encrypted = configs.FirstOrDefault(f => f.Code == x.Product)?.Config.Encrypted,
                                     relations = new
                                     {
                                         view = Url.Action("Get", "ngpd", new { code = x.Product, file = x.Flags, seqn = x.Seqn }, scheme),
