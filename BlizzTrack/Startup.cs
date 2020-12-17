@@ -144,6 +144,7 @@ namespace BlizzTrack
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             InitializeDatabase(app);
+            InitializeRoles(app);
 
             if (env.IsDevelopment())
             {
@@ -177,6 +178,26 @@ namespace BlizzTrack
 
             var ctx = scope.ServiceProvider.GetRequiredService<DBContext>();
             ctx.Database.Migrate();
+        }
+
+        private void InitializeRoles(IApplicationBuilder app)
+        {
+            using var scope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope();
+
+            var ctx = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+
+            // first we create Admin rool    
+            var role = new IdentityRole
+            {
+                Name = "Admin"
+            };
+            ctx.CreateAsync(role).Wait();
+
+            var user = new IdentityRole
+            {
+                Name = "User"
+            };
+            ctx.CreateAsync(user).Wait();
         }
     }
 }

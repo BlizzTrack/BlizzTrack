@@ -83,6 +83,15 @@ code {
     color: black !important;
 }
 
+.navbar.navbar-transparent a {
+    color: white !important;
+}
+
+.white-content .navbar.navbar-transparent a {
+    color: #1d253b !important;
+}
+
+
 .navbar-nav a:hover {
     filter: unset !important;
 }

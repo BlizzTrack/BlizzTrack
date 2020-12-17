@@ -95,12 +95,25 @@ namespace BlizzTrack.API
             identity.AddClaim(new Claim(ClaimTypes.Name, user.UserName));
             identity.AddClaim(new Claim("urn:battle_tag", user.BattleTag));
 
-            foreach (var role in await _userManager.GetRolesAsync(user))
+            var f = new ClaimsPrincipal(identity);
+
+            user = await _userManager.GetUserAsync(f);
+
+            if (!await _userManager.IsInRoleAsync(user, "User"))
+                await _userManager.AddToRoleAsync(user, "User");
+
+            if(user.Id == _config.GetValue<string>("root_user", ""))
             {
-                identity.AddClaim(new Claim(ClaimTypes.Role, role));
+                if (!await _userManager.IsInRoleAsync(user, "Admin"))
+                    await _userManager.AddToRoleAsync(user, "Admin");
             }
 
-            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(identity));
+            foreach (var role in await _userManager.GetRolesAsync(user))
+            {
+                f.Claims.ToList().Add(new Claim(ClaimTypes.Role, role));
+            }
+
+            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, f);
 
             return Redirect(returnUrl);
         }

@@ -139,10 +139,10 @@
                                         </div>
                                         <b class="caret d-none d-lg-block d-xl-block"></b>
                                         <p class="d-lg-none">
-                                            Log out
+                                            @(Context.User.Claims.First(x => x.Type == "urn:battle_tag").Value)
                                         </p>
                                     </a>
-                                    <ul class="dropdown-menu dropdown-navbar">
+                                    <ul class="dropdown-menu dropdown-navbar">  
                                         <li class="nav-link">
                                             <a href="javascript:void(0)" class="nav-item dropdown-item">
                                                 <i class="fa fa-user tim-icons"></i> My Profile
@@ -157,9 +157,9 @@
                                     </ul>
                                 </li>
                             } else {
-                                <li class="nav-item text-white" style="padding: 5px">
-                                    <a class="nav-link text-white" asp-controller="Auth" asp-action="Login" style="padding: 8px; display: inline-flex">
-                                        <i class="fa fa-user tim-icons mr-2"></i> Login with Battle.net
+                                <li class="nav-item" style="padding: 5px">
+                                    <a class="nav-link" asp-controller="Auth" asp-action="Login" style="padding: 8px; display: inline-flex">
+                                             <i class="fa fa-user tim-icons mr-2"></i> Login with Battle.net
                                     </a>
                                 </li>
                             }
