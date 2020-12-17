@@ -1,8 +1,6 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
 
-@inject IConfiguration config;
-
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -132,7 +130,7 @@
                                     <span class="d-lg-none d-md-block">Search</span>
                                 </button>
                             </li>
-                            <feature name="auth">
+                            <feature name="@nameof(FeatureFlags.UserAuth)">
                                 @if (Context.User.Identity.IsAuthenticated)
                                 {
                                     <li class="dropdown nav-item">
