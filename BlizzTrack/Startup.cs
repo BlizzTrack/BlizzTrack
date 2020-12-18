@@ -12,6 +12,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.FeatureManagement;
+using Minio.AspNetCore;
 using StackExchange.Redis.Extensions.Core.Configuration;
 using StackExchange.Redis.Extensions.Newtonsoft;
 using System.Security.Claims;
@@ -127,6 +128,17 @@ namespace BlizzTrack
             };
 
             services.AddStackExchangeRedisExtensions<NewtonsoftSerializer>(conf);
+
+            services.AddMinio(options =>
+            {
+                options.Endpoint = Configuration.GetValue("AWS:Endpoint", "");
+                options.SecretKey = Configuration.GetValue("AWS:SecretKey", "");
+                options.AccessKey = Configuration.GetValue("AWS:AccessKey", "");
+                options.OnClientConfiguration = client =>
+                {
+                    client.WithSSL();
+                };
+            });
 
             // Blizzard services
             services.AddSingleton(x => new BNetLib.Networking.BNetClient());

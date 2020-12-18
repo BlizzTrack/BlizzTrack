@@ -5,6 +5,18 @@
     ViewData["Title"] = $"{BNetLib.Helpers.GameName.Get(Model.Meta.Product)} // {Model.Meta.Flags}";
 }
 
+@if (Model.GameConfig.Logos?.Count > 0)
+{
+    var logo = Model.GameConfig.Logos.FirstOrDefault(x => x.Type == "image/png");
+    if (logo != null)
+        @section Header {
+            <meta Name="twitter:image:src" Content="@logo.URL" />
+            <meta Name="og:image" Content="@logo.URL" />
+            <meta Name="twitter:url" Content="@logo.URL" />
+            <meta Name="og:url" Content="@logo.URL" />
+        }
+}
+
 <div class="row">
     <div class="col-12" aria-label="breadcrumb col-12" role="navigation">
         <ol class="breadcrumb">

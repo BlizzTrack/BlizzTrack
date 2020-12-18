@@ -18778,8 +18778,7 @@ textarea.form-control {
 }
 
 .form-group input[type=file] {
-    opacity: 0;
-    position: absolute;
+    color: rgba(255, 255, 255, 0.8);
     top: 0;
     right: 0;
     bottom: 0;
@@ -18787,6 +18786,10 @@ textarea.form-control {
     width: 100%;
     height: 100%;
     z-index: 100;
+}
+
+.white-content .form-group input[type=file] {
+    color: #222a42;
 }
 
 .form-text {

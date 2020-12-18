@@ -31,11 +31,8 @@ namespace BlizzTrack.Services
             { "prot", "overwatch/ptr" }
         };
 
-        public async Task<string> Get(string code)
+        public async Task<string> Get(string url)
         {
-            if (!Has(code)) return string.Empty;
-            var url = _games[code];
-
             if(await _redisDatabase.ExistsAsync($"alert_{url}"))
             {
                 return await _redisDatabase.GetAsync<string>($"alert_{url}");

@@ -19,8 +19,8 @@ namespace BlizzTrack.API
 {
     [Route("Auth")]
     [ApiController]
-    [Authorize]
     [FeatureGate(nameof(FeatureFlags.UserAuth))]
+    [Authorize]
     public class AuthController : ControllerBase
     {
         private readonly UserManager<User> _userManager;
@@ -40,7 +40,7 @@ namespace BlizzTrack.API
         {
             await HttpContext.ChallengeAsync(BattleNetAuthenticationDefaults.AuthenticationScheme, new AuthenticationProperties()
             {
-                RedirectUri = new PathString("/Auth/ExternalAuthLogin").Add(QueryString.Create("returnUrl", returnUrl)),
+                RedirectUri = new PathString("/Auth/ExternalAuthLogin").Add(QueryString.Create("returnUrl", "/")),
             });
         }
 
@@ -117,7 +117,7 @@ namespace BlizzTrack.API
 
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, f);
 
-            return Redirect(returnUrl);
+            return Redirect("/");
         }
     }
 }

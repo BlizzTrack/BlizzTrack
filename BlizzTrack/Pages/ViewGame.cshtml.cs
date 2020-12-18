@@ -47,7 +47,7 @@ namespace BlizzTrack.Pages
 
         public Core.Models.GameConfig GameConfig { get; set; }
 
-        public string Alert { get; set; }
+        public string Alert { get; set; } = string.Empty;
 
         public async Task<IActionResult> OnGetAsync()
         {
@@ -57,7 +57,8 @@ namespace BlizzTrack.Pages
 
             GameConfig = await _gameConfig.Get(exist.Product);
 
-            Alert = await _blizzardAlerts.Get(exist.Product);
+            if(!string.IsNullOrEmpty(GameConfig.ServiceURL))
+                Alert = await _blizzardAlerts.Get(GameConfig.ServiceURL);
 
             Meta = exist;
 

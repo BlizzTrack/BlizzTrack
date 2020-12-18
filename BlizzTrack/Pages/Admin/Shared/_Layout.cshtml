@@ -81,21 +81,15 @@
                 </div>
                 <ul class="nav">
                     <li class="@(string.IsNullOrEmpty(ViewData["Page"] as string) ? "active" : "")">
-                        <a asp-page="/Index" style="display: inline-flex">
+                        <a asp-page="/Admin/Index" style="display: inline-flex">
                             <i class="tim-icons fa fa-home"></i>
                             <p class="nav-item-title">All Games</p>
                         </a>
                     </li>
-                    <li class="@(string.Equals(ViewData["Page"] as string, "Discord Bot") ? "active" : "")">
-                        <a asp-page="/Docs/Bot" style="display: inline-flex">
-                            <i class="tim-icons fa fa-robot"></i>
-                            <p class="nav-item-title">Discord Bot</p>
-                        </a>
-                    </li>
-                    <li class="@(string.Equals(ViewData["Page"] as string, "Terminal") ? "active" : "")">
-                        <a asp-page="/Term" style="display: inline-flex">
-                            <i class="tim-icons fa fa-terminal"></i>
-                            <p class="nav-item-title">Ribbit Terminal</p>
+                    <li class="@(string.Equals(ViewData["Page"] as string, "Admin Errors") ? "active" : "")">
+                        <a asp-page="/Admin/SystemErrors" style="display: inline-flex">
+                            <i class="tim-icons fa fa-bug"></i>
+                            <p class="nav-item-title">System Errors</p>
                         </a>
                     </li>
                 </ul>
@@ -124,6 +118,12 @@
                     </button>
                     <div class="collapse navbar-collapse" id="navigation">
                         <ul class="navbar-nav ml-auto">
+                            <li class="search-bar input-group" style="width: auto !important;">
+                                <button class="btn btn-link" id="search-button" data-toggle="modal" data-target="#searchModal">
+                                    <i class="tim-icons fa fa-search"></i>
+                                    <span class="d-lg-none d-md-block">Search</span>
+                                </button>
+                            </li>
                             @if (Context.User.Identity.IsAuthenticated)
                             {
                                 <li class="dropdown nav-item">
@@ -136,7 +136,7 @@
                                             @(Context.User.Claims.First(x => x.Type == "urn:battle_tag").Value)
                                         </p>
                                     </a>
-                                    <ul class="dropdown-menu dropdown-navbar">  
+                                    <ul class="dropdown-menu dropdown-navbar">
                                         <li class="nav-link">
                                             <a asp-controller="Auth" asp-action="Logout" class="nav-item dropdown-item">
                                                 <i class="fa fa-door-closed tim-icons"></i> Log Out
@@ -144,7 +144,9 @@
                                         </li>
                                     </ul>
                                 </li>
-                            } else {
+                            }
+                            else
+                            {
                                 <li class="nav-item" style="padding: 5px">
                                     <a class="nav-link" asp-controller="Auth" asp-action="Login" style="padding: 8px; display: inline-flex">
                                         <i class="fa fa-user tim-icons mr-2"></i> Login with Battle.net
@@ -156,6 +158,18 @@
                     </div>
                 </div>
             </nav>
+            <div class="modal modal-search fade" id="searchModal" tabindex="-1" role="dialog" aria-labelledby="searchModal" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <form method="get" action="/Admin" class="modal-header" autocomplete="off">
+                            <input autocomplete="off" name="search" type="text" class="form-control" id="inlineFormInputGroup" placeholder="SEARCH FOR GAME">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <i data-feather="x" class="tim-icons icon-simple-remove"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
             <!-- End Navbar -->
             <div class="content">
                 @RenderBody()

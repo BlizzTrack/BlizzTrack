@@ -1,4 +1,5 @@
-﻿using Core.Models;
+﻿using Core.Extensions;
+using Core.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -12,6 +13,8 @@ namespace Core.Services
         Task<Models.GameConfig> Get(string code);
 
         Task<List<Models.GameConfig>> In(string[] codes);
+
+        Task<List<Models.GameConfig>> All();
     }
     public class GameConfig : IGameConfig
     {
@@ -19,6 +22,13 @@ namespace Core.Services
         public GameConfig(DBContext dbContext)
         {
             _dbContext = dbContext;
+        }
+
+        public async Task<List<Models.GameConfig>> All()
+        {
+            var f = await _dbContext.GameConfigs.ToListAsync();
+
+            return f.OrderByAlphaNumeric(x => x.Code).ToList();
         }
 
         public async Task<Models.GameConfig> Get(string code)

@@ -7,6 +7,7 @@ namespace BlizzTrack.Helpers
 {
     public enum FeatureFlags
     {
-        UserAuth
+        UserAuth,
+        AdminPanel
     }
 }

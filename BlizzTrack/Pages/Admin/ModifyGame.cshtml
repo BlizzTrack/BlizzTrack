@@ -1,0 +1,87 @@
+﻿@page "/admin/modify-game/{game}"
+@model BlizzTrack.Pages.Admin.ModifyGameModel
+@{
+    ViewData["Title"] = $"Modifying {Model.GameInfo.GetName()}";
+}
+
+<div class="row">
+    <div class="col-12" aria-label="breadcrumb col-12" role="navigation">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a asp-page="/Admin/Index">All Games</a>
+            </li>
+            <li class="breadcrumb-item active">@ViewData["Title"]</li>
+        </ol>
+    </div>
+
+    <div class="col-sm-12 col-md-4">
+        <div class="card card-user">
+            <div class="card-body">
+                <p class="card-text">
+                </p><div class="author">
+                    <div class="block block-one"></div>
+                    <div class="block block-two"></div>
+                    <div class="block block-three"></div>
+                    <div class="block block-four"></div>
+                    <a href="javascript:void(0)">
+                        <img class="avatar" src="@(Model.GameInfo.Logos?.Count == 0 || Model.GameInfo.Logos?.Where(x => x.Type == "image/png").FirstOrDefault() == null ? "https://via.placeholder.com/150" : Model.GameInfo.Logos.Where(x => x.Type == "image/png").FirstOrDefault().URL)" alt="...">
+                    </a>
+                    <p class="description">
+                        @Model.GameInfo.GetName()
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="colsm-12 col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="title">Edit Game Info</h5>
+            </div>
+            <form method="post" action="" enctype="multipart/form-data">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="form-group">
+                                @Html.LabelFor(x => x.GameInfoModel.GameName)
+                                @Html.TextBoxFor(x => x.GameInfoModel.GameName, new { placeholder = "Game Name", @class = "form-control mb-1" })
+                                @Html.ValidationMessageFor(x => x.GameInfoModel.GameName, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="form-group">
+                                @Html.LabelFor(x => x.GameInfoModel.GameWebsite)
+                                @Html.TextBoxFor(x => x.GameInfoModel.GameWebsite, new { placeholder = "Game Website", @class = "form-control mb-1" })
+                                @Html.ValidationMessageFor(x => x.GameInfoModel.GameWebsite, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="form-group">
+                                @Html.LabelFor(x => x.GameInfoModel.ServiceAlertPath)
+                                @Html.TextBoxFor(x => x.GameInfoModel.ServiceAlertPath, new { placeholder = "Game Service Alert Path (not full URL)", @class = "form-control mb-1" })
+                                @Html.ValidationMessageFor(x => x.GameInfoModel.ServiceAlertPath, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="form-group">
+                                @Html.LabelFor(x => x.GameInfoModel.Icon)
+                                @Html.TextBoxFor(x => x.GameInfoModel.Icon, new { type = "file", @class = "form-control-file", accept = ".png,.svg" })
+                                @Html.ValidationMessageFor(x => x.GameInfoModel.Icon, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <button type="submit" class="btn btn-fill btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

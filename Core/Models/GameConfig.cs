@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Core.Models
@@ -10,6 +11,28 @@ namespace Core.Models
 
         [Column(TypeName = "jsonb")]
         public ConfigItems Config { get; set; }
+
+        public string Name { get; set; } = string.Empty;
+
+        [Column(TypeName = "jsonb")]
+        public List<Icons> Logos { get; set; } = new List<Icons>();
+
+        public string Website { get; set; }
+
+        public string ServiceURL { get; set; }
+
+        public string GetName()
+        {
+            if (string.IsNullOrEmpty(Name)) return BNetLib.Helpers.GameName.Get(Code);
+
+            return Name;
+        }
+    }
+
+    public class Icons
+    {
+        public string Type { get; set; } 
+        public string URL { get; set; }
     }
 
     public class ConfigItems
