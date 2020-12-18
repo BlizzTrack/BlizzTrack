@@ -15,20 +15,65 @@
     </div>
 
     <div class="col-sm-12 col-md-4">
-        <div class="card card-user">
-            <div class="card-body">
-                <p class="card-text">
-                </p><div class="author">
-                    <div class="block block-one"></div>
-                    <div class="block block-two"></div>
-                    <div class="block block-three"></div>
-                    <div class="block block-four"></div>
-                    <a href="javascript:void(0)">
-                        <img class="avatar" src="@(Model.GameInfo.Logos?.Count == 0 || Model.GameInfo.Logos?.Where(x => x.Type == "image/png").FirstOrDefault() == null ? "https://via.placeholder.com/150" : Model.GameInfo.Logos.Where(x => x.Type == "image/png").FirstOrDefault().URL)" alt="...">
-                    </a>
-                    <p class="description">
-                        @Model.GameInfo.GetName()
-                    </p>
+        <div class="row">
+            <div class="col-12">
+                <div class="card card-user">
+                    <div class="card-body">
+                        <p class="card-text">
+                        </p><div class="author">
+                            <div class="block block-one"></div>
+                            <div class="block block-two"></div>
+                            <div class="block block-three"></div>
+                            <div class="block block-four"></div>
+                            <a href="javascript:void(0)">
+                                <img class="avatar" src="@(Model.GameInfo.Logos?.Count == 0 || Model.GameInfo.Logos?.Where(x => x.Type == "image/png").FirstOrDefault() == null ? "https://via.placeholder.com/150" : Model.GameInfo.Logos.Where(x => x.Type == "image/png").FirstOrDefault().URL)" alt="...">
+                            </a>
+                            <p class="description">
+                                @Model.GameInfo.GetName()
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12">
+                <div class="card ">
+                    <div class="card-header">
+                        <div class="col-sm-12 text-left">
+                            <h2 class="card-title">All Assets</h2>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive ps">
+                            <table class="table tablesorter table-hover" id="">
+                                <thead class=" text-primary">
+                                    <tr>
+                                        <th style="width: 25px;" data-toggle="tooltip" data-placement="right" title="Is game encrypted">
+                                        </th>
+                                        <th>
+                                            Type
+                                        </th>
+                                        <th>
+                                            Name
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model.GameInfo.Logos?.ToArray())
+                                    {
+                                        <tr>
+                                            <td><i class="fa fa-image"></i></td>
+                                            <td>
+                                                @item.Type
+                                            </td>
+                                            <td>
+                                                <a href="@item.URL" target="_blank">@System.IO.Path.GetFileName(item.URL)</a>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

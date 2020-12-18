@@ -26,7 +26,7 @@ namespace BlizzTrack.Pages.Admin
         [Url]
         public string GameWebsite { get; set; }
 
-        [Display(Name = "Game Icon")]
+        [Display(Name = "Game Asset (Images)")]
         public IFormFile Icon { get; set; }
 
         [Display(Name = "Service Alert Icon Path")]
@@ -92,7 +92,7 @@ namespace BlizzTrack.Pages.Admin
                     return Page();
                 }
 
-                var dest = Path.Join("bt", "logos", "games", $"{Guid.NewGuid()}.{GameInfoModel.Icon.ContentType.Split("/").Last()}").Replace("\\", "/").TrimStart('/');
+                var dest = Path.Join("bt", "logos", "games", $"{Guid.NewGuid()}{Path.GetExtension(GameInfoModel.Icon.FileName)}").Replace("\\", "/").TrimStart('/');
 
                 using var ms = GameInfoModel.Icon.OpenReadStream();
 
