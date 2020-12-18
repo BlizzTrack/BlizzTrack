@@ -17,7 +17,9 @@
     <link href="~/css/style.css" rel="stylesheet" asp-append-version="true" />
     <link href="~/lib/font-awesome/css/all.min.css" rel="stylesheet" asp-append-version="true" />
     <link href="~/lib/jquery.terminal/css/jquery.terminal.min.css" rel="stylesheet" asp-append-version="true" />
-
+    <!--
+    <link href="~/lib/jquery.perfect-scrollbar/css/perfect-scrollbar.min.css" rel="stylesheet" asp-append-version="true" />
+        -->
     <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
     <link rel="preconnect" href="https://cdn.blizztrack.com/" crossorigin>
     <link rel="dns-prefetch" href="https://fonts.gstatic.com/">
@@ -63,11 +65,13 @@
 
 <body class="">
     <div class="wrapper">
+        <div class="navbar-minimize-fixed" style="opacity: 0;">
+            <button class="minimize-sidebar btn btn-link btn-just-icon">
+                <i class="tim-icons fa fa-align-center text-muted"></i>
+            </button>
+        </div>
         <div class="sidebar" data="blue">
-            <!--
-                Tip 1: You can change the color of the sidebar using: data-color="blue | green | orange | red"
-            -->
-            <div class="sidebar-wrapper">
+            <div class="sidebar-wrapper" style="overflow-x: hidden">
                 <div class="logo">
                     <a href="javascript:void(0)" class="simple-text logo-mini">
                         <img width="32" src="~/images/logos/bt.svg" alt="BlizzTrack" />
@@ -103,6 +107,11 @@
             <nav class="navbar navbar-expand-lg navbar-absolute navbar-transparent">
                 <div class="container-fluid">
                     <div class="navbar-wrapper">
+                        <div class="navbar-minimize d-inline">
+                            <button class="minimize-sidebar btn btn-link btn-just-icon" data-toggle="tooltip" rel="tooltip" title="Sidebar toggle" data-placement="right" id="minimizeSidebar">
+                                <i class="tim-icons fa fa-align-center"></i>
+                            </button>
+                        </div>
                         <div class="navbar-toggle d-inline">
                             <button type="button" class="navbar-toggler">
                                 <span class="navbar-toggler-bar bar1"></span>
@@ -110,9 +119,7 @@
                                 <span class="navbar-toggler-bar bar3"></span>
                             </button>
                         </div>
-                        <a class="navbar-brand" asp-page="/Index">
-                            BlizzTrack
-                        </a>
+                        <a class="navbar-brand" asp-page="/Index">BlizzTrack</a>
                     </div>
                     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navigation" aria-expanded="false" aria-label="Toggle navigation">
                         <span class="navbar-toggler-bar navbar-kebab"></span>
@@ -242,7 +249,9 @@
     <script src="~/lib/jquery/jquery.min.js" asp-append-version="true"></script>
     <script src="~/lib/popper.js/umd/popper.min.js" asp-append-version="true"></script>
     <script src="~/lib/bootstrap/js/bootstrap.min.js" asp-append-version="true"></script>
+    <!--
     <script src="~/lib/jquery.perfect-scrollbar/perfect-scrollbar.min.js" asp-append-version="true"></script>
+        -->
     <script src="~/lib/jquery.terminal/js/jquery.terminal.min.js" asp-append-version="true"></script>
 
     <script src="~/lib/feather-icons/feather.min.js" asp-append-version="true"></script>
@@ -276,12 +285,12 @@
                 fixed_plugin_open = $('.sidebar .sidebar-wrapper .nav li.active a p').html();
 
                 const data = window.store.get("config");
-                let localSettings = {};
+                window.localSettings = {};
                 if (data)
-                    localSettings = JSON.parse(data);
+                    window.localSettings = JSON.parse(data);
 
                 window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
-                    if (localSettings.theme != "device") {
+                    if (window.localSettings.theme != "device") {
                         return;
                     }
                     const newColorScheme = e.matches ? "dark" : "light";
@@ -305,8 +314,8 @@
                     }
                 });
 
-                if (localSettings.theme) {
-                    const newColorScheme = localSettings.theme;
+                if (window.localSettings.theme) {
+                    const newColorScheme = window.localSettings.theme;
 
                     if (newColorScheme === "dark") {
                         $('body').addClass('change-background');
@@ -327,8 +336,12 @@
                     }
                 }
 
-                if (localSettings.sidebar) {
-                    var new_color = localSettings.sidebar;
+                if (window.localSettings.mini_bar) {
+                    $("body").addClass("sidebar-mini");
+                }
+
+                if (window.localSettings.sidebar) {
+                    var new_color = window.localSettings.sidebar;
 
                     if ($sidebar.length != 0) {
                         $sidebar.attr('data', new_color);
@@ -385,22 +398,22 @@
                         $sidebar_responsive.attr('data', new_color);
                     }
 
-                    localSettings.sidebar = new_color;
-                    window.store.set("config", JSON.stringify(localSettings));
+                    window.localSettings.sidebar = new_color;
+                    window.store.set("config", JSON.stringify(window.localSettings));
                 });
 
                 $('.light-badge').click(function () {
                     $('body').addClass('white-content');
 
-                    localSettings.theme = "light";
-                    window.store.set("config", JSON.stringify(localSettings));
+                    window.localSettings.theme = "light";
+                    window.store.set("config", JSON.stringify(window.localSettings));
                 });
 
                 $('.dark-badge').click(function () {
                     $('body').removeClass('white-content');
 
-                    localSettings.theme = "dark";
-                    window.store.set("config", JSON.stringify(localSettings));
+                    window.localSettings.theme = "dark";
+                    window.store.set("config", JSON.stringify(window.localSettings));
                 });
             });
         });

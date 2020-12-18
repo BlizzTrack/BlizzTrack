@@ -61,6 +61,7 @@ namespace BlizzTrack.API
                         x.Flags,
                         x.Seqn,
                         encrypted = configs.FirstOrDefault(f => f.Code == x.Product)?.Config.Encrypted,
+                        logos = configs.FirstOrDefault(f => f.Code == x.Product)?.Logos,
                         relations = new
                         {
                             view = Url.Action("Get", "ngpd", new { code = x.Product, file = x.Flags, seqn = x.Seqn }, scheme),
@@ -121,6 +122,7 @@ namespace BlizzTrack.API
                                 data.Seqn,
                                 code,
                                 encrypted = config.Config.Encrypted,
+                                logos = config.Logos,
                                 command = cmd.ToString(),
                                 data = ver
                             };
@@ -150,6 +152,7 @@ namespace BlizzTrack.API
                                 data.Seqn,
                                 code,
                                 encrypted = config.Config.Encrypted,
+                                logos = config.Logos,
                                 command = cmd.ToString(),
                                 data = ver
                             };
@@ -181,6 +184,7 @@ namespace BlizzTrack.API
                                 data.Seqn,
                                 code,
                                 encrypted = config.Config.Encrypted,
+                                logos = config.Logos,
                                 command = cmd.ToString(),
                                 data = ver
                             };
@@ -210,6 +214,7 @@ namespace BlizzTrack.API
                                             name = BNetLib.Helpers.GameName.Get(code),
                                             code = code.ToLower(),
                                             encrypted = config.Config.Encrypted,
+                                            logos = config.Logos,
                                             latest = f.First(),
                                             data = f
                                         };
@@ -234,6 +239,7 @@ namespace BlizzTrack.API
                                             name = BNetLib.Helpers.GameName.Get(code),
                                             code = code.ToLower(),
                                             encrypted = config.Config.Encrypted,
+                                            logos = config.Logos,
                                             latest = f.First(),
                                             data = f
                                         };
@@ -258,7 +264,7 @@ namespace BlizzTrack.API
                                             name = BNetLib.Helpers.GameName.Get(code),
                                             code = code.ToLower(),
                                             encrypted = config.Config.Encrypted,
-
+                                            logos = config.Logos,
                                             latest = f.First(),
                                             data = f
                                         };
@@ -346,6 +352,7 @@ namespace BlizzTrack.API
                                     x.Flags,
                                     x.Seqn,
                                     encrypted = configs.FirstOrDefault(f => f.Code == x.Product)?.Config.Encrypted,
+                                    logos = configs.FirstOrDefault(f => f.Code == x.Product)?.Logos,
                                     relations = new
                                     {
                                         view = Url.Action("Get", "ngpd", new { code = x.Product, file = x.Flags, seqn = x.Seqn }, scheme),

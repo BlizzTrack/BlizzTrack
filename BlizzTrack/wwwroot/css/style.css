@@ -2020,6 +2020,10 @@ pre {
         .table-responsive-lg > .table-bordered {
             border: 0;
         }
+   
+        .minimize-sidebar {
+            display: none;
+        }
 }
 
 @media (max-width: 1199.98px) {
@@ -3535,6 +3539,11 @@ fieldset:disabled a.btn {
     font-weight: 400;
     color: #e14eca;
     text-decoration: none;
+    border: 0;
+    box-shadow: none;
+    padding: 0.5rem 0.7rem;
+    background: transparent;
+    font-weight: 600;
 }
 
     .btn-link:hover {
@@ -15845,7 +15854,6 @@ img {
     }
 
     .navbar .navbar-brand {
-        position: fixed;
         padding-top: .3125rem;
         padding-bottom: .3125rem;
         color: #ffffff;
@@ -17695,6 +17703,29 @@ table.tablesorter thead tr .headerSortDown {
         background: -moz-linear-gradient(0deg, #0098f0 0%, #00f2c3 100%);
         background: linear-gradient(0deg, #0098f0 0%, #00f2c3 100%);
     }
+
+    .off-canvas-sidebar[data="primary"]::before, .sidebar[data="primary"]::before {
+        border-bottom: 5px solid #e14eca;
+    }
+
+
+    .off-canvas-sidebar[data="blue"]::before, .sidebar[data="blue"]::before {
+        border-bottom: 5px solid #1d8cf8;
+    }
+
+    .off-canvas-sidebar[data="green"]::before, .sidebar[data="green"]::before {
+        border-bottom: 5px solid #00f2c3;
+    }
+
+        .off-canvas-sidebar::before, .sidebar::before {
+            content: "";
+            position: absolute;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            top: -5px;
+            left: 40px;
+            transform: translate(-50%);
+        }
 
     .sidebar .user,
     .off-canvas-sidebar .user {

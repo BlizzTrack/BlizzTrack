@@ -64,15 +64,15 @@ namespace BlizzTrack.Pages
 
             Manifest = exist.Flags switch
             {
-                "versions" or "version" => await getVersions(exist.Product),
-                "bgdl" => await getBGDL(exist.Product),
+                "versions" or "version" => await GetVersions(exist.Product),
+                "bgdl" => await GetBGDL(exist.Product),
                 _ => null
             };
 
             return Page();
        }
 
-        private async Task<List<Manifest<BNetLib.Models.Versions[]>>> getVersions(string product)
+        private async Task<List<Manifest<BNetLib.Models.Versions[]>>> GetVersions(string product)
         {
             var data = await _versions.Take(product, 2);
             if (LatestSeqn != null)
@@ -95,7 +95,7 @@ namespace BlizzTrack.Pages
             return data;
         }
 
-        private async Task<List<Manifest<BNetLib.Models.BGDL[]>>> getBGDL(string product)
+        private async Task<List<Manifest<BNetLib.Models.BGDL[]>>> GetBGDL(string product)
         {
             var data = await _bgdl.Take(product, 2);
             if (LatestSeqn != null)

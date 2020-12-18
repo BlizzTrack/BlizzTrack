@@ -19,7 +19,7 @@
       "destination": "wwwroot/lib/popper.js/"
     },
     {
-      "library": "jquery.perfect-scrollbar@1.5.0",
+      "library": "jquery.perfect-scrollbar@1.4.0",
       "destination": "wwwroot/lib/jquery.perfect-scrollbar/"
     },
     {

@@ -45,38 +45,7 @@ var seq2 = 0,
     delays2 = 80,
     durations2 = 500;
 
-(function () {
-    var isWindows = navigator.platform.indexOf('Win') > -1 ? true : false;
-
-    if (isWindows) {
-        // if we are on windows OS we activate the perfectScrollbar function
-        if ($('.main-panel').length != 0) {
-            var ps = new PerfectScrollbar('.main-panel', {
-                wheelSpeed: 2,
-                wheelPropagation: true,
-                minScrollbarLength: 20,
-                suppressScrollX: true
-            });
-        }
-
-        if ($('.sidebar .sidebar-wrapper').length != 0) {
-
-            var ps1 = new PerfectScrollbar('.sidebar .sidebar-wrapper');
-            $('.table-responsive').each(function () {
-                var ps2 = new PerfectScrollbar($(this)[0]);
-            });
-        }
-
-
-
-        $html.addClass('perfect-scrollbar-on');
-    } else {
-        $html.addClass('perfect-scrollbar-off');
-    }
-})();
-
 $(document).ready(function () {
-
     var scroll_start = 0;
     var startchange = $('.row');
     var offset = startchange.offset();
@@ -196,25 +165,28 @@ blackDashboard = {
             sidebar_mini_active = true;
         }
 
-        $('#minimizeSidebar').click(function () {
-            var $btn = $(this);
 
-            if (sidebar_mini_active == true) {
+        $('.minimize-sidebar').click(function () {
+            var $btn = $(this);
+            const miniActice = $("body").hasClass("sidebar-mini");
+
+
+            if (miniActice) {
                 $('body').removeClass('sidebar-mini');
                 sidebar_mini_active = false;
-                blackDashboard.showSidebarMessage('Sidebar mini deactivated...');
+                window.localSettings.mini_bar = false;
             } else {
                 $('body').addClass('sidebar-mini');
                 sidebar_mini_active = true;
-                blackDashboard.showSidebarMessage('Sidebar mini activated...');
+                window.localSettings.mini_bar = true;
             }
 
-            // we simulate the window Resize so the charts will get updated in realtime.
+            window.store.set("config", JSON.stringify(window.localSettings));
+
             var simulateWindowResize = setInterval(function () {
                 window.dispatchEvent(new Event('resize'));
             }, 180);
 
-            // we stop the simulation of Window Resize after the animations are completed
             setTimeout(function () {
                 clearInterval(simulateWindowResize);
             }, 1000);
