@@ -75,7 +75,7 @@ namespace BlizzTrack.Pages.Admin
                 };
         }
 
-        public async Task<IActionResult> OnPostAsync()
+        public async Task<IActionResult> OnPostUpdateGameAsync()
         {
             GameInfo = await _gameConfig.Get(GameCode);
 
@@ -110,6 +110,11 @@ namespace BlizzTrack.Pages.Admin
                     });
                 } else
                 {
+                    // Delete old image then set URL to the new one
+                    var path = new Uri(exist.URL);
+                    var filePath = path.AbsolutePath.TrimStart('/');
+                    await _minioClient.RemoveObjectAsync(_bucket, filePath);
+
                     exist.URL = $"https://cdn.blizztrack.com/{dest}";
                 }
             }
@@ -121,7 +126,33 @@ namespace BlizzTrack.Pages.Admin
             _dbContext.GameConfigs.Update(GameInfo);
             await _dbContext.SaveChangesAsync();
 
-            return Page();
+            return Redirect(HttpContext.Request.Path);
+        }
+
+        public async Task<IActionResult> OnPostDeleteAssetAsync(string asset_url, string asset_type) 
+        {
+            GameInfo = await _gameConfig.Get(GameCode);
+            if(GameInfo.Logos != null)
+            {
+                var asset = GameInfo.Logos.FirstOrDefault(x => x.URL == asset_url && x.Type == asset_type);
+                GameInfo.Logos.Remove(asset);
+
+                var path = new Uri(asset.URL);
+                var filePath = path.AbsolutePath.TrimStart('/');
+                await _minioClient.RemoveObjectAsync(_bucket, filePath);
+
+                await _gameConfig.Update(GameInfo);
+            }
+
+            if (GameInfoModel == null)
+                GameInfoModel = new GameInfoModel
+                {
+                    GameName = GameInfo.GetName(),
+                    GameWebsite = GameInfo.Website,
+                    ServiceAlertPath = GameInfo.ServiceURL
+                };
+
+            return Redirect(HttpContext.Request.Path);
         }
 
     }

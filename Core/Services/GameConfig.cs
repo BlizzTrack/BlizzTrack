@@ -15,6 +15,8 @@ namespace Core.Services
         Task<List<Models.GameConfig>> In(string[] codes);
 
         Task<List<Models.GameConfig>> All();
+
+        Task Update(Models.GameConfig config);
     }
     public class GameConfig : IGameConfig
     {
@@ -39,6 +41,12 @@ namespace Core.Services
         public async Task<List<Models.GameConfig>> In(string[] codes)
         {
             return await _dbContext.GameConfigs.Where(x => codes.Contains(x.Code)).ToListAsync();
+        }
+
+        public async Task Update(Models.GameConfig config)
+        {
+            _dbContext.GameConfigs.Update(config);
+            await _dbContext.SaveChangesAsync();
         }
     }
 }
