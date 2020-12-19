@@ -106,7 +106,8 @@ namespace BlizzTrack.Pages.Admin
                     GameInfo.Logos.Add(new Core.Models.Icons()
                     {
                         Type = GameInfoModel.Icon.ContentType,
-                        URL = $"https://cdn.blizztrack.com/{dest}"
+                        URL = $"https://cdn.blizztrack.com/{dest}",
+                        OriginalName = GameInfoModel.Icon.FileName
                     });
                 } else
                 {
@@ -116,6 +117,7 @@ namespace BlizzTrack.Pages.Admin
                     await _minioClient.RemoveObjectAsync(_bucket, filePath);
 
                     exist.URL = $"https://cdn.blizztrack.com/{dest}";
+                    exist.OriginalName = GameInfoModel.Icon.FileName;
                 }
             }
 

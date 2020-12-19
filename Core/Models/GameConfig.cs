@@ -33,6 +33,14 @@ namespace Core.Models
     {
         public string Type { get; set; } 
         public string URL { get; set; }
+        public string OriginalName { get; set; }
+
+        public string GetName()
+        {
+            if (!string.IsNullOrEmpty(OriginalName)) return OriginalName;
+
+            return System.IO.Path.GetFileName(URL);
+        }
     }
 
     public class ConfigItems

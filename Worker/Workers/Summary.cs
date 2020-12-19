@@ -73,8 +73,7 @@ namespace Worker.Workers
                     foreach (var item in latest.Content)
                     {
                         await AddItemToData(item, _dbContext, cancellationToken);
-                        await CheckifEncrypted(item, _dbContext, cancellationToken, _logger);
-                        _dbContext.SaveChanges();
+                            _dbContext.SaveChanges();
                     }
 
                     firstRun = false;
@@ -100,7 +99,6 @@ namespace Worker.Workers
                         try
                         {
                             await AddItemToData(item, _dbContext, cancellationToken);
-                            await CheckifEncrypted(item, _dbContext, cancellationToken, _logger);
                             _dbContext.SaveChanges();
                         }
                         catch (Exception ex)
@@ -157,6 +155,9 @@ namespace Worker.Workers
 
             _logger.LogInformation($"We didn't skip: {code}-{msg.Seqn}-{msg.Flags}");
 
+            // Update the config for only games we detect changes for
+            await CheckifEncrypted(msg, db, cancellationToken, _logger);
+
             var (data, seqn) = await GetMetaData(msg);
 
             switch (data)
@@ -183,6 +184,8 @@ namespace Worker.Workers
                     _logger.LogCritical("Unhandled type");
                     break;
             }
+
+            
         }
 
         private async Task<(IList data, int seqn)> GetMetaData(BNetLib.Models.Summary msg)
@@ -238,7 +241,6 @@ namespace Worker.Workers
                 else
                 {
                     currentGameConfig.Config.Encrypted = false;
-                    dbContext.GameConfigs.Update(currentGameConfig);
                 }
                 return;
             }
@@ -264,7 +266,6 @@ namespace Worker.Workers
                 {
                     currentGameConfig.Config.Encrypted = true;
                     currentGameConfig.Config.EncryptedKey = f.all.config.decryption_key_name;
-                    dbContext.GameConfigs.Update(currentGameConfig);
                 }
             }  else
             {
@@ -282,7 +283,6 @@ namespace Worker.Workers
                 else
                 {
                     currentGameConfig.Config.Encrypted = false;
-                    dbContext.GameConfigs.Update(currentGameConfig);
                 }
             }
         }

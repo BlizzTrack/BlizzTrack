@@ -65,7 +65,7 @@
                                                     @System.IO.Path.GetExtension(item.URL).TrimStart('.')
                                                 </td>
                                                 <td>
-                                                    <a href="@item.URL" target="_blank">@System.IO.Path.GetFileName(item.URL)</a>
+                                                    <a href="@item.URL" target="_blank">@item.GetName()</a>
                                                 </td>
                                                 <td class="text-reset">
                                                     <form method="post" asp-page-handler="DeleteAsset">
