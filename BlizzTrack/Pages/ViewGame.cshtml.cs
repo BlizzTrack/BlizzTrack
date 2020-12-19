@@ -57,7 +57,19 @@ namespace BlizzTrack.Pages
 
             GameConfig = await _gameConfig.Get(exist.Product);
 
-            if(!string.IsNullOrEmpty(GameConfig.ServiceURL))
+            if(GameConfig == null)
+            {
+                GameConfig = new Core.Models.GameConfig()
+                    {
+                        Config = new ConfigItems()
+                        {
+                            Encrypted = true,
+                        },
+                        Code = Code.ToLower()
+                    };
+
+            }
+            if (!string.IsNullOrEmpty(GameConfig.ServiceURL))
                 Alert = await _blizzardAlerts.Get(GameConfig.ServiceURL);
 
             Meta = exist;

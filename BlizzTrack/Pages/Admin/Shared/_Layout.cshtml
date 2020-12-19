@@ -143,23 +143,6 @@
                                         </a>
                                         <ul class="dropdown-menu dropdown-navbar">
                                             <li class="nav-link">
-                                                <a href="javascript:void(0)" class="nav-item dropdown-item">
-                                                    <i class="fa fa-user tim-icons"></i> My Profile
-                                                </a>
-                                            </li>
-                                            <li class="dropdown-divider"></li>
-                                            <feature name="@nameof(FeatureFlags.AdminPanel)">
-                                                @if (Context.User.IsInRole("Admin"))
-                                                {
-                                                    <li class="nav-link">
-                                                        <a asp-page="/Admin/Index" class="nav-item dropdown-item">
-                                                            <i class="fab fa-mandalorian tim-icons"></i> Admin Panel
-                                                        </a>
-                                                    </li>
-                                                    <li class="dropdown-divider"></li>
-                                                }
-                                            </feature>
-                                            <li class="nav-link">
                                                 <a asp-controller="Auth" asp-action="Logout" class="nav-item dropdown-item">
                                                     <i class="fa fa-door-closed tim-icons"></i> Log Out
                                                 </a>
