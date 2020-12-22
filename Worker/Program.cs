@@ -30,7 +30,7 @@ namespace Worker
                 })
                 .ConfigureServices((hostContext, services) =>
                 {
-                    services.AddDbContextPool<DBContext>(options =>
+                    services.AddDbContext<DBContext>(options =>
                         options.UseNpgsql(
                             hostContext.Configuration.GetConnectionString("ConnectionString"), o =>
                             {

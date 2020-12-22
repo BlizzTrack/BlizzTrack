@@ -53,7 +53,7 @@ namespace BlizzTrack
                   .AddRoles<IdentityRole>()
                   .AddEntityFrameworkStores<DBContext>();
 
-            services.AddDbContextPool<DBContext>(options =>
+            services.AddDbContext<DBContext>(options =>
                 options.UseNpgsql(
                     Configuration.GetConnectionString("ConnectionString"), o =>
                     {

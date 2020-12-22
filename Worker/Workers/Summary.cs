@@ -63,6 +63,8 @@ namespace Worker.Workers
             bool firstRun = true;
             while (!cancellationToken.IsCancellationRequested)
             {
+                var stopWatch = Stopwatch.StartNew();
+
                 using var sc = _serviceScope.CreateScope();
                 var _summary = sc.ServiceProvider.GetRequiredService<Core.Services.ISummary>();
                 var _dbContext = sc.ServiceProvider.GetRequiredService<DBContext>();
@@ -108,6 +110,11 @@ namespace Worker.Workers
                     }
 
                 }
+
+                TimeSpan ts = stopWatch.Elapsed;
+                string elapsedTime = $"{ts.Hours:00}:{ts.Minutes:00}:{ts.Seconds:00}.{ts.Milliseconds / 10:00}";
+                _logger.LogInformation($"Checking took {elapsedTime}");
+
                 await Task.Delay(TimeSpan.FromSeconds(30), cancellationToken);
             }
         }
@@ -151,6 +158,9 @@ namespace Worker.Workers
                         }
                         break;
                     }
+                default:
+                    _logger.LogCritical($"Unknown flag for {code}:{msg.Seqn}:{msg.Flags}");
+                    return;
             }
 
             _logger.LogInformation($"We didn't skip: {code}-{msg.Seqn}-{msg.Flags}");
@@ -159,6 +169,7 @@ namespace Worker.Workers
             await CheckifEncrypted(msg, db, cancellationToken, _logger);
 
             var (data, seqn) = await GetMetaData(msg);
+            if (seqn == -1) return;
 
             switch (data)
             {
@@ -197,6 +208,8 @@ namespace Worker.Workers
                 "bgdl" => await _bNetClient.Do<List<BNetLib.Models.BGDL>>(new BGDLCommand(msg.Product)),
                 _ => (null, -1)
             };
+
+            if (res.seqn == -1) return (res.data, res.seqn);
 
             if (res.seqn != msg.Seqn)
             {
