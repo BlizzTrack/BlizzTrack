@@ -74,8 +74,46 @@ namespace BlizzTrack.API
             return Ok(new
             {
                 changes = SummaryDiff,
-                latest,
-                previous,
+                latest = new
+                {
+                    latest.Code,
+                    latest.Name,
+                    latest.Seqn,
+                    latest.Indexed,
+                    content = latest.Content.Select(x => new {
+                        name = x.GetName(),
+                        x.Product,
+                        x.Flags,
+                        x.Seqn,
+                        encrypted = configs.FirstOrDefault(f => f.Code == x.Product)?.Config.Encrypted,
+                        logos = configs.FirstOrDefault(f => f.Code == x.Product)?.Logos,
+                        relations = new
+                        {
+                            view = Url.Action("Get", "ngpd", new { code = x.Product, file = x.Flags, seqn = x.Seqn }, scheme),
+                            seqn = Url.Action("Get", "ngpd", new { code = x.Product, file = "seqn", filter = x.Flags }, scheme),
+                        }
+                    }).ToList()
+                },
+                previous = new
+                {
+                    previous.Code,
+                    previous.Name,
+                    previous.Seqn,
+                    previous.Indexed,
+                    content = previous.Content.Select(x => new {
+                        name = x.GetName(),
+                        x.Product,
+                        x.Flags,
+                        x.Seqn,
+                        encrypted = configs.FirstOrDefault(f => f.Code == x.Product)?.Config.Encrypted,
+                        logos = configs.FirstOrDefault(f => f.Code == x.Product)?.Logos,
+                        relations = new
+                        {
+                            view = Url.Action("Get", "ngpd", new { code = x.Product, file = x.Flags, seqn = x.Seqn }, scheme),
+                            seqn = Url.Action("Get", "ngpd", new { code = x.Product, file = "seqn", filter = x.Flags }, scheme),
+                        }
+                    }).ToList()
+                },
             });
         }
 
