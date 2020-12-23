@@ -49,7 +49,7 @@ namespace BlizzTrack
             services.Configure<MvcNewtonsoftJsonOptions>(x => x.SerializerSettings.NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore);
 
 
-            services.AddDefaultIdentity<User>(options => { options.SignIn.RequireConfirmedAccount = false; })
+            services.AddDefaultIdentity<User>(options => { options.SignIn.RequireConfirmedAccount = false; options.User.RequireUniqueEmail = false; })
                   .AddRoles<IdentityRole>()
                   .AddEntityFrameworkStores<DBContext>();
 
