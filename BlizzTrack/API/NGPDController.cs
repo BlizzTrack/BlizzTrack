@@ -43,7 +43,7 @@ namespace BlizzTrack.API
             }
 
             var Manifests = await _summary.Take(2);
-
+                
             var latest = Manifests.First();
             var previous = Manifests.Last();
 
