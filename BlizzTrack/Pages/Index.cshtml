@@ -243,6 +243,10 @@
                             <tbody>
                                 @{
                                     var gamesList = latestCodes.Where(x => x.Product.StartsWith(parent.Code)).ToList();
+                                    if(parent.ChildrenOverride?.Count > 0)
+                                    {
+                                        gamesList = latestCodes.Where(x => parent.ChildrenOverride.Contains(x.Product)).ToList();
+                                    }
                                 }
 
                                 @foreach (var item in gamesList.OrderByAlphaNumeric(x => x.Product))
