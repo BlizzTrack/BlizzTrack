@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using BlizzTrack.Helpers;
+using Core.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -14,8 +15,19 @@ namespace BlizzTrack.Pages.Admin.Parents
     [Authorize(Roles = "Admin")]
     public class IndexModel : PageModel
     {
-        public void OnGet()
+        private readonly IGameParents _gameParents;
+
+        public IndexModel(IGameParents gameParents)
         {
+            _gameParents = gameParents;
+        }
+
+        public List<Core.Models.GameParents> Parents;
+
+        public async Task OnGetAsync()
+        {
+            Parents = await _gameParents.All();
+            Parents = Parents.OrderBy(x => x.Code).ToList();
         }
     }
 }
