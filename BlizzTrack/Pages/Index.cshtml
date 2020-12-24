@@ -186,6 +186,8 @@
 
     @{
         var latestCodes = Model.Manifests.First().Content.ToList();
+        latestCodes.Remove(latestCodes.FirstOrDefault(x => x.Product == "storm"));
+
         var previousCodes = Model.Manifests.Last().Content;
     }
 
