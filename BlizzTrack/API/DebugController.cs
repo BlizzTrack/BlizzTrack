@@ -1,8 +1,6 @@
 ﻿using Core.Services;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -58,6 +56,16 @@ namespace BlizzTrack.API
         }
         #endregion
 
+        #region /starts-with/:code
+        [HttpGet("starts-with/{code}")]
+        public async Task<IActionResult> StartsWith([FromServices] Core.Models.DBContext dbContext, string code)
+        {
+            var data = await dbContext.GameConfigs.Where(x => code.ToLower().StartsWith(x.Code)).ToListAsync();
+
+            return Ok(data);
+        }
+        #endregion
+
 #endif
-    }
+        }
 }

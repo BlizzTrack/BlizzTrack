@@ -1,0 +1,24 @@
+﻿@page "/admin/game-parents"
+
+@model BlizzTrack.Pages.Admin.Parents.IndexModel
+@{
+    ViewData["Title"] = "Game Parents";
+    ViewData["Page"] = "Game Parents";
+}
+
+<div class="row">
+    <div class="col-12" aria-label="breadcrumb col-12" role="navigation">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a asp-page="/Admin/Index">All Games</a>
+            </li>
+            <li class="breadcrumb-item active">All Parents</li>
+        </ol>
+    </div>
+
+    <div class="col-12 text-right">
+        <a asp-page="/Admin/Parents/Modify" asp-route-handler="New" class="btn btn-sm btn-primary text-white">
+            Add New Parent
+        </a>
+    </div>
+</div>

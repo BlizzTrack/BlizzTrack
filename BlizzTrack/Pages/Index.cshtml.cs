@@ -13,12 +13,14 @@ namespace BlizzTrack.Pages
         private readonly ISummary _summary;
         private readonly IGameConfig _gameConfig;
         private readonly IVersions _versions;
+        private readonly IGameParents _gameParents;
 
-        public IndexModel(ISummary summary, IGameConfig gameConfig, IVersions versions)
+        public IndexModel(ISummary summary, IGameConfig gameConfig, IVersions versions, IGameParents gameParents)
         {
             _summary = summary;
             _gameConfig = gameConfig;
             _versions = versions;
+            _gameParents = gameParents;
         }
 
         public List<Manifest<BNetLib.Models.Summary[]>> Manifests = null;
@@ -29,8 +31,12 @@ namespace BlizzTrack.Pages
 
         public List<Core.Models.GameConfig> Configs;
 
+        public List<Core.Models.GameParents> Parents;
+
         public async Task OnGetAsync()
         {
+            Parents = await _gameParents.All();
+
             Manifests = await _summary.Take(2);
 
             var latest = Manifests.First().Content;

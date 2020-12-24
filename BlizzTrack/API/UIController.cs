@@ -62,7 +62,6 @@ namespace BlizzTrack.API
 
             foreach (var prefix in p)
             {
-
                 var i = new List<NavItemInfo>();
 
                 switch (prefix)

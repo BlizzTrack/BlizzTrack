@@ -118,12 +118,12 @@ namespace BlizzTrack
                 AllowAdmin = true,
                 ConnectTimeout = 1000,
                 PoolSize = 20,
-                Database = 0,
+                Database = 1,
                 ServerEnumerationStrategy = new ServerEnumerationStrategy()
                 {
                     Mode = ServerEnumerationStrategy.ModeOptions.All,
                     TargetRole = ServerEnumerationStrategy.TargetRoleOptions.Any,
-                    UnreachableServerAction = ServerEnumerationStrategy.UnreachableServerActionOptions.Throw
+                    UnreachableServerAction = ServerEnumerationStrategy.UnreachableServerActionOptions.IgnoreIfOtherAvailable
                 }
             };
 
@@ -153,6 +153,7 @@ namespace BlizzTrack
             services.AddScoped<Core.Services.ICDNs, Core.Services.CDNs>();
             services.AddScoped<Core.Services.IBGDL, Core.Services.BGDL>();
             services.AddScoped<Core.Services.IGameConfig, Core.Services.GameConfig>();
+            services.AddScoped<Core.Services.IGameParents, Core.Services.GameParents>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -187,7 +188,7 @@ namespace BlizzTrack
             });
         }
 
-        private void InitializeDatabase(IApplicationBuilder app)
+        private static void InitializeDatabase(IApplicationBuilder app)
         {
             using var scope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope();
 
@@ -195,7 +196,7 @@ namespace BlizzTrack
             ctx.Database.Migrate();
         }
 
-        private void InitializeRoles(IApplicationBuilder app)
+        private static void InitializeRoles(IApplicationBuilder app)
         {
             using var scope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope();
 

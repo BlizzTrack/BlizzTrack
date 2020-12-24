@@ -8,7 +8,6 @@
     <meta name="tags"
           content="blizzard, overwatch, world of warcraft, version tracker, wow, ow, diablo 3, starcraft 2, public test realm, ptr, hearthstone, heroes of the storm, starcraft, starcraft ii, overwatch ptr patch notes, heroes of the storm ptr patch notes" />
 
-    <link rel="apple-touch-icon" sizes="76x76" href="../assets/img/apple-icon.png">
     <title>
         @ViewData["Title"] - BlizzTrack
     </title>
@@ -81,6 +80,12 @@
                     </a>
                 </div>
                 <ul class="nav">
+                    <li class="@(string.Equals(ViewData["Page"] as string, "Game Parents") ? "active" : "")">
+                        <a asp-page="/Admin/Parents/Index" style="display: inline-flex">
+                            <i class="tim-icons fa fa-gamepad"></i>
+                            <p class="nav-item-title">Game Parents</p>
+                        </a>
+                    </li>
                     <li class="@(string.IsNullOrEmpty(ViewData["Page"] as string) ? "active" : "")">
                         <a asp-page="/Admin/Index" style="display: inline-flex">
                             <i class="tim-icons fa fa-home"></i>
