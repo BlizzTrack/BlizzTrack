@@ -5,15 +5,17 @@ using BNetLib.Models;
 using Core.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace Core.Migrations
 {
     [DbContext(typeof(DBContext))]
-    partial class DBContextModelSnapshot : ModelSnapshot
+    [Migration("20201224181542_GameParentsPatchNotesOptions")]
+    partial class GameParentsPatchNotesOptions
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -69,9 +71,6 @@ namespace Core.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("text")
                         .HasDefaultValue("legacy");
-
-                    b.Property<string>("Website")
-                        .HasColumnType("text");
 
                     b.HasKey("Code");
 

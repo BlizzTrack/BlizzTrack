@@ -13,8 +13,13 @@ namespace Core.Models
         [Required]
         public string Name { get; set; }
 
+        public string Website { get; set; }
+
         public List<string> ChildrenOverride { get; set; }
 
+        public List<string> PatchNoteAreas { get; set; }
+
+        public string PatchNoteTool { get; set; }
 
         [Column(TypeName = "jsonb")]
         public List<Icons> Logos { get; set; } = new List<Icons>();

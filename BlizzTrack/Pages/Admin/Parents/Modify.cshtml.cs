@@ -33,10 +33,18 @@ namespace BlizzTrack.Pages.Admin.Parents
         [Display(Name = "Game Asset (Images)")]
         public IFormFile Icon { get; set; }
 
+        [Display(Name = "Patch Note Tool (don't touch without looking at workers tool set)")]
+        public string PatchNoteTool { get; set; } = "legacy";
+
+        [Display(Name = "Patch Note Types")]
+        public string PatchNoteTypes { get; set; }
+
         public Core.Models.GameParents ToGameParents => new Core.Models.GameParents()
         {
             Name = GameName,
             Code = GameCode?.ToLower(),
+            PatchNoteTool = PatchNoteTool,
+            Website = GameWebsite
         };
     }
 
@@ -70,7 +78,7 @@ namespace BlizzTrack.Pages.Admin.Parents
             if (GameInfoModel == null) GameInfoModel = new GameInfoModel();
             GameInfo = new Core.Models.GameParents
             {
-                Logos = new System.Collections.Generic.List<Core.Models.Icons>()
+                Logos = new List<Core.Models.Icons>()
             };
         }
 
@@ -115,6 +123,7 @@ namespace BlizzTrack.Pages.Admin.Parents
             }
 
             parent.ChildrenOverride = new List<string>();
+            parent.PatchNoteAreas = new List<string>();
 
             if(!string.IsNullOrEmpty(GameInfoModel.GameChildOverride))
                 foreach (var item in GameInfoModel.GameChildOverride.Split(','))
@@ -124,6 +133,13 @@ namespace BlizzTrack.Pages.Admin.Parents
                     parent.ChildrenOverride.Add(item.Trim().ToLower());
                 }
 
+            if (!string.IsNullOrEmpty(GameInfoModel.PatchNoteTypes))
+                foreach (var item in GameInfoModel.PatchNoteTypes.Split(','))
+                {
+                    if (string.IsNullOrWhiteSpace(item.Trim()))
+                        continue;
+                    parent.PatchNoteAreas.Add(item.Trim().ToLower());
+                }
 
             await _gameParents.Add(parent);
 
@@ -146,7 +162,10 @@ namespace BlizzTrack.Pages.Admin.Parents
                 {
                     GameName = GameInfo.Name,
                     GameCode = GameInfo.Code,
-                    GameChildOverride = string.Join(", ", GameInfo.ChildrenOverride ?? new List<string>())
+                    GameWebsite = GameInfo.Website,
+                    GameChildOverride = string.Join(", ", GameInfo.ChildrenOverride ?? new List<string>()),
+                    PatchNoteTypes = string.Join(", ", GameInfo.PatchNoteAreas ?? new List<string>()),
+                    PatchNoteTool = GameInfo.PatchNoteTool
                 };
         }
 
@@ -201,17 +220,30 @@ namespace BlizzTrack.Pages.Admin.Parents
                 }
             }
 
+            GameInfo.PatchNoteTool = GameInfoModel.PatchNoteTool;
             GameInfo.Name = GameInfoModel.GameName;
             GameInfo.Code = GameInfoModel.GameCode;
+            GameInfo.Website = GameInfoModel.GameWebsite;
             GameInfo.ChildrenOverride = new List<string>();
+            GameInfo.PatchNoteAreas = new List<string>();
 
-            if(!string.IsNullOrWhiteSpace(GameInfoModel.GameChildOverride))
+            if (!string.IsNullOrWhiteSpace(GameInfoModel.GameChildOverride))
                 foreach(var item in GameInfoModel.GameChildOverride.Split(','))
                 {
                     if (string.IsNullOrWhiteSpace(item.Trim()))
                         continue;
 
                     GameInfo.ChildrenOverride.Add(item.Trim().ToLower());
+                }
+
+
+            if (!string.IsNullOrWhiteSpace(GameInfoModel.PatchNoteTypes))
+                foreach (var item in GameInfoModel.PatchNoteTypes.Split(','))
+                {
+                    if (string.IsNullOrWhiteSpace(item.Trim()))
+                        continue;
+
+                    GameInfo.PatchNoteAreas.Add(item.Trim().ToLower());
                 }
 
             _dbContext.GameParents.Update(GameInfo);

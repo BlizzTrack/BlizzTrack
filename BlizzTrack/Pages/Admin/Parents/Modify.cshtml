@@ -159,6 +159,24 @@
                             </div>
                         </div>
                     </div>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="form-group">
+                                @Html.LabelFor(x => x.GameInfoModel.PatchNoteTool)
+                                @Html.TextBoxFor(x => x.GameInfoModel.PatchNoteTool, new { placeholder = "Tool name in worker (don't change if you don't know)", @class = "form-control mb-1" })
+                                @Html.ValidationMessageFor(x => x.GameInfoModel.PatchNoteTool, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="form-group">
+                                @Html.LabelFor(x => x.GameInfoModel.PatchNoteTypes)
+                                @Html.TextBoxFor(x => x.GameInfoModel.PatchNoteTypes, new { placeholder = "Patch note types (ex: live, retail, ptr, experimental)", @class = "form-control mb-1" })
+                                @Html.ValidationMessageFor(x => x.GameInfoModel.PatchNoteTypes, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="card-footer">
                     <button type="submit" class="btn btn-fill btn-primary">Save</button>

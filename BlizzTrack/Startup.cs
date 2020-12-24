@@ -12,6 +12,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.FeatureManagement;
+using Microsoft.Net.Http.Headers;
 using Minio.AspNetCore;
 using StackExchange.Redis.Extensions.Core.Configuration;
 using StackExchange.Redis.Extensions.Newtonsoft;
@@ -82,7 +83,7 @@ namespace BlizzTrack
                options.ClientSecret = Configuration.GetValue("BattleNet:ClientSecret", "");
 
                options.SaveTokens = true;
-               options.CorrelationCookie.SameSite = SameSiteMode.Unspecified;
+               options.CorrelationCookie.SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Unspecified;
 
                options.Events = new OAuthEvents
                {
@@ -173,7 +174,15 @@ namespace BlizzTrack
 
             app.UseResponseCompression();
 
-            app.UseStaticFiles();
+            app.UseStaticFiles(new StaticFileOptions
+            {
+                OnPrepareResponse = ctx =>
+                {
+                    const int durationInSeconds = 60 * 60 * 24;
+                    ctx.Context.Response.Headers[HeaderNames.CacheControl] =
+                        "public,max-age=" + durationInSeconds;
+                }
+            });
 
             app.UseRouting();
 
