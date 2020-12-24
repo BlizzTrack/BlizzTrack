@@ -201,16 +201,16 @@
                         var logo = parent.Logos.FirstOrDefault(x => x.Type.Contains("svg"));
                         if (logo != null)
                         {
-                            <img src="@logo.URL" class="align-self-start mr-3" width="45">
+                            <img src="@logo.URL" class="mr-3" width="45">
                         }
                         else
                         {
-                            <img src="~/images/logos/bt.svg" class="align-self-start mr-3" width="45">
+                            <img src="~/images/logos/bt.svg" class="mr-3" width="45">
                         }
                     }
                     else
                     {
-                        <img src="~/images/logos/bt.svg" class="align-self-start mr-3" width="45">
+                        <img src="~/images/logos/bt.svg" class="mr-3" width="45">
                     }
                     <div>
                         <h2 class="card-title mb-0">@parent.Name</h2>
