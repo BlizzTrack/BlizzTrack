@@ -113,7 +113,7 @@ namespace Worker.Workers
 
                 TimeSpan ts = stopWatch.Elapsed;
                 string elapsedTime = $"{ts.Hours:00}:{ts.Minutes:00}:{ts.Seconds:00}.{ts.Milliseconds / 10:00}";
-                _logger.LogInformation($"Checking took {elapsedTime}");
+                _logger.LogInformation($"Version Tracking took {elapsedTime}");
 
                 await Task.Delay(TimeSpan.FromSeconds(30), cancellationToken);
             }
@@ -131,7 +131,7 @@ namespace Worker.Workers
 
                         if (exist != null)
                         {
-                            _logger.LogInformation($"Skipping {code}:{msg.Seqn}:{msg.Flags}");
+                            _logger.LogDebug($"Skipping {code}:{msg.Seqn}:{msg.Flags}");
                             return;
                         }
                         break;
@@ -142,7 +142,7 @@ namespace Worker.Workers
 
                         if (exist != null)
                         {
-                            _logger.LogInformation($"Skipping {code}:{msg.Seqn}:{msg.Flags}");
+                            _logger.LogDebug($"Skipping {code}:{msg.Seqn}:{msg.Flags}");
                             return;
                         }
                         break;
@@ -153,7 +153,7 @@ namespace Worker.Workers
 
                         if (exist != null)
                         {
-                            _logger.LogInformation($"Skipping {code}:{msg.Seqn}:{msg.Flags}");
+                            _logger.LogDebug($"Skipping {code}:{msg.Seqn}:{msg.Flags}");
                             return;
                         }
                         break;

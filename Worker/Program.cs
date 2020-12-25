@@ -44,8 +44,10 @@ namespace Worker
                     services.AddScoped<Core.Services.IVersions, Core.Services.Versions>();
                     services.AddScoped<Core.Services.ICDNs, Core.Services.CDNs>();
                     services.AddScoped<Core.Services.IBGDL, Core.Services.BGDL>();
-                    
+                    services.AddScoped<Core.Services.IGameParents, Core.Services.GameParents>();
 
+
+                    services.AddHostedService<Workers.PatchnotesHosted>();
                     services.AddHostedService<Workers.SummaryHosted>();
 
                     services.AddScoped<Core.Services.IVersions, Core.Services.Versions>();

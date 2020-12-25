@@ -33,6 +33,9 @@ namespace BlizzTrack.Pages.Admin.Parents
         [Display(Name = "Game Asset (Images)")]
         public IFormFile Icon { get; set; }
 
+        [Display(Name = "Patch Note Code")]
+        public string PatchNoteCode { get; set; }
+
         [Display(Name = "Patch Note Tool (don't touch without looking at workers tool set)")]
         public string PatchNoteTool { get; set; } = "legacy";
 
@@ -44,7 +47,8 @@ namespace BlizzTrack.Pages.Admin.Parents
             Name = GameName,
             Code = GameCode?.ToLower(),
             PatchNoteTool = PatchNoteTool,
-            Website = GameWebsite
+            Website = GameWebsite,
+            PatchNoteCode = PatchNoteCode,
         };
     }
 
@@ -165,7 +169,8 @@ namespace BlizzTrack.Pages.Admin.Parents
                     GameWebsite = GameInfo.Website,
                     GameChildOverride = string.Join(", ", GameInfo.ChildrenOverride ?? new List<string>()),
                     PatchNoteTypes = string.Join(", ", GameInfo.PatchNoteAreas ?? new List<string>()),
-                    PatchNoteTool = GameInfo.PatchNoteTool
+                    PatchNoteTool = GameInfo.PatchNoteTool,
+                    PatchNoteCode = GameInfo.PatchNoteCode
                 };
         }
 
@@ -224,6 +229,7 @@ namespace BlizzTrack.Pages.Admin.Parents
             GameInfo.Name = GameInfoModel.GameName;
             GameInfo.Code = GameInfoModel.GameCode;
             GameInfo.Website = GameInfoModel.GameWebsite;
+            GameInfo.PatchNoteCode = GameInfoModel.PatchNoteCode;
             GameInfo.ChildrenOverride = new List<string>();
             GameInfo.PatchNoteAreas = new List<string>();
 

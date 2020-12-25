@@ -162,6 +162,15 @@
                     <div class="row">
                         <div class="col-sm-12">
                             <div class="form-group">
+                                @Html.LabelFor(x => x.GameInfoModel.PatchNoteCode)
+                                @Html.TextBoxFor(x => x.GameInfoModel.PatchNoteCode, new { placeholder = "Patch note game code (optional)", @class = "form-control mb-1" })
+                                @Html.ValidationMessageFor(x => x.GameInfoModel.PatchNoteCode, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="form-group">
                                 @Html.LabelFor(x => x.GameInfoModel.PatchNoteTool)
                                 @Html.TextBoxFor(x => x.GameInfoModel.PatchNoteTool, new { placeholder = "Tool name in worker (don't change if you don't know)", @class = "form-control mb-1" })
                                 @Html.ValidationMessageFor(x => x.GameInfoModel.PatchNoteTool, "", new { @class = "text-danger" })

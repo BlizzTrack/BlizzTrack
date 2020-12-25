@@ -11,8 +11,8 @@ namespace Core.Models
         public DbSet<Manifest<BNetLib.Models.CDN[]>> CDN { get; set; }
         public DbSet<Manifest<BNetLib.Models.Summary[]>> Summary { get; set; }
         public DbSet<GameConfig> GameConfigs { get; set; }
-
         public DbSet<GameParents> GameParents { get; set; }
+        public DbSet<PatchNote> PatchNotes { get; set; }
 
         public DBContext(DbContextOptions<DBContext> options) : base(options)
         {
