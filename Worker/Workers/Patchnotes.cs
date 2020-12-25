@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -128,7 +129,7 @@ namespace Worker.Workers
                 {
                     var f = data.Item1.Entries.First();
 
-                    var note = PatchNote.Create(data.Item2);
+                    var note = PatchNote.Create(JsonConvert.SerializeObject(f));
                     note.Created = f.PostDate;
                     note.Updated = f.UpdatedAt;
 
@@ -154,7 +155,7 @@ namespace Worker.Workers
 
                 var f = data.Item1.PatchNotes.First();
 
-                var note = PatchNote.Create(data.Item2);
+                var note = PatchNote.Create(JsonConvert.SerializeObject(f));
                 note.Created = DateTimeOffset.FromUnixTimeMilliseconds(f.Publish).UtcDateTime;
                 if(f.Updated > 0)
                 {
