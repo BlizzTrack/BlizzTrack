@@ -85,7 +85,16 @@ namespace BlizzTrack.API
         [HttpGet("patch-notes/{code}/{type}")]
         public async Task<IActionResult> PatchNotes([FromServices] Core.Models.DBContext dbContext, string code, string type)
         {
-            var data = await dbContext.PatchNotes.Where(x => code.ToLower().StartsWith(x.Code) && type.ToLower().Equals(x.Type)).FirstOrDefaultAsync();
+            var data = await dbContext.PatchNotes.Where(x => code.ToLower().StartsWith(x.Code) && type.ToLower().Equals(x.Type)).OrderByDescending(x => x.Created).ThenByDescending(x => x.Updated).FirstOrDefaultAsync();
+            if (data == null) return NotFound(new { error = "Not Found" });
+
+            if(data.Body.RootElement.TryGetProperty("detail", out var detail))
+            {
+                return Ok(new
+                {
+                    detail = detail.GetString()
+                });
+            }
 
             var array = data.Body.RootElement.GetProperty("sections").EnumerateArray();
 
@@ -95,21 +104,25 @@ namespace BlizzTrack.API
             {
                 if(item.TryGetProperty("generic_update", out var genericUpdate))
                 {
-                    var update = new BNetLib.Models.Patchnotes.Overwatch.GenericUpdate();
-                    update.Title = genericUpdate.GetProperty("title").GetString();
-                    update.Description = genericUpdate.GetProperty("description").GetString();
-                    update.DevComment = genericUpdate.GetProperty("dev_comment").GetString();
+                    var update = new BNetLib.Models.Patchnotes.Overwatch.GenericUpdate
+                    {
+                        Title = genericUpdate.GetProperty("title").GetString(),
+                        Description = genericUpdate.GetProperty("description").GetString(),
+                        DevComment = genericUpdate.GetProperty("dev_comment").GetString()
+                    };
 
                     var updateItems = genericUpdate.GetProperty("updates").EnumerateArray();
                     update.Updates = new List<BNetLib.Models.Patchnotes.Overwatch.Update>(updateItems.Count());
 
                     foreach(var updateItem in updateItems.Select(x => x.GetProperty("update")))
                     {
-                        var u = new BNetLib.Models.Patchnotes.Overwatch.UpdateChanges();
-                        u.Title = updateItem.GetProperty("title").GetString();
-                        u.Description = updateItem.GetProperty("description").GetString();
-                        u.DevComment = updateItem.GetProperty("dev_comment").GetString();
-                        u.DisplayType = updateItem.GetProperty("display_type").GetString();
+                        var u = new BNetLib.Models.Patchnotes.Overwatch.UpdateChanges
+                        {
+                            Title = updateItem.GetProperty("title").GetString(),
+                            Description = updateItem.GetProperty("description").GetString(),
+                            DevComment = updateItem.GetProperty("dev_comment").GetString(),
+                            DisplayType = updateItem.GetProperty("display_type").GetString()
+                        };
 
                         update.Updates.Add(new BNetLib.Models.Patchnotes.Overwatch.Update() { UpdateChanges = u });
                     }
@@ -120,30 +133,36 @@ namespace BlizzTrack.API
 
                 if (item.TryGetProperty("hero_update", out var heroUpdate))
                 {
-                    var update = new BNetLib.Models.Patchnotes.Overwatch.HeroUpdate();
-                    update.Title = heroUpdate.GetProperty("title").GetString();
-                    update.Description = heroUpdate.GetProperty("description").GetString();
-                    update.DevComment = heroUpdate.GetProperty("dev_comment").GetString();
+                    var update = new BNetLib.Models.Patchnotes.Overwatch.HeroUpdate
+                    {
+                        Title = heroUpdate.GetProperty("title").GetString(),
+                        Description = heroUpdate.GetProperty("description").GetString(),
+                        DevComment = heroUpdate.GetProperty("dev_comment").GetString()
+                    };
 
                     var updateItems = genericUpdate.GetProperty("updates").EnumerateArray();
                     update.Heroes = new List<BNetLib.Models.Patchnotes.Overwatch.Hero>(updateItems.Count());
 
                     foreach (var updateItem in updateItems.Select(x => x.GetProperty("update")))
                     {
-                        var u = new BNetLib.Models.Patchnotes.Overwatch.HeroChanges();
-                        u.HeroName = updateItem.GetProperty("hero_name").GetString();
-                        u.ChangeDescription = updateItem.GetProperty("change_description").GetString();
-                        u.DevComment = updateItem.GetProperty("dev_comment").GetString();
+                        var u = new BNetLib.Models.Patchnotes.Overwatch.HeroChanges
+                        {
+                            HeroName = updateItem.GetProperty("hero_name").GetString(),
+                            ChangeDescription = updateItem.GetProperty("change_description").GetString(),
+                            DevComment = updateItem.GetProperty("dev_comment").GetString()
+                        };
 
                         var abilities = updateItem.GetProperty("abilities").EnumerateArray();
                         u.Abilities = new List<BNetLib.Models.Patchnotes.Overwatch.Ability>(abilities.Count());
 
                         foreach(var ability in abilities.Select(x => x.GetProperty("ability")))
                         {
-                            var a = new BNetLib.Models.Patchnotes.Overwatch.AbilityChanges();
-                            a.AbilityName = ability.GetProperty("ability_name").GetString();
-                            a.ChangeDescription = ability.GetProperty("change_description").GetString();
-                            a.DevComment = ability.GetProperty("dev_comment").GetString();
+                            var a = new BNetLib.Models.Patchnotes.Overwatch.AbilityChanges
+                            {
+                                AbilityName = ability.GetProperty("ability_name").GetString(),
+                                ChangeDescription = ability.GetProperty("change_description").GetString(),
+                                DevComment = ability.GetProperty("dev_comment").GetString()
+                            };
 
                             u.Abilities.Add(new BNetLib.Models.Patchnotes.Overwatch.Ability() { AbilityChanges = a });
                         }
