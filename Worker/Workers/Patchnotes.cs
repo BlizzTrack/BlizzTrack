@@ -78,7 +78,7 @@ namespace Worker.Workers
                 var hasChanges = false;
                 foreach (var item in dataItems)
                 {
-                    var exist = await _dbContext.PatchNotes.FirstOrDefaultAsync(x => x.Code == item.Code && x.Type == item.Type && x.Created == item.Created);
+                    var exist = await _dbContext.PatchNotes.FirstOrDefaultAsync(x => x.Code == item.Code && x.Type == item.Type && x.Created == item.Created, cancellationToken: cancellationToken);
                     if (exist != null)
                     {
                         if (exist.Updated != item.Updated)
@@ -99,7 +99,7 @@ namespace Worker.Workers
 
                 if (hasChanges)
                 {
-                    await _dbContext.SaveChangesAsync();
+                    await _dbContext.SaveChangesAsync(cancellationToken);
                 }
 
                 TimeSpan ts = stopWatch.Elapsed;

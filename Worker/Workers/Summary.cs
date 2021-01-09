@@ -165,7 +165,7 @@ namespace Worker.Workers
             _logger.LogInformation($"We didn't skip: {code}-{msg.Seqn}-{msg.Flags}");
 
             // Update the config for only games we detect changes for
-            await CheckifEncrypted(msg, db, cancellationToken, _logger);
+            await CheckifEncrypted(msg, db, _logger, cancellationToken);
 
             var (data, seqn) = await GetMetaData(msg);
             if (seqn == -1) return;
@@ -217,7 +217,7 @@ namespace Worker.Workers
             return (res.data, res.seqn);
         }
 
-        private async Task CheckifEncrypted(BNetLib.Models.Summary msg, DBContext dbContext, CancellationToken cancellationToken, ILogger<Summary> _logger)
+        private async Task CheckifEncrypted(BNetLib.Models.Summary msg, DBContext dbContext, ILogger<Summary> _logger, CancellationToken cancellationToken)
         {
             if (msg.Flags == "cdn" || msg.Flags == "bgdl") return;
             var versionConfig = await dbContext.Versions.AsNoTracking().OrderByDescending(x => x.Seqn).FirstOrDefaultAsync(x => x.Code == msg.Product, cancellationToken: cancellationToken);

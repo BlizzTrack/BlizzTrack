@@ -51,15 +51,6 @@ namespace BNetLib.Models.Patchnotes
             public string IconGuid { get; set; }
         }
 
-        public class Metadata2
-        {
-            [JsonProperty("asset_guid")]
-            public string AssetGuid { get; set; }
-
-            [JsonProperty("icon_guid")]
-            public string IconGuid { get; set; }
-        }
-
         public class AbilityChanges
         {
             [JsonProperty("ability_name")]
@@ -72,7 +63,7 @@ namespace BNetLib.Models.Patchnotes
             public string DevComment { get; set; }
 
             [JsonProperty("metadata")]
-            public Metadata2 Metadata { get; set; }
+            public Metadata Metadata { get; set; }
         }
 
         public class Ability

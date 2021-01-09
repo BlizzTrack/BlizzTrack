@@ -1,4 +1,5 @@
 ﻿using BlizzTrack.Models;
+using BNetLib.Models.Patchnotes;
 using Core.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -91,7 +92,7 @@ namespace BlizzTrack.Services
                         {
                             Title = heroUpdate.GetProperty("title").GetString(),
                             Description = heroUpdate.GetProperty("description").GetString(),
-                            DevComment = heroUpdate.GetProperty("dev_comment").GetString()
+                            DevComment = heroUpdate.GetProperty("dev_comment").GetString(),
                         };
 
                         var updateItems = heroUpdate.GetProperty("heroes").EnumerateArray();
@@ -103,7 +104,8 @@ namespace BlizzTrack.Services
                             {
                                 HeroName = updateItem.GetProperty("hero_name").GetString(),
                                 ChangeDescription = updateItem.GetProperty("change_description").GetString(),
-                                DevComment = updateItem.GetProperty("dev_comment").GetString()
+                                DevComment = updateItem.GetProperty("dev_comment").GetString(),
+                                Metadata = ReadMetaData(updateItem.GetProperty("metadata")),
                             };
 
                             var abilities = updateItem.GetProperty("abilities").EnumerateArray();
@@ -115,7 +117,8 @@ namespace BlizzTrack.Services
                                 {
                                     AbilityName = ability.GetProperty("ability_name").GetString(),
                                     ChangeDescription = ability.GetProperty("change_description").GetString(),
-                                    DevComment = ability.GetProperty("dev_comment").GetString()
+                                    DevComment = ability.GetProperty("dev_comment").GetString(),
+                                    Metadata = ReadMetaData(ability.GetProperty("metadata"))
                                 };
 
                                 u.Abilities.Add(new BNetLib.Models.Patchnotes.Overwatch.Ability() { AbilityChanges = a });
@@ -132,6 +135,17 @@ namespace BlizzTrack.Services
             }
 
             return note;
+        }
+
+        private Overwatch.Metadata ReadMetaData(System.Text.Json.JsonElement jsonElement)
+        {
+            if (jsonElement.ValueKind == System.Text.Json.JsonValueKind.Null) return null;
+
+            return new Overwatch.Metadata()
+            {
+                IconGuid = jsonElement.GetProperty("icon_guid").GetString(),
+                AssetGuid = jsonElement.GetProperty("asset_guid").GetString()
+            };
         }
     }
 }
