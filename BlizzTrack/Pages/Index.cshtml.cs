@@ -1,10 +1,10 @@
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Core.Models;
 using Core.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace BlizzTrack.Pages
 {
@@ -43,7 +43,7 @@ namespace BlizzTrack.Pages
             var previous = Manifests.Last().Content;
 
             Configs = await _gameConfig.In(latest.Where(x => x.Flags == "versions").Select(x => x.Product).ToArray());
-                
+
             foreach (var item in latest)
             {
                 var exist = previous.FirstOrDefault(x => x.Product == item.Product && x.Flags == item.Flags);
@@ -52,7 +52,7 @@ namespace BlizzTrack.Pages
                     SummaryDiff.Add((item, null));
                     continue;
                 }// TODO
-                if(exist.Seqn != item.Seqn)
+                if (exist.Seqn != item.Seqn)
                 {
                     SummaryDiff.Add((item, exist));
                 }

@@ -23,9 +23,7 @@ namespace Core.Models
 
         public string PatchNoteCode { get; set; }
 
-
         [Column(TypeName = "jsonb")]
         public List<Icons> Logos { get; set; } = new List<Icons>();
-
     }
 }

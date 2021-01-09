@@ -20,10 +20,11 @@ namespace Core.Models
 
         public System.Text.Json.JsonDocument Body { get; set; }
 
-
-        public static PatchNote Create(string body) {
-            return new PatchNote() { 
-                Body = System.Text.Json.JsonDocument.Parse(body) 
+        public static PatchNote Create(string body)
+        {
+            return new PatchNote()
+            {
+                Body = System.Text.Json.JsonDocument.Parse(body)
             };
         }
     }

@@ -1,8 +1,6 @@
 ﻿using StackExchange.Redis.Extensions.Core.Abstractions;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 
@@ -33,7 +31,7 @@ namespace BlizzTrack.Services
 
         public async Task<string> Get(string url)
         {
-            if(await _redisDatabase.ExistsAsync($"alert_{url}"))
+            if (await _redisDatabase.ExistsAsync($"alert_{url}"))
             {
                 return await _redisDatabase.GetAsync<string>($"alert_{url}");
             }
@@ -45,7 +43,8 @@ namespace BlizzTrack.Services
                 await _redisDatabase.AddAsync($"alert_{url}", data, TimeSpan.FromSeconds(30));
 
                 return data;
-            }catch
+            }
+            catch
             {
                 return string.Empty;
             }

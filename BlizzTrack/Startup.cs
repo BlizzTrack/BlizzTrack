@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Razor;
@@ -49,7 +48,6 @@ namespace BlizzTrack
             services.AddRazorPages().AddNewtonsoftJson(options => options.SerializerSettings.Formatting = Newtonsoft.Json.Formatting.Indented);
             services.Configure<MvcNewtonsoftJsonOptions>(x => x.SerializerSettings.NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore);
 
-
             services.AddDefaultIdentity<User>(options => { options.SignIn.RequireConfirmedAccount = false; options.User.RequireUniqueEmail = false; })
                   .AddRoles<IdentityRole>()
                   .AddEntityFrameworkStores<DBContext>();
@@ -89,7 +87,7 @@ namespace BlizzTrack
                {
                    OnCreatingTicket = ctx =>
                    {
-                       ctx.Identity.AddClaim(new Claim("urn:bnet:access_token", ctx.AccessToken)); 
+                       ctx.Identity.AddClaim(new Claim("urn:bnet:access_token", ctx.AccessToken));
                        return Task.CompletedTask;
                    },
 
@@ -211,7 +209,7 @@ namespace BlizzTrack
 
             var ctx = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
 
-            // first we create Admin rool    
+            // first we create Admin rool
             var role = new IdentityRole
             {
                 Name = "Admin"

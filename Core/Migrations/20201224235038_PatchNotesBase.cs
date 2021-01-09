@@ -1,7 +1,7 @@
-﻿using System;
-using System.Text.Json;
-using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
+using System;
+using System.Text.Json;
 
 namespace Core.Migrations
 {

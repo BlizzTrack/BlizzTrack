@@ -31,7 +31,7 @@ namespace Core.Models
 
     public class Icons
     {
-        public string Type { get; set; } 
+        public string Type { get; set; }
         public string URL { get; set; }
         public string OriginalName { get; set; }
 

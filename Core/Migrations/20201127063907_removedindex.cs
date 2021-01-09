@@ -21,7 +21,7 @@ namespace Core.Migrations
             migrationBuilder.DropIndex(
                 name: "IX_bgdl_Code_Seqn",
                 table: "bgdl");
-        }   
+        }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {

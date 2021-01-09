@@ -1,7 +1,6 @@
 using BlizzTrack.Services;
 using Core.Models;
 using Core.Services;
-using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Collections.Generic;
@@ -63,17 +62,16 @@ namespace BlizzTrack.Pages
 
             GameConfig = await _gameConfig.Get(exist.Product);
 
-            if(GameConfig == null)
+            if (GameConfig == null)
             {
                 GameConfig = new Core.Models.GameConfig()
+                {
+                    Config = new ConfigItems()
                     {
-                        Config = new ConfigItems()
-                        {
-                            Encrypted = true,
-                        },
-                        Code = Code.ToLower()
-                    };
-
+                        Encrypted = true,
+                    },
+                    Code = Code.ToLower()
+                };
             }
             if (!string.IsNullOrEmpty(GameConfig.ServiceURL))
                 Alert = await _blizzardAlerts.Get(GameConfig.ServiceURL);
@@ -88,7 +86,7 @@ namespace BlizzTrack.Pages
             };
 
             return Page();
-       }
+        }
 
         private async Task<List<Manifest<BNetLib.Models.Versions[]>>> GetVersions(string product)
         {
@@ -102,7 +100,8 @@ namespace BlizzTrack.Pages
             if (PreviousSeqn != null)
             {
                 var f = await _versions.Single(Code, PreviousSeqn);
-                if (f != null) {
+                if (f != null)
+                {
                     if (data.Count == 1)
                         data.Add(f);
                     else

@@ -39,12 +39,12 @@ namespace Core.Services
         }
 
         public async Task<List<SeqnType>> Seqn()
-       {
-           var data = await _dbContext.Summary.AsNoTracking().Select(x => new { x.Seqn, x.Indexed }).OrderByDescending(x => x.Seqn).ToListAsync();
+        {
+            var data = await _dbContext.Summary.AsNoTracking().Select(x => new { x.Seqn, x.Indexed }).OrderByDescending(x => x.Seqn).ToListAsync();
 
-           return data.Select(x => new SeqnType(null, x.Seqn, x.Indexed)).ToList();
-       }
-        
+            return data.Select(x => new SeqnType(null, x.Seqn, x.Indexed)).ToList();
+        }
+
         public async Task<Manifest<BNetLib.Models.Summary[]>> Single(int? seqn)
         {
             return await _dbContext.Summary.AsNoTracking().OrderByDescending(x => x.Seqn).Where(x => (seqn == null || x.Seqn == seqn)).FirstOrDefaultAsync();

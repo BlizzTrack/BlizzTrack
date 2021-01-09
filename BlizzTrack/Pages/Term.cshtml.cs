@@ -1,12 +1,11 @@
-using System;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using BNetLib.Networking;
 using BNetLib.Networking.Commands;
 using Core.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace BlizzTrack.Pages
 {
@@ -30,7 +29,8 @@ namespace BlizzTrack.Pages
         {
             var cmd = command.Split(" ");
 
-            return cmd.First().ToLower() switch {
+            return cmd.First().ToLower() switch
+            {
                 "help" or "?" => Content(await CreateHelpfunction()),
                 "get" or "g" => Content(await CallBlizzard(cmd)),
                 _ => Content("Unknown Command")
@@ -62,10 +62,9 @@ namespace BlizzTrack.Pages
                     _ => null
                 };
 
-                if(l != null)
+                if (l != null)
                     sb.AppendLine($"get {l}");
             }
-            
 
             return sb.ToString();
         }

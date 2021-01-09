@@ -19,6 +19,7 @@ namespace Core.Services
     public class GameParents : IGameParents
     {
         private readonly DBContext _dbContext;
+
         public GameParents(DBContext dbContext)
         {
             _dbContext = dbContext;

@@ -7,7 +7,6 @@
 * Product Page: https://www.creative-tim.com/product/black-dashboard
 * Copyright 2019 Creative Tim (https://www.creative-tim.com)
 
-
 * Coded by Creative Tim
 
 =========================================================
@@ -51,7 +50,6 @@ $(document).ready(function () {
     var offset = startchange.offset();
     var scrollElement = navigator.platform.indexOf('Win') > -1 ? $(".ps") : $(window);
     scrollElement.scroll(function () {
-
         scroll_start = $(this).scrollTop();
 
         if (scroll_start > 50) {
@@ -60,7 +58,6 @@ $(document).ready(function () {
             $(".navbar-minimize-fixed").css('opacity', '0');
         }
     });
-
 
     $(document).scroll(function () {
         scroll_start = $(this).scrollTop();
@@ -120,7 +117,6 @@ $(document).on('click', '.navbar-toggle', function () {
             $toggle.removeClass('toggled');
             $('.bodyClick').remove();
         }, 550);
-
     } else {
         setTimeout(function () {
             $toggle.addClass('toggled');
@@ -165,11 +161,9 @@ blackDashboard = {
             sidebar_mini_active = true;
         }
 
-
         $('.minimize-sidebar').click(function () {
             var $btn = $(this);
             const miniActice = $("body").hasClass("sidebar-mini");
-
 
             if (miniActice) {
                 $('body').removeClass('sidebar-mini');
@@ -209,9 +203,7 @@ blackDashboard = {
         } catch (e) {
             console.log('Notify library is missing, please make sure you have the notifications library added.');
         }
-
     }
-
 };
 
 if (window.navigator && navigator.serviceWorker) {

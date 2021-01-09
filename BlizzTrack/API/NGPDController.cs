@@ -43,7 +43,7 @@ namespace BlizzTrack.API
             }
 
             var Manifests = await _summary.Take(2);
-                
+
             var latest = Manifests.First();
             var previous = Manifests.Last();
 
@@ -55,7 +55,8 @@ namespace BlizzTrack.API
                 var x = previous.Content.FirstOrDefault(x => x.Product == item.Product && x.Flags == item.Flags);
                 if (x == null || x.Seqn != item.Seqn)
                 {
-                    SummaryDiff.Add(new {
+                    SummaryDiff.Add(new
+                    {
                         name = x.GetName(),
                         x.Product,
                         x.Flags,
@@ -80,7 +81,8 @@ namespace BlizzTrack.API
                     latest.Name,
                     latest.Seqn,
                     latest.Indexed,
-                    content = latest.Content.Select(x => new {
+                    content = latest.Content.Select(x => new
+                    {
                         name = x.GetName(),
                         x.Product,
                         x.Flags,
@@ -100,7 +102,8 @@ namespace BlizzTrack.API
                     previous.Name,
                     previous.Seqn,
                     previous.Indexed,
-                    content = previous.Content.Select(x => new {
+                    content = previous.Content.Select(x => new
+                    {
                         name = x.GetName(),
                         x.Product,
                         x.Flags,
@@ -401,7 +404,6 @@ namespace BlizzTrack.API
                             break;
                         }
                 }
-
 
                 return Ok(result);
             }

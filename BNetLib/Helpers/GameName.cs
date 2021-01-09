@@ -115,6 +115,7 @@ namespace BNetLib.Helpers
             {
                 case "hsb":
                     return Prefix["hs"];
+
                 case "hsc":
                     return Prefix["hs"] + " " + Suffix["c"];
             }
@@ -138,7 +139,6 @@ namespace BNetLib.Helpers
 
                 break;
             }
-
 
             return name == "" ? code : name;
         }

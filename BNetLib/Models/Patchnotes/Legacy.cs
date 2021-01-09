@@ -1,14 +1,10 @@
 ﻿using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BNetLib.Models.Patchnotes
 {
     public class Legacy
-    {        
+    {
         public class PatchNote
         {
             [JsonProperty("program")]

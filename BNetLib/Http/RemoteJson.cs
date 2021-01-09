@@ -10,12 +10,12 @@ namespace BNetLib.Http
         public static async Task<(T, string)> Get<T>(string url, Dictionary<string, string> headers = null) where T : new()
         {
             using var wc = new WebClient();
-            if(headers != null)
+            if (headers != null)
             {
-               foreach(var header in headers)
-               {
+                foreach (var header in headers)
+                {
                     wc.Headers.Add(header.Key, header.Value);
-               }
+                }
             }
 
             var data = await wc.DownloadStringTaskAsync(url);

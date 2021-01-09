@@ -1,17 +1,15 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Core.Models;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System;
+using Microsoft.Extensions.Logging;
 using System.IO;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.DependencyInjection;
-using Core.Models;
-using Microsoft.EntityFrameworkCore;
-using System.Threading.Channels;
 
 namespace Worker
 {
-    class Program
+    internal class Program
     {
         public static async Task Main(string[] args) => await CreateHostBuilder(args).RunAsync();
 
@@ -45,7 +43,6 @@ namespace Worker
                     services.AddScoped<Core.Services.ICDNs, Core.Services.CDNs>();
                     services.AddScoped<Core.Services.IBGDL, Core.Services.BGDL>();
                     services.AddScoped<Core.Services.IGameParents, Core.Services.GameParents>();
-
 
                     services.AddHostedService<Workers.PatchnotesHosted>();
                     services.AddHostedService<Workers.SummaryHosted>();

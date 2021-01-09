@@ -7,7 +7,6 @@
 * Product Page: https://www.creative-tim.com/product/black-dashboard
 * Copyright 2019 Creative Tim (https://www.creative-tim.com)
 
-
 * Coded by Creative Tim
 
 =========================================================
@@ -2020,10 +2019,10 @@ pre {
         .table-responsive-lg > .table-bordered {
             border: 0;
         }
-   
-        .minimize-sidebar {
-            display: none;
-        }
+
+    .minimize-sidebar {
+        display: none;
+    }
 }
 
 @media (max-width: 1199.98px) {
@@ -4649,7 +4648,6 @@ input[type="button"].btn-block {
 }
 
 @media (prefers-reduced-motion: reduce) {
-
     .custom-control-label::before,
     .custom-file-label,
     .custom-select {
@@ -4836,7 +4834,6 @@ input[type="button"].btn-block {
 }
 
 @media (max-width: 575.98px) {
-
     .navbar-expand-sm > .container,
     .navbar-expand-sm > .container-fluid {
         padding-right: 0;
@@ -4879,7 +4876,6 @@ input[type="button"].btn-block {
 }
 
 @media (max-width: 767.98px) {
-
     .navbar-expand-md > .container,
     .navbar-expand-md > .container-fluid {
         padding-right: 0;
@@ -4922,7 +4918,6 @@ input[type="button"].btn-block {
 }
 
 @media (max-width: 991.98px) {
-
     .navbar-expand-lg > .container,
     .navbar-expand-lg > .container-fluid {
         padding-right: 0;
@@ -4965,7 +4960,6 @@ input[type="button"].btn-block {
 }
 
 @media (max-width: 1199.98px) {
-
     .navbar-expand-xl > .container,
     .navbar-expand-xl > .container-fluid {
         padding-right: 0;
@@ -6668,7 +6662,6 @@ a.close.disabled {
 }
 
 @media (min-width: 992px) {
-
     .modal-lg,
     .modal-xl {
         max-width: 800px;
@@ -7058,7 +7051,6 @@ a.close.disabled {
 }
 
 @media (prefers-reduced-motion: reduce) {
-
     .carousel-fade .active.carousel-item-left,
     .carousel-fade .active.carousel-item-right {
         transition: none;
@@ -7082,7 +7074,6 @@ a.close.disabled {
 }
 
 @media (prefers-reduced-motion: reduce) {
-
     .carousel-control-prev,
     .carousel-control-next {
         transition: none;
@@ -12564,7 +12555,6 @@ a.text-darker:focus {
 }
 
 @media print {
-
     *,
     *::before,
     *::after {
@@ -17708,7 +17698,6 @@ table.tablesorter thead tr .headerSortDown {
         border-bottom: 5px solid #e14eca;
     }
 
-
     .off-canvas-sidebar[data="blue"]::before, .sidebar[data="blue"]::before {
         border-bottom: 5px solid #1d8cf8;
     }
@@ -17717,15 +17706,15 @@ table.tablesorter thead tr .headerSortDown {
         border-bottom: 5px solid #00f2c3;
     }
 
-        .off-canvas-sidebar::before, .sidebar::before {
-            content: "";
-            position: absolute;
-            border-left: 5px solid transparent;
-            border-right: 5px solid transparent;
-            top: -5px;
-            left: 40px;
-            transform: translate(-50%);
-        }
+    .off-canvas-sidebar::before, .sidebar::before {
+        content: "";
+        position: absolute;
+        border-left: 5px solid transparent;
+        border-right: 5px solid transparent;
+        top: -5px;
+        left: 40px;
+        transform: translate(-50%);
+    }
 
     .sidebar .user,
     .off-canvas-sidebar .user {
@@ -17879,7 +17868,6 @@ table.tablesorter thead tr .headerSortDown {
 }
 
 @media (min-width: 991px) {
-
     .sidebar,
     .main-panel,
     .sidebar-wrapper {
@@ -19094,7 +19082,6 @@ Copyright (c) 2015 Daniel Eden
     }
 
 @-webkit-keyframes shake {
-
     from, to {
         -webkit-transform: translate3d(0, 0, 0);
         transform: translate3d(0, 0, 0);
@@ -19112,7 +19099,6 @@ Copyright (c) 2015 Daniel Eden
 }
 
 @keyframes shake {
-
     from, to {
         -webkit-transform: translate3d(0, 0, 0);
         transform: translate3d(0, 0, 0);

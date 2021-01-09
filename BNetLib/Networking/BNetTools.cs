@@ -1,7 +1,7 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Newtonsoft.Json;
 
 namespace BNetLib.Networking
 {
@@ -48,7 +48,7 @@ namespace BNetLib.Networking
                     continue;
                 }
 
-                if(line.Trim().Length == 0 ) continue;
+                if (line.Trim().Length == 0) continue;
 
                 var values = line.Split('|');
 
@@ -76,7 +76,6 @@ namespace BNetLib.Networking
             var ff = JsonConvert.SerializeObject(dataItems);
 
             return (JsonConvert.DeserializeObject<T>(ff), seqn);
-
         }
     }
 }

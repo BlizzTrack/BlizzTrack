@@ -14,6 +14,7 @@ namespace BlizzTrack.API
     public class UIController : ControllerBase
     {
         public record NavItem(string Name, string Code, List<NavItemInfo> Items);
+
         public class NavItemInfo
         {
             public NavItemInfo(string Name, string Product, List<SeqnItem> Flags)
@@ -40,14 +41,15 @@ namespace BlizzTrack.API
         }
 
         #region /Home
+
         [HttpGet("home")]
-        public async Task<IActionResult> GameList([FromQuery]int? seqn = null)
+        public async Task<IActionResult> GameList([FromQuery] int? seqn = null)
         {
             Manifest<BNetLib.Models.Summary[]> sum;
             if (seqn == null) sum = await _summary.Latest();
             else sum = await _summary.Single(seqn);
 
-            if(sum == null || sum.Content.Length == 0) return NotFound(new { error = "Not Found" });
+            if (sum == null || sum.Content.Length == 0) return NotFound(new { error = "Not Found" });
 
             return Ok(Create(sum.Content.ToList()));
         }
@@ -95,7 +97,7 @@ namespace BlizzTrack.API
                         }
 
                         res.Add(new NavItem(BNetLib.Helpers.GameName.Get(prefix), prefix, i));
-                       
+
                         continue;
                 }
 
@@ -117,7 +119,8 @@ namespace BlizzTrack.API
                     itemsAdded.Add(item);
 
                     var exist = i.FirstOrDefault(x => x.Product == item.Product);
-                    if (exist == null) {
+                    if (exist == null)
+                    {
                         exist = new NavItemInfo(
                             item.GetName(),
                             item.Product,
@@ -125,7 +128,8 @@ namespace BlizzTrack.API
                         );
                         i.Add(exist);
                     }
-                    else {
+                    else
+                    {
                         exist.Flags.Add(new SeqnItem(item.Flags, item.Seqn));
                         exist.Flags = exist.Flags.OrderByDescending(x => x.File).ToList();
                     }
@@ -147,7 +151,6 @@ namespace BlizzTrack.API
                 var i = new List<NavItemInfo>();
                 foreach (var item in items)
                 {
-
                     var exist = i.FirstOrDefault(x => x.Product == item.Product);
                     if (exist == null)
                         i.Add(new NavItemInfo(
@@ -167,11 +170,13 @@ namespace BlizzTrack.API
 
             return res;
         }
-        #endregion
+
+        #endregion /Home
 
         #region /game/:code
+
         [HttpGet("game/{code}")]
-        public async Task<IActionResult> Manifests([FromServices]IVersions versionService, [FromServices] IBGDL bgdlService, [FromServices] ICDNs cdnService, string code)
+        public async Task<IActionResult> Manifests([FromServices] IVersions versionService, [FromServices] IBGDL bgdlService, [FromServices] ICDNs cdnService, string code)
         {
             var versions = await versionService.Take(code, 2);
             var bgdl = await bgdlService.Take(code, 2);
@@ -184,7 +189,7 @@ namespace BlizzTrack.API
             Manifest<BNetLib.Models.BGDL[]> latestBgdl = null;
             Manifest<BNetLib.Models.BGDL[]> previousBgdl = null;
 
-            if(bgdl?.Count > 0)
+            if (bgdl?.Count > 0)
             {
                 latestBgdl = bgdl.First();
                 previousBgdl = bgdl.Last();
@@ -201,7 +206,8 @@ namespace BlizzTrack.API
 
             return Ok(new
             {
-                metadata = new {
+                metadata = new
+                {
                     name = BNetLib.Helpers.GameName.Get(code),
                     code = code.ToLower(),
                     files = latest.Content.Where(x => x.Product.Equals(code, StringComparison.OrdinalIgnoreCase)).Select(x => new
@@ -310,6 +316,6 @@ namespace BlizzTrack.API
             });
         }
 
-        #endregion
+        #endregion /game/:code
     }
 }

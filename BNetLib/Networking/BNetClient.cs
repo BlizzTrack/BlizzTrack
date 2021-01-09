@@ -1,10 +1,10 @@
-﻿using System.IO;
+﻿using BNetLib.Networking.Commands;
+using System;
+using System.IO;
 using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
-using BNetLib.Networking.Commands;
-using System;
 
 namespace BNetLib.Networking
 {

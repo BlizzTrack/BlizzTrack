@@ -52,7 +52,6 @@ namespace BlizzTrack.API
             return Redirect("/");
         }
 
-
         [AllowAnonymous]
         [HttpGet("ExternalAuthLogin")]
         public async Task<ActionResult> ExternalAuthLogin(string returnUrl = "/")
@@ -96,7 +95,7 @@ namespace BlizzTrack.API
             if (!await _userManager.IsInRoleAsync(user, "User"))
                 await _userManager.AddToRoleAsync(user, "User");
 
-            if(user.Id == _config.GetValue<string>("root_user", ""))
+            if (user.Id == _config.GetValue<string>("root_user", ""))
             {
                 if (!await _userManager.IsInRoleAsync(user, "Admin"))
                     await _userManager.AddToRoleAsync(user, "Admin");

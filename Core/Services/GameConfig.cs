@@ -18,9 +18,11 @@ namespace Core.Services
 
         Task Update(Models.GameConfig config);
     }
+
     public class GameConfig : IGameConfig
     {
         private readonly DBContext _dbContext;
+
         public GameConfig(DBContext dbContext)
         {
             _dbContext = dbContext;

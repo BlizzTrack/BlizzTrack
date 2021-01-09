@@ -11,14 +11,13 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Dynamic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Worker.Workers
 {
-    class SummaryHosted : IHostedService
+    internal class SummaryHosted : IHostedService
     {
         private readonly IServiceProvider serviceProvider;
 
@@ -29,7 +28,8 @@ namespace Worker.Workers
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
-            Task.Run(() => {
+            Task.Run(() =>
+            {
                 var c = ActivatorUtilities.CreateInstance<Summary>(serviceProvider);
                 c.Run(cancellationToken);
             }, cancellationToken);
@@ -43,7 +43,7 @@ namespace Worker.Workers
         }
     }
 
-    class Summary
+    internal class Summary
     {
         private readonly BNetClient _bNetClient;
         private readonly ProductConfig _productConfig;
@@ -75,7 +75,7 @@ namespace Worker.Workers
                     foreach (var item in latest.Content)
                     {
                         await AddItemToData(item, _dbContext, cancellationToken);
-                            _dbContext.SaveChanges();
+                        _dbContext.SaveChanges();
                     }
 
                     firstRun = false;
@@ -90,7 +90,7 @@ namespace Worker.Workers
                         _dbContext.Summary.Add(latest);
                         _dbContext.SaveChanges();
                     }
-                    catch(Exception ex)
+                    catch (Exception ex)
                     {
                         _logger.LogCritical($"Failed to write summary: {ex}");
                     }
@@ -108,7 +108,6 @@ namespace Worker.Workers
                             _logger.LogCritical($"Failed to write {item.Product}-{item.Flags}-{item.Seqn}: {ex}");
                         }
                     }
-
                 }
 
                 TimeSpan ts = stopWatch.Elapsed;
@@ -195,8 +194,6 @@ namespace Worker.Workers
                     _logger.LogCritical("Unhandled type");
                     break;
             }
-
-            
         }
 
         private async Task<(IList data, int seqn)> GetMetaData(BNetLib.Models.Summary msg)
@@ -222,8 +219,7 @@ namespace Worker.Workers
 
         private async Task CheckifEncrypted(BNetLib.Models.Summary msg, DBContext dbContext, CancellationToken cancellationToken, ILogger<Summary> _logger)
         {
-            
-            if (msg.Flags == "cdn" || msg.Flags == "bgdl") return; 
+            if (msg.Flags == "cdn" || msg.Flags == "bgdl") return;
             var versionConfig = await dbContext.Versions.AsNoTracking().OrderByDescending(x => x.Seqn).FirstOrDefaultAsync(x => x.Code == msg.Product, cancellationToken: cancellationToken);
 
             var config = versionConfig.Content.FirstOrDefault(x => x.Region == "us");
@@ -236,7 +232,8 @@ namespace Worker.Workers
             try
             {
                 file = await _productConfig.GetRaw(config.Productconfig);
-            }catch
+            }
+            catch
             {
                 // Add missing game even if it's 404, this is for a later feature
                 _logger.LogCritical($"{msg.Product} product config doesn't exist");
@@ -250,7 +247,7 @@ namespace Worker.Workers
                             Encrypted = false,
                         }
                     }, cancellationToken);
-                }   
+                }
                 else
                 {
                     currentGameConfig.Config.Encrypted = false;
@@ -264,7 +261,7 @@ namespace Worker.Workers
             {
                 dynamic f = JObject.Parse(file);
 
-                if(currentGameConfig == null)
+                if (currentGameConfig == null)
                 {
                     await dbContext.GameConfigs.AddAsync(new GameConfig()
                     {
@@ -275,12 +272,14 @@ namespace Worker.Workers
                             EncryptedKey = f.all.config.decryption_key_name,
                         }
                     }, cancellationToken);
-                } else
+                }
+                else
                 {
                     currentGameConfig.Config.Encrypted = true;
                     currentGameConfig.Config.EncryptedKey = f.all.config.decryption_key_name;
                 }
-            }  else
+            }
+            else
             {
                 if (currentGameConfig == null)
                 {

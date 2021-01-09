@@ -4,8 +4,10 @@ namespace BlizzTrack.Helpers
 {
     public static class Markdown
     {
-        readonly static MarkdownPipeline markdownPipeline = null;
-        static Markdown() {
+        private static readonly MarkdownPipeline markdownPipeline = null;
+
+        static Markdown()
+        {
             var f = new MarkdownPipelineBuilder().UseAdvancedExtensions();
             f.Extensions.Add(new BootstrapExtension());
 

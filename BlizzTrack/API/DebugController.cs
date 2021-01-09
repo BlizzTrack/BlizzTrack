@@ -21,6 +21,7 @@ namespace BlizzTrack.API
         }
 
         #region /game/:code/versions
+
         [HttpGet("game/{code}/versions")]
         public async Task<IActionResult> Versions([FromServices] IVersions versionService, string code)
         {
@@ -62,9 +63,11 @@ namespace BlizzTrack.API
                 }
             });
         }
-        #endregion
+
+        #endregion /game/:code/versions
 
         #region /starts-with/:code
+
         [HttpGet("starts-with/{code}")]
         public async Task<IActionResult> StartsWith([FromServices] Core.Models.DBContext dbContext, string code)
         {
@@ -72,15 +75,16 @@ namespace BlizzTrack.API
 
             return Ok(data);
         }
-        #endregion
+
+        #endregion /starts-with/:code
 
         #region /patch-notes/:code/:type
+
         public class Note
         {
             public List<BNetLib.Models.Patchnotes.Overwatch.GenericUpdate> GenericUpdates { get; } = new List<BNetLib.Models.Patchnotes.Overwatch.GenericUpdate>();
             public List<BNetLib.Models.Patchnotes.Overwatch.HeroUpdate> HeroUpdates { get; } = new List<BNetLib.Models.Patchnotes.Overwatch.HeroUpdate>();
         }
-
 
         [HttpGet("patch-notes/{code}/{type}")]
         public async Task<IActionResult> PatchNotes([FromServices] Core.Models.DBContext dbContext, string code, string type)
@@ -88,7 +92,7 @@ namespace BlizzTrack.API
             var data = await dbContext.PatchNotes.Where(x => code.ToLower().StartsWith(x.Code) && type.ToLower().Equals(x.Type)).OrderByDescending(x => x.Created).ThenByDescending(x => x.Updated).FirstOrDefaultAsync();
             if (data == null) return NotFound(new { error = "Not Found" });
 
-            if(data.Body.RootElement.TryGetProperty("detail", out var detail))
+            if (data.Body.RootElement.TryGetProperty("detail", out var detail))
             {
                 return Ok(new
                 {
@@ -100,9 +104,9 @@ namespace BlizzTrack.API
 
             var note = new Note();
 
-            foreach(var item in array)
+            foreach (var item in array)
             {
-                if(item.TryGetProperty("generic_update", out var genericUpdate))
+                if (item.TryGetProperty("generic_update", out var genericUpdate))
                 {
                     if (genericUpdate.ValueKind != System.Text.Json.JsonValueKind.Null)
                     {
@@ -138,7 +142,6 @@ namespace BlizzTrack.API
                 {
                     if (heroUpdate.ValueKind != System.Text.Json.JsonValueKind.Null)
                     {
-
                         var update = new BNetLib.Models.Patchnotes.Overwatch.HeroUpdate
                         {
                             Title = heroUpdate.GetProperty("title").GetString(),
@@ -183,10 +186,10 @@ namespace BlizzTrack.API
                 }
             }
 
-            
             return Ok(note);
         }
-        #endregion
+
+        #endregion /patch-notes/:code/:type
 
 #endif
     }

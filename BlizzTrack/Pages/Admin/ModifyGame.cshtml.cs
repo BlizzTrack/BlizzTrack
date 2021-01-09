@@ -1,9 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 using BlizzTrack.Helpers;
 using Core.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -13,6 +7,12 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Configuration;
 using Microsoft.FeatureManagement.Mvc;
 using Minio;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace BlizzTrack.Pages.Admin
 {
@@ -41,6 +41,7 @@ namespace BlizzTrack.Pages.Admin
         private readonly MinioClient _minioClient;
         private readonly string _bucket;
         private readonly Core.Models.DBContext _dbContext;
+
         public ModifyGameModel(IGameConfig gameConfig, MinioClient minioClient, IConfiguration config, Core.Models.DBContext dbContext)
         {
             _gameConfig = gameConfig;
@@ -66,7 +67,7 @@ namespace BlizzTrack.Pages.Admin
                 return;
             }
 
-            if(GameInfoModel == null)
+            if (GameInfoModel == null)
                 GameInfoModel = new GameInfoModel
                 {
                     GameName = GameInfo.GetName(),
@@ -84,9 +85,9 @@ namespace BlizzTrack.Pages.Admin
                 return Page();
             }
 
-            if(GameInfoModel.Icon != null)
+            if (GameInfoModel.Icon != null)
             {
-                if(!GameInfoModel.Icon.ContentType.StartsWith("image/"))
+                if (!GameInfoModel.Icon.ContentType.StartsWith("image/"))
                 {
                     ModelState.AddModelError("GameInfoModel.Icon", "Must be an image");
                     return Page();
@@ -101,7 +102,7 @@ namespace BlizzTrack.Pages.Admin
                 if (GameInfo.Logos == null) GameInfo.Logos = new List<Core.Models.Icons>();
 
                 var exist = GameInfo.Logos.FirstOrDefault(x => x.Type == GameInfoModel.Icon.ContentType);
-                if(exist == null)
+                if (exist == null)
                 {
                     GameInfo.Logos.Add(new Core.Models.Icons()
                     {
@@ -109,7 +110,8 @@ namespace BlizzTrack.Pages.Admin
                         URL = $"https://cdn.blizztrack.com/{dest}",
                         OriginalName = GameInfoModel.Icon.FileName
                     });
-                } else
+                }
+                else
                 {
                     // Delete old image then set URL to the new one
                     var path = new Uri(exist.URL);
@@ -131,10 +133,10 @@ namespace BlizzTrack.Pages.Admin
             return Redirect(HttpContext.Request.Path);
         }
 
-        public async Task<IActionResult> OnPostDeleteAssetAsync(string asset_url, string asset_type) 
+        public async Task<IActionResult> OnPostDeleteAssetAsync(string asset_url, string asset_type)
         {
             GameInfo = await _gameConfig.Get(GameCode);
-            if(GameInfo.Logos != null)
+            if (GameInfo.Logos != null)
             {
                 var asset = GameInfo.Logos.FirstOrDefault(x => x.URL == asset_url && x.Type == asset_type);
                 GameInfo.Logos.Remove(asset);
@@ -156,6 +158,5 @@ namespace BlizzTrack.Pages.Admin
 
             return Redirect(HttpContext.Request.Path);
         }
-
     }
 }

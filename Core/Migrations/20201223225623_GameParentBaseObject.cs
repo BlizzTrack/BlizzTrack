@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
-using Core.Models;
+﻿using Core.Models;
 using Microsoft.EntityFrameworkCore.Migrations;
+using System.Collections.Generic;
 
 namespace Core.Migrations
 {

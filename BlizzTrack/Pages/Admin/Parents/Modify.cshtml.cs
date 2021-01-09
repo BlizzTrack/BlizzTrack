@@ -1,15 +1,15 @@
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 using Core.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Configuration;
 using Minio;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace BlizzTrack.Pages.Admin.Parents
 {
@@ -58,6 +58,7 @@ namespace BlizzTrack.Pages.Admin.Parents
         private readonly MinioClient _minioClient;
         private readonly string _bucket;
         private readonly Core.Models.DBContext _dbContext;
+
         public ModifyModel(IGameParents gameParents, MinioClient minioClient, IConfiguration config, Core.Models.DBContext dbContext)
         {
             _gameParents = gameParents;
@@ -73,7 +74,6 @@ namespace BlizzTrack.Pages.Admin.Parents
         public string ParentCode { get; set; }
 
         public Core.Models.GameParents GameInfo;
-
 
         public async Task OnGetNewAsync()
         {
@@ -96,7 +96,7 @@ namespace BlizzTrack.Pages.Admin.Parents
             }
 
             var exist = await _gameParents.Get(GameInfoModel.GameCode);
-            if(exist?.Code == GameInfoModel.GameCode.ToLower())
+            if (exist?.Code == GameInfoModel.GameCode.ToLower())
             {
                 return Page();
             }
@@ -104,7 +104,7 @@ namespace BlizzTrack.Pages.Admin.Parents
             var parent = GameInfoModel.ToGameParents;
             parent.Logos = new List<Core.Models.Icons>();
 
-            if(GameInfoModel.Icon != null)
+            if (GameInfoModel.Icon != null)
             {
                 if (!GameInfoModel.Icon.ContentType.StartsWith("image/"))
                 {
@@ -129,7 +129,7 @@ namespace BlizzTrack.Pages.Admin.Parents
             parent.ChildrenOverride = new List<string>();
             parent.PatchNoteAreas = new List<string>();
 
-            if(!string.IsNullOrEmpty(GameInfoModel.GameChildOverride))
+            if (!string.IsNullOrEmpty(GameInfoModel.GameChildOverride))
                 foreach (var item in GameInfoModel.GameChildOverride.Split(','))
                 {
                     if (string.IsNullOrWhiteSpace(item.Trim()))
@@ -234,14 +234,13 @@ namespace BlizzTrack.Pages.Admin.Parents
             GameInfo.PatchNoteAreas = new List<string>();
 
             if (!string.IsNullOrWhiteSpace(GameInfoModel.GameChildOverride))
-                foreach(var item in GameInfoModel.GameChildOverride.Split(','))
+                foreach (var item in GameInfoModel.GameChildOverride.Split(','))
                 {
                     if (string.IsNullOrWhiteSpace(item.Trim()))
                         continue;
 
                     GameInfo.ChildrenOverride.Add(item.Trim().ToLower());
                 }
-
 
             if (!string.IsNullOrWhiteSpace(GameInfoModel.PatchNoteTypes))
                 foreach (var item in GameInfoModel.PatchNoteTypes.Split(','))

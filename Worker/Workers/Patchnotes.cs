@@ -8,13 +8,12 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Worker.Workers
 {
-    class PatchnotesHosted : IHostedService
+    internal class PatchnotesHosted : IHostedService
     {
         private readonly IServiceProvider serviceProvider;
 
@@ -25,7 +24,8 @@ namespace Worker.Workers
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
-            Task.Run(() => {
+            Task.Run(() =>
+            {
                 var c = ActivatorUtilities.CreateInstance<Patchnotes>(serviceProvider);
                 c.Run(cancellationToken);
             }, cancellationToken);
@@ -52,7 +52,7 @@ namespace Worker.Workers
 
         internal async void Run(CancellationToken cancellationToken)
         {
-            while(!cancellationToken.IsCancellationRequested)
+            while (!cancellationToken.IsCancellationRequested)
             {
                 var stopWatch = Stopwatch.StartNew();
 
@@ -76,12 +76,12 @@ namespace Worker.Workers
                 }
 
                 var hasChanges = false;
-                foreach(var item in dataItems)
+                foreach (var item in dataItems)
                 {
                     var exist = await _dbContext.PatchNotes.FirstOrDefaultAsync(x => x.Code == item.Code && x.Type == item.Type && x.Created == item.Created);
-                    if(exist != null)
+                    if (exist != null)
                     {
-                        if(exist.Updated != item.Updated)
+                        if (exist.Updated != item.Updated)
                         {
                             exist.Updated = item.Updated;
                             exist.Body = item.Body;
@@ -89,7 +89,8 @@ namespace Worker.Workers
                             _dbContext.Update(exist);
                             hasChanges = true;
                         }
-                    } else
+                    }
+                    else
                     {
                         _dbContext.Add(item);
                         hasChanges = true;
@@ -157,7 +158,7 @@ namespace Worker.Workers
 
                 var note = PatchNote.Create(JsonConvert.SerializeObject(f));
                 note.Created = DateTimeOffset.FromUnixTimeMilliseconds(f.Publish).UtcDateTime;
-                if(f.Updated > 0)
+                if (f.Updated > 0)
                 {
                     note.Updated = DateTimeOffset.FromUnixTimeMilliseconds(f.Updated).UtcDateTime;
                 }
