@@ -29,7 +29,7 @@ namespace BlizzTrack.API
             public List<SeqnItem> Flags { get; set; }
         }
 
-        public record SeqnItem(string File, int seqn);
+        public record SeqnItem(string File, int Seqn);
 
         private readonly ISummary _summary;
         private readonly ILogger<UIController> _logger;

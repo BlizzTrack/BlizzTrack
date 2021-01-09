@@ -29,7 +29,6 @@ namespace BlizzTrack
 
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddResponseCompression();
@@ -145,6 +144,7 @@ namespace BlizzTrack
 
             // System Services
             services.AddSingleton<Services.IBlizzardAlerts, Services.BlizzardAlerts>();
+            services.AddScoped<Services.IPatchnotes, Services.Patchnotes>();
 
             // Shared services
             services.AddScoped<Core.Services.ISummary, Core.Services.Summary>();
