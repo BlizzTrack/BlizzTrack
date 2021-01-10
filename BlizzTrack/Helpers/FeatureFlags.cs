@@ -3,6 +3,7 @@
     public enum FeatureFlags
     {
         UserAuth,
-        AdminPanel
+        AdminPanel,
+        PatchNotes
     }
 }

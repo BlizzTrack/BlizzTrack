@@ -195,7 +195,7 @@
     {
         <div class="col-12">
             <div class="card ">
-                <div class="card-header border-0 py-3 d-flex align-items-center" id="@parent.Slug">
+                <div class="card-header border-0 pt-3 pb-1 d-flex align-items-center" id="@parent.Slug">
                     @if (parent.Logos?.Count > 0)
                     {
                         var logo = parent.Logos.FirstOrDefault(x => x.Type.Contains("svg"));
@@ -216,7 +216,20 @@
                         <h2 class="card-title mb-0">@parent.Name <small style="font-size: x-small"><a href="#@parent.Slug"><i class="fas fa-anchor"></i></a></small></h2>
                     </div>
                 </div>
-                <div class="card-body">
+                <feature name="@nameof(Helpers.FeatureFlags.PatchNotes)">
+                    @if (parent.PatchNoteAreas?.Count > 0)
+                    {
+                        <div class="card-body py-1 px-0">
+                            <div class="btn-group special" role="group" aria-label="...">
+                                @foreach (var item in parent.PatchNoteAreas)
+                                {
+                                    <button type="button" class="btn btn-outline-default">@item Patch Notes</button>
+                                }
+                            </div>
+                        </div>
+                    }
+                </feature>
+                <div class="card-body pt-1">
                     <div class="table-responsive ps">
                         <table class="table tablesorter table-hover" id="">
                             <thead class=" text-primary">

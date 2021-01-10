@@ -94,3 +94,15 @@ code {
 .dropdown-menu a {
     color: black !important;
 }
+
+.btn-group.special {
+    display: flex;
+}
+
+.special .btn {
+    flex: 1
+}
+
+.special .btn {
+    border-radius: 0;
+}
