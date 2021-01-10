@@ -1,3 +1,4 @@
+using Core.Extensions;
 using Core.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -18,6 +19,9 @@ namespace BlizzTrack.Pages.Admin.Parents
         [Required]
         [Display(Name = "Game Name")]
         public string GameName { get; set; }
+
+        [Display(Name = "Game Slug")]
+        public string GameSlug { get; set; }
 
         [Required]
         [Display(Name = "Game Starts With Code (ex: pro)")]
@@ -145,6 +149,15 @@ namespace BlizzTrack.Pages.Admin.Parents
                     parent.PatchNoteAreas.Add(item.Trim().ToLower());
                 }
 
+            if (string.IsNullOrEmpty(GameInfoModel.GameSlug))
+            {
+                parent.Slug = GameInfo.Name.Slugify();
+            }
+            else
+            {
+                parent.Slug = GameInfoModel.GameSlug;
+            }
+
             await _gameParents.Add(parent);
 
             return Redirect($"/admin/game-parents/modify?handler=Edit&code={parent.Code}");
@@ -165,6 +178,7 @@ namespace BlizzTrack.Pages.Admin.Parents
                 GameInfoModel = new GameInfoModel()
                 {
                     GameName = GameInfo.Name,
+                    GameSlug = GameInfo.Slug ?? GameInfo.Name.Slugify(),
                     GameCode = GameInfo.Code,
                     GameWebsite = GameInfo.Website,
                     GameChildOverride = string.Join(", ", GameInfo.ChildrenOverride ?? new List<string>()),
@@ -250,6 +264,15 @@ namespace BlizzTrack.Pages.Admin.Parents
 
                     GameInfo.PatchNoteAreas.Add(item.Trim().ToLower());
                 }
+
+            if (string.IsNullOrEmpty(GameInfoModel.GameSlug))
+            {
+                GameInfo.Slug = GameInfo.Name.Slugify();
+            } else
+            {
+                GameInfo.Slug = GameInfoModel.GameSlug;
+            }
+
 
             _dbContext.GameParents.Update(GameInfo);
             await _dbContext.SaveChangesAsync();

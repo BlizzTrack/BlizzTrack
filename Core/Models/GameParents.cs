@@ -13,6 +13,8 @@ namespace Core.Models
         [Required]
         public string Name { get; set; }
 
+        public string Slug { get; set; }
+
         public string Website { get; set; }
 
         public List<string> ChildrenOverride { get; set; }

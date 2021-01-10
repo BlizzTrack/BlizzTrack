@@ -15,6 +15,6 @@ namespace BlizzTrack.Models
 
         public List<BNetLib.Models.Patchnotes.Overwatch.HeroUpdate> HeroUpdates { get; set; }
 
-        public string Detailts { get; set; } = null;
+        public string Details { get; set; } = null;
     }
 }

@@ -28,21 +28,18 @@ namespace BlizzTrack.Services
             var data = await _dbContext.PatchNotes.Where(x => code.ToLower().StartsWith(x.Code) && type.ToLower().Equals(x.Type)).OrderByDescending(x => x.Created).ThenByDescending(x => x.Updated).FirstOrDefaultAsync();
             if (data == null) return null;
 
-            if (data.Body.RootElement.TryGetProperty("detail", out var detail))
-            {
-                return new PatchnoteData()
-                {
-                    Created = data.Created,
-                    Updated = data.Updated,
-                    Detailts = detail.GetString()
-                };
-            }
-
             var note = new PatchnoteData()
             {
                 Created = data.Created,
                 Updated = data.Updated,
             };
+
+
+            if (data.Body.RootElement.TryGetProperty("detail", out var detail))
+            {
+                note.Details = detail.GetString();
+                return note;
+            }
 
             var array = data.Body.RootElement.GetProperty("sections").EnumerateArray();
 
@@ -78,7 +75,6 @@ namespace BlizzTrack.Services
                         }
 
                         note.GenericUpdates.Add(update);
-                        continue;
                     }
                 }
 
@@ -128,8 +124,6 @@ namespace BlizzTrack.Services
                         }
 
                         note.HeroUpdates.Add(update);
-
-                        continue;
                     }
                 }
             }
@@ -137,7 +131,7 @@ namespace BlizzTrack.Services
             return note;
         }
 
-        private Overwatch.Metadata ReadMetaData(System.Text.Json.JsonElement jsonElement)
+        private static Overwatch.Metadata ReadMetaData(System.Text.Json.JsonElement jsonElement)
         {
             if (jsonElement.ValueKind == System.Text.Json.JsonValueKind.Null) return null;
 

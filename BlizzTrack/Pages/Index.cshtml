@@ -195,7 +195,7 @@
     {
         <div class="col-12">
             <div class="card ">
-                <div class="card-header border-0 py-3 d-flex align-items-center">
+                <div class="card-header border-0 py-3 d-flex align-items-center" id="@parent.Slug">
                     @if (parent.Logos?.Count > 0)
                     {
                         var logo = parent.Logos.FirstOrDefault(x => x.Type.Contains("svg"));
@@ -213,7 +213,7 @@
                         <img src="~/images/logos/bt.svg" class="mr-3" width="45">
                     }
                     <div>
-                        <h2 class="card-title mb-0">@parent.Name</h2>
+                        <h2 class="card-title mb-0">@parent.Name <small style="font-size: x-small"><a href="#@parent.Slug"><i class="fas fa-anchor"></i></a></small></h2>
                     </div>
                 </div>
                 <div class="card-body">

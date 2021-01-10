@@ -126,6 +126,15 @@
                     <div class="row">
                         <div class="col-sm-12">
                             <div class="form-group">
+                                @Html.LabelFor(x => x.GameInfoModel.GameSlug)
+                                @Html.TextBoxFor(x => x.GameInfoModel.GameSlug, new { placeholder = "Game Slug", @class = "form-control mb-1" })
+                                @Html.ValidationMessageFor(x => x.GameInfoModel.GameSlug, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="form-group">
                                 @Html.LabelFor(x => x.GameInfoModel.GameCode)
                                 @Html.TextBoxFor(x => x.GameInfoModel.GameCode, new { placeholder = "Parent Starts with code (ex: pro)", @class = "form-control mb-1" })
                                 @Html.ValidationMessageFor(x => x.GameInfoModel.GameCode, "", new { @class = "text-danger" })
