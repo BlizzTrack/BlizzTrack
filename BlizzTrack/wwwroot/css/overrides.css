@@ -136,3 +136,16 @@ code {
 .white-content .PatchIcon {
     filter: brightness(.3);
 }
+
+.patch-notes table {
+    width: 100% !important;
+}
+
+.white-content .btn-group .btn {
+    color: black !important;
+    background-image: linear-gradient(to bottom left, rgba(212,212,212,1), rgba(255,255,255,1), rgba(193,193,193,1));
+}
+
+    .white-content .btn-group .btn:hover, .white-content .btn-group .btn.active {
+        background-image: linear-gradient(to bottom left, rgba(255,255,255,1), rgba(212,212,212,1), rgba(193,193,193,1)) !important;
+    }
