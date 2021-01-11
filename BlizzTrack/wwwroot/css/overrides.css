@@ -87,6 +87,10 @@ code {
     color: #1d253b !important;
 }
 
+.white-content blockquote {
+    color: black !important;
+}
+
 .navbar-nav a:hover {
     filter: unset !important;
 }
@@ -105,4 +109,30 @@ code {
 
 .no-radius .btn {
     border-radius: 0;
+}
+
+.AbilityTitle {
+    font-size: 20px;
+}
+
+.PatchIcon-Holder {
+    min-width: 40px;
+    width: 40px;
+    height: 40px;
+    padding: 5px;
+    position: relative;
+    margin-right: 10px;
+}
+
+.PatchIcon {
+    filter: brightness(1);
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    max-width: 80%;
+}
+
+.white-content .PatchIcon {
+    filter: brightness(.3);
 }

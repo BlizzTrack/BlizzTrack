@@ -1,5 +1,8 @@
 ﻿@page "/patch-notes/{slug}/{game_type}"
 @model BlizzTrack.Pages.PatchNotesModel
+
+@using static Core.Extensions.SlugExtension;
+
 @{
     if(Model.GameParent == null)
     {
@@ -46,7 +49,9 @@
                             @foreach (var item in Model.GameParent.PatchNoteAreas)
                             {
                                 <a asp-page="/PatchNotes" asp-route-slug="@Model.GameParent.Slug" asp-route-game_type="@item" 
-                                   class="btn btn-outline-light m-0 text-white @(item.Equals(Model.GameType, StringComparison.OrdinalIgnoreCase) ? "active" : "")">@item Patch Notes</a>
+                                   class="btn btn-outline-light m-0 text-white @(item.Equals(Model.GameType, StringComparison.OrdinalIgnoreCase) ? "active" : "")">
+                                    @item Patch Notes
+                                </a>
                             }
                         </div>
                     </div>
@@ -56,19 +61,122 @@
     </div>
 
     <div class="col-12">
-        <div class="card">
-            <div class="card-body">
-                @if (!string.IsNullOrEmpty(Model.PatchNotes.Details))
-                {
+        @if (!string.IsNullOrEmpty(Model.PatchNotes.Details))
+        {
+            <div class="card">
+                <div class="card-body">
                     @Html.Raw(Model.PatchNotes.Details)
-                }
-                else
-                {
-                    <pre>
-                    @Model.PatchNotes.ToString()
-                </pre>
-                }
+                </div>
             </div>
-        </div>
+        }
+        else
+        {
+            @if (Model.PatchNotes.HeroUpdates != null)
+            {
+                foreach (var change in Model.PatchNotes.HeroUpdates)
+                {
+                    <div class="card bg-transparent mb-2" style="box-shadow: none;" id="@change.Title.Slugify()">
+                        <div class="card-header">
+                            <div class="col-sm-12 text-left">
+                                <h2 class="card-title">
+                                    @change.Title <small style="font-size: x-small"><a href="#@change.Title.Slugify()"><i class="fas fa-anchor"></i></a></small>
+                                </h2>
+                                <h5 class="card-category">@change.Description</h5>
+                            </div>
+                        </div>
+
+                        <div class="card-body">
+                            @foreach (var update in change.Heroes.Select(x => x.HeroChanges))
+                            {
+                                // https://cdn.blizztrack.com/overwatch/heroes/
+
+                            <div class="card mb-2" id="@update.HeroName.Slugify()">
+                                <div class="card-header border-0 pt-3 pb-1 d-flex align-items-center">
+                                    <img src="@($"https://cdn.blizztrack.com/overwatch/heroes/{update.Metadata.AssetGuid}.png")" class="mr-3" width="45">
+
+                                    <div class="text-left">
+                                        <h2 class="card-title mb-0">@update.HeroName <small style="font-size: x-small"><a href="#@update.HeroName.Slugify()"><i class="fas fa-anchor"></i></a></small></h2>
+                                        <blockquote class="card-category text-white">
+                                            @update.DevComment
+                                        </blockquote>
+                                    </div>
+                                </div>
+
+                                <div class="card-body text-white px-1 py-1">
+                                    @Html.Raw(BlizzTrack.Helpers.Markdown.Parse(update.ChangeDescription))
+                                </div>
+
+                                @if (update.Abilities.Count > 0)
+                                {
+                                    <div class="card-body text-white px-1 py-1">
+                                        @foreach (var ability in update.Abilities.Select(x => x.AbilityChanges))
+                                        {
+                                            <div class="card bg-transparent pl-3 m-0 py-0 pt-0" style="box-shadow: none">
+                                                <div class="card-header border-0 pt-1 pb-1 d-flex align-items-center">
+                                                    <div class="PatchIcon-Holder">
+                                                        <img class="PatchIcon mr-3" src="@($"https://cdn.blizztrack.com/overwatch/abilities/{ability.Metadata.IconGuid}.png")" width="30">
+                                                    </div>
+                                                    <div class="text-left">
+                                                        <h2 class="card-title mb-0 AbilityTitle">@ability.AbilityName</h2>
+                                                        <blockquote class="card-category">
+                                                            @ability.DevComment
+                                                        </blockquote>
+                                                    </div>
+                                                </div>
+                                                <div class="card-body pl-5 py-0">
+                                                    @Html.Raw(BlizzTrack.Helpers.Markdown.Parse(ability.ChangeDescription))
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                            }
+                        </div>
+                    </div>
+                }
+            }
+
+            @if (Model.PatchNotes.GenericUpdates != null)
+            {
+                foreach (var change in Model.PatchNotes.GenericUpdates)
+                {
+                    <div class="card bg-transparent mb-2" style="box-shadow: none;" id="@change.Title.Slugify()">
+                        <div class="card-header">
+                            <div class="col-sm-12 text-left">
+                                @if (!string.IsNullOrWhiteSpace(change.Title))
+                                {
+                                    <h2 class="card-title">
+                                        @change.Title <small style="font-size: x-small"><a href="#@change.Title.Slugify()"><i class="fas fa-anchor"></i></a></small>
+                                    </h2>
+                                }
+                                <h5 class="card-category">@change.Description</h5>
+                            </div>
+                        </div>
+
+                        <div class="card-body">
+                            @foreach (var update in change.Updates.Select(x => x.UpdateChanges))
+                            {
+                                <div class="card mb-2" id="@update.Title.Slugify()">
+                                    <div class="card-header">
+                                        <div class="col-sm-12 text-left">
+                                            @if (!string.IsNullOrEmpty(update.Title))
+                                            {
+                                                <h2 class="card-title AbilityTitle">@update.Title <small style="font-size: x-small"><a href="#@update.Title.Slugify()"><i class="fas fa-anchor"></i></a></small></h2>
+                                            }
+                                            <blockquote class="card-category">@update.DevComment</blockquote>
+                                        </div>
+                                    </div>
+
+                                    <div class="card-body text-white px-1 py-1">
+                                        @Html.Raw(BlizzTrack.Helpers.Markdown.Parse(update.Description))
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+            }
+        }
     </div>
 </div>
