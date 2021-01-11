@@ -32,7 +32,7 @@ namespace BlizzTrack.Pages
 
         public async Task<IActionResult> OnGetAsync()
         {
-            GameParent = await _gameParents.GetBySlug(Slug);
+            GameParent = await _gameParents.Get(Slug);
             if(GameParent == null || !GameParent.PatchNoteAreas.Contains(GameType.ToLower())) return NotFound();
 
             PatchNotes = await _patchNotes.Get(GameParent.Code, GameType);

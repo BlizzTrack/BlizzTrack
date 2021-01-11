@@ -13,8 +13,6 @@ namespace Core.Services
 
         Task<Models.GameParents> Get(string code);
 
-        Task<Models.GameParents> GetBySlug(string slug);
-
         Task Update(Models.GameParents config);
     }
 
@@ -41,13 +39,7 @@ namespace Core.Services
         public async Task<Models.GameParents> Get(string code)
         {
             code = code.ToLower();
-            return await _dbContext.GameParents.FirstOrDefaultAsync(x => code.StartsWith(x.Code) || code == x.Code);
-        }
-
-        public async Task<Models.GameParents> GetBySlug(string slug)
-        {
-            slug = slug.ToLower();
-            return await _dbContext.GameParents.FirstOrDefaultAsync(x => x.Slug == slug);
+            return await _dbContext.GameParents.FirstOrDefaultAsync(x => code.StartsWith(x.Code) || code == x.Code || x.Slug == code.ToLower());
         }
 
         public async Task Update(Models.GameParents config)

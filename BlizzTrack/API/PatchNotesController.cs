@@ -67,10 +67,7 @@ namespace BlizzTrack.API
                 scheme = "https";
             }
 
-            var parent = await gameParents.GetBySlug(game);
-
-            // Support code
-            if (parent == null) parent = await gameParents.Get(game);
+            var parent = await gameParents.Get(game);
             if (parent == null) return NotFound();
 
             if (string.IsNullOrEmpty(game_type) || game_type == default)

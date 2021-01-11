@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "Worker": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "ENVIRONMENT": "Development"
+      }
+    }
+  }
+}
