@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using System.Text.Json;
 
 namespace BlizzTrack.Models
 {
-    public class PatchnoteData
+    public class PatchNoteData
     {
         public DateTime Created { get; set; }
 
@@ -16,5 +15,13 @@ namespace BlizzTrack.Models
         public List<BNetLib.Models.Patchnotes.Overwatch.HeroUpdate> HeroUpdates { get; set; }
 
         public string Details { get; set; } = null;
+
+        public override string ToString()
+        {
+            return JsonSerializer.Serialize(this, new JsonSerializerOptions { 
+                WriteIndented = true, 
+                DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull 
+            });
+        }
     }
 }

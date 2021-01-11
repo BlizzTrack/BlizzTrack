@@ -11,7 +11,7 @@ namespace BlizzTrack.Services
 {
     public interface IPatchnotes
     {
-        Task<PatchnoteData> Get(string code, string type);
+        Task<PatchNoteData> Get(string code, string type);
     }
 
     public class Patchnotes : IPatchnotes
@@ -23,12 +23,12 @@ namespace BlizzTrack.Services
             _dbContext = dbContext;
         }
 
-        public async Task<PatchnoteData> Get(string code, string type)
+        public async Task<PatchNoteData> Get(string code, string type)
         {
             var data = await _dbContext.PatchNotes.Where(x => code.ToLower().StartsWith(x.Code) && type.ToLower().Equals(x.Type)).OrderByDescending(x => x.Created).ThenByDescending(x => x.Updated).FirstOrDefaultAsync();
             if (data == null) return null;
 
-            var note = new PatchnoteData()
+            var note = new PatchNoteData()
             {
                 Created = data.Created,
                 Updated = data.Updated,

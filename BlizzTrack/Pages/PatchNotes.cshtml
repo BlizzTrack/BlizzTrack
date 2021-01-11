@@ -1,0 +1,74 @@
+﻿@page "/patch-notes/{slug}/{game_type}"
+@model BlizzTrack.Pages.PatchNotesModel
+@{
+    if(Model.GameParent == null)
+    {
+        return;
+    }
+
+    ViewData["Title"] = $"{Model.GameParent.Name} // {Model.GameType} Patch Notes";
+}
+
+@if (Model.GameParent?.Logos?.Count > 0)
+{
+    var logo = Model.GameParent.Logos.FirstOrDefault(x => x.Type == "image/png");
+    if (logo != null)
+    {
+        @section Header {
+            <meta Name="twitter:image:src" Content="@logo.URL" />
+            <meta Name="og:image" Content="@logo.URL" />
+            <meta Name="twitter:url" Content="@logo.URL" />
+            <meta Name="og:url" Content="@logo.URL" />
+        }
+    }
+}
+
+<div class="row">
+    <div class="col-12" aria-label="breadcrumb col-12" role="navigation">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a asp-page="/Index">
+                    All Games
+                </a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">@Model.GameParent.Name</li>
+            <li class="breadcrumb-item active" aria-current="page">@Model.GameType</li>
+        </ol>
+    </div>
+
+    <div class="col-12">
+        <div class="card mb-3">
+            <feature name="@nameof(Helpers.FeatureFlags.PatchNotes)">
+                @if (Model.GameParent.PatchNoteAreas?.Count > 1)
+                {
+                    <div class="card-body py-0 px-0">
+                        <div class="btn-group special" role="group" aria-label="...">
+                            @foreach (var item in Model.GameParent.PatchNoteAreas)
+                            {
+                                <a asp-page="/PatchNotes" asp-route-slug="@Model.GameParent.Slug" asp-route-game_type="@item" 
+                                   class="btn btn-outline-light m-0 text-white @(item.Equals(Model.GameType, StringComparison.OrdinalIgnoreCase) ? "active" : "")">@item Patch Notes</a>
+                            }
+                        </div>
+                    </div>
+                }
+            </feature>
+        </div>
+    </div>
+
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                @if (!string.IsNullOrEmpty(Model.PatchNotes.Details))
+                {
+                    @Html.Raw(Model.PatchNotes.Details)
+                }
+                else
+                {
+                    <pre>
+                    @Model.PatchNotes.ToString()
+                </pre>
+                }
+            </div>
+        </div>
+    </div>
+</div>

@@ -103,6 +103,6 @@ code {
     flex: 1
 }
 
-.special .btn {
+.no-radius .btn {
     border-radius: 0;
 }

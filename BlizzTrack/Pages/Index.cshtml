@@ -220,10 +220,10 @@
                     @if (parent.PatchNoteAreas?.Count > 0)
                     {
                         <div class="card-body py-1 px-0">
-                            <div class="btn-group special" role="group" aria-label="...">
+                            <div class="btn-group special no-radius" role="group" aria-label="...">
                                 @foreach (var item in parent.PatchNoteAreas)
                                 {
-                                    <button type="button" class="btn btn-outline-default">@item Patch Notes</button>
+                                    <a asp-page="/PatchNotes" asp-route-slug="@parent.Slug" asp-route-game_type="@item" class="btn btn-outline-default text-white m-0">@item Patch Notes</a>
                                 }
                             </div>
                         </div>
