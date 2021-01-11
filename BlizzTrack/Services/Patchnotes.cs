@@ -12,6 +12,8 @@ namespace BlizzTrack.Services
     public interface IPatchnotes
     {
         Task<PatchNoteData> Get(string code, string type);
+
+        Task<List<PatchNoteData>> Get(string code, params string[] type);
     }
 
     public class Patchnotes : IPatchnotes
@@ -129,6 +131,21 @@ namespace BlizzTrack.Services
             }
 
             return note;
+        }
+
+        public async Task<List<PatchNoteData>> Get(string code, params string[] types)
+        {
+            var items = new List<PatchNoteData>();
+
+            foreach(var type in types)
+            {
+                var data = await Get(code, type);
+                if (data == null) continue;
+
+                items.Add(data);
+            }
+
+            return items;
         }
 
         private static Overwatch.Metadata ReadMetaData(System.Text.Json.JsonElement jsonElement)
