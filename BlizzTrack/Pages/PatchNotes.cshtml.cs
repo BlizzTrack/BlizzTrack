@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using BlizzTrack.Helpers;
 using Core.Services;
@@ -30,13 +32,17 @@ namespace BlizzTrack.Pages
 
         public Models.PatchNoteData PatchNotes;
 
-        public async Task<IActionResult> OnGetAsync()
+        public List<Models.PatchNoteBuild> BuildList { get; set; }
+
+        public async Task<IActionResult> OnGetAsync([FromQuery(Name = "build_time")] long? buildTime = null)
         {
             GameParent = await _gameParents.Get(Slug);
             if(GameParent == null || !GameParent.PatchNoteAreas.Contains(GameType.ToLower())) return NotFound();
 
-            PatchNotes = await _patchNotes.Get(GameParent.Code, GameType);
+            PatchNotes = await _patchNotes.Get(GameParent.Code, GameType, buildTime != null ? new DateTime(buildTime.Value) : null);
             if (PatchNotes == null) return NotFound();
+
+            BuildList = await _patchNotes.GetBuildDates(GameParent.Code, GameType);
 
             return Page();
         }

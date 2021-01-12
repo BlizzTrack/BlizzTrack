@@ -11,9 +11,11 @@ namespace BlizzTrack.Services
 {
     public interface IPatchnotes
     {
-        Task<PatchNoteData> Get(string code, string type);
+        Task<PatchNoteData> Get(string code, string type, DateTime? buildTime = null);
 
-        Task<List<PatchNoteData>> Get(string code, params string[] type);
+        Task<List<PatchNoteData>> GetByTypes(string code, params string[] type);
+
+        Task<List<PatchNoteBuild>> GetBuildDates(string code, string type);
     }
 
     public class Patchnotes : IPatchnotes
@@ -25,9 +27,29 @@ namespace BlizzTrack.Services
             _dbContext = dbContext;
         }
 
-        public async Task<PatchNoteData> Get(string code, string type)
+        public async Task<List<PatchNoteBuild>> GetBuildDates(string code, string type)
         {
-            var data = await _dbContext.PatchNotes.Where(x => code.ToLower().StartsWith(x.Code) && type.ToLower().Equals(x.Type)).OrderByDescending(x => x.Created).ThenByDescending(x => x.Updated).FirstOrDefaultAsync();
+            var data = await _dbContext.PatchNotes
+                .Where(x => code.ToLower().StartsWith(x.Code) && type.ToLower().Equals(x.Type))
+                .OrderByDescending(x => x.Created).Select(x => new
+                {
+                    x.Updated,
+                    x.Created
+                }).ToListAsync();
+            if (data == null) return null;
+
+            return data.Select(x => new PatchNoteBuild()
+            {
+                Created = x.Created,
+                Updated = x.Updated
+            }).ToList();
+        }
+
+        public async Task<PatchNoteData> Get(string code, string type, DateTime? buildTime = null)
+        {
+            var data = await _dbContext.PatchNotes
+                .Where(x => code.ToLower().StartsWith(x.Code) && type.ToLower().Equals(x.Type) && buildTime == null ? true : buildTime == x.Created)
+                .OrderByDescending(x => x.Created).ThenByDescending(x => x.Updated).FirstOrDefaultAsync();
             if (data == null) return null;
 
             var note = new PatchNoteData()
@@ -133,7 +155,7 @@ namespace BlizzTrack.Services
             return note;
         }
 
-        public async Task<List<PatchNoteData>> Get(string code, params string[] types)
+        public async Task<List<PatchNoteData>> GetByTypes(string code, params string[] types)
         {
             var items = new List<PatchNoteData>();
 

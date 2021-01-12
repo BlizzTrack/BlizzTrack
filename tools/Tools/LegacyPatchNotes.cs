@@ -144,7 +144,7 @@ namespace Tooling.Tools
                 var url = $"https://cache-cms-ext-us.battle.net/system/cms/oauth/api/patchnote/list?program={(parent.PatchNoteCode ?? parent.Code)}&region=us&locale=enUS&type={c}&page=1&pageSize=200&orderBy=buildNumber";
 
                 var data = await BNetLib.Http.RemoteJson.Get<BNetLib.Models.Patchnotes.Legacy.Root>(url);
-
+    
                 foreach (var item in data.Item1.PatchNotes) {
                     var f = item;
 

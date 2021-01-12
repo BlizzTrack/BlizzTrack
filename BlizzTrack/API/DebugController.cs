@@ -83,7 +83,7 @@ namespace BlizzTrack.API
         [HttpGet("patch-notes/{code}/{type}")]
         public async Task<IActionResult> PatchNotes([FromServices] Services.IPatchnotes patchnotes, string code, string type)
         {
-            return Ok(await patchnotes.Get(code, type));
+            return Ok(await patchnotes.Get(code, type, null));
         }
 
         #endregion /patch-notes/:code/:type

@@ -1,6 +1,6 @@
 {
   "profiles": {
-    "Worker": {
+    "Tooling": {
       "commandName": "Project",
       "environmentVariables": {
         "ENVIRONMENT": "Development"

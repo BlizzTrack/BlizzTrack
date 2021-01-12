@@ -149,3 +149,23 @@ code {
     .white-content .btn-group .btn:hover, .white-content .btn-group .btn.active {
         background-image: linear-gradient(to bottom left, rgba(255,255,255,1), rgba(212,212,212,1), rgba(193,193,193,1)) !important;
     }
+
+
+.build-list {
+    position: relative;
+    background: #27293d;
+    display: inline-flex;
+}
+
+    .build-list li {
+        padding: 10px 8px;
+        line-height: 1.625rem;
+        text-decoration: none;
+        position: relative;
+        text-transform: uppercase;
+        cursor: pointer;
+    }
+
+    .build-list li i {
+        margin-right: 3px;
+    }

@@ -4,6 +4,14 @@ using System.Text.Json;
 
 namespace BlizzTrack.Models
 {
+
+    public class PatchNoteBuild
+    {
+        public DateTime Created { get; set; }
+
+        public DateTime Updated { get; set; }
+    }
+
     public class PatchNoteData
     {
         public DateTime Created { get; set; }
