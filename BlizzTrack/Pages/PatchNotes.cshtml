@@ -136,7 +136,7 @@
 
                                         @if (update.Abilities.Count > 0)
                                         {
-                                            <div class="card-body text-white px-1 py-1">
+                                            <div class="card-body text-white py-1">
                                                 @foreach (var ability in update.Abilities.Select(x => x.AbilityChanges))
                                                 {
                                                     <div class="card bg-transparent pl-3 m-0 py-0 pt-0" style="box-shadow: none">
@@ -196,7 +196,7 @@
                                             </div>
                                         </div>
 
-                                        <div class="card-body text-white px-1 py-1">
+                                        <div class="card-body text-white py-1">
                                             @Html.Raw(BlizzTrack.Helpers.Markdown.Parse(update.Description))
                                         </div>
                                     </div>
