@@ -16,10 +16,13 @@ namespace BlizzTrack.Pages
 
         private readonly Services.IPatchnotes _patchNotes;
 
-        public PatchNotesModel(IGameParents gameParents, Services.IPatchnotes patchNotes)
+        private readonly Services.IBlizzardAlerts _blizzardAlerts;
+
+        public PatchNotesModel(IGameParents gameParents, Services.IPatchnotes patchNotes, Services.IBlizzardAlerts blizzardAlerts)
         {
             _gameParents = gameParents;
             _patchNotes = patchNotes;
+            _blizzardAlerts = blizzardAlerts;
         }
 
         [BindProperty(SupportsGet = true, Name = "slug")]
@@ -32,6 +35,8 @@ namespace BlizzTrack.Pages
 
         public Models.PatchNoteData PatchNotes;
 
+        public string Alert = string.Empty;
+
         public List<Models.PatchNoteBuild> BuildList { get; set; }
 
         public async Task<IActionResult> OnGetAsync([FromQuery(Name = "build_time")] long? buildTime = null)
@@ -43,6 +48,11 @@ namespace BlizzTrack.Pages
             if (PatchNotes == null) return NotFound();
 
             BuildList = await _patchNotes.GetBuildDates(GameParent.Code, GameType);
+
+            if(GameParent.Slug == "overwatch" && GameType.Equals("experimental"))
+            {
+                Alert = await _blizzardAlerts.ExperimentalOnline();
+            }
 
             return Page();
         }
