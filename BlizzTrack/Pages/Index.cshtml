@@ -103,6 +103,8 @@
         </div>
     }
 
+    @if (Model.SummaryDiff.OrderByAlphaNumeric(x => x.newest.Product).Count() > 0)
+    {
     <div class="col-12">
         <div class="card ">
             <div class="card-header">
@@ -140,8 +142,6 @@
                         <tbody>
                             @foreach (var item in Model.SummaryDiff.OrderByAlphaNumeric(x => x.newest.Product))
                             {
-                                if (item.newest.Flags == "cdn") continue;
-
                                 var config = Model.Configs.FirstOrDefault(x => x.Code == item.newest.Product);
                                 if (config == null)
                                 {
@@ -183,7 +183,7 @@
             </div>
         </div>
     </div>
-
+    }
     @{
         var latestCodes = Model.Manifests.First().Content.ToList();
         latestCodes.Remove(latestCodes.FirstOrDefault(x => x.Product == "storm"));
