@@ -9,5 +9,6 @@ namespace Tooling.Attributes
     public class ToolAttribute : Attribute
     {
         public string Name { get; set; }
+        public bool Disabled { get; set; }
     }
 }

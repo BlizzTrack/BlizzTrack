@@ -45,6 +45,8 @@ namespace tools
                     var name = attr.Name;
                     if (string.IsNullOrEmpty(name)) name = task.Name.ToLower();
 
+                    if (attr.Disabled) continue;
+
                     var tool = (ITool)ActivatorUtilities.CreateInstance(services, task);
                     results.Add(name, tool);
                 }
