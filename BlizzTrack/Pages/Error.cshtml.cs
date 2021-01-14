@@ -19,6 +19,9 @@ namespace BlizzTrack.Pages
 
         public bool ShowRequestId => !string.IsNullOrEmpty(RequestId);
 
+        [BindProperty(SupportsGet = true, Name = "error_code")]
+        public int ErrorCode { get; set; }
+
         public void OnGet()
         {
             RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier;

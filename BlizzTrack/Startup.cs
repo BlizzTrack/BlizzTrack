@@ -182,6 +182,7 @@ namespace BlizzTrack
                 }
             });
 
+            app.UseStatusCodePagesWithReExecute("/errors/{0}");
             app.UseRouting();
 
             app.UseAuthentication();

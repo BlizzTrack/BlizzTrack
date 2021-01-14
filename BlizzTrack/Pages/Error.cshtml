@@ -1,21 +1,59 @@
-﻿@page
+﻿@page "/errors/{error_code}"
 @model ErrorModel
 @{
-    ViewData["Title"] = "Error";
-}
+    @switch (Model.ErrorCode)
+        {
+            case 404:
+                ViewData["Title"] = "Not Found";
+                break;
+            case 500:
+                ViewData["Title"] = "Internal Error";
+                break;
+            default:
+                ViewData["Title"] = $"{Model.ErrorCode} Error";
+                break;
+        }
+    }
 
 <div class="row">
     <div class="col-12" aria-label="breadcrumb col-12" role="navigation">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a asp-page="/Index">All Games</a></li>
-            <li class="breadcrumb-item active">Error</li>
+            <li class="breadcrumb-item active">
+                @switch (Model.ErrorCode)
+                {
+                    case 404:
+                        @Html.Raw("Page Not Found");
+                        break;
+                    case 500:
+                        @Html.Raw("Internal Site Error");
+                        break;
+                    default:
+                        @Html.Raw($"{Model.ErrorCode} Error");
+                        break;
+                }
+            </li>
         </ol>
     </div>
 
     <div class="col-12">
-        <h1 class="text-danger">Error.</h1>
-        <h2 class="text-danger">An error occurred while processing your request.</h2>
-
+        @{
+            var postId = 16131457;
+            var aspect = 2.4292682926829268;
+            @switch (Model.ErrorCode)
+            {
+                case 404:
+                    postId = 5788968;
+                    aspect = 1.9545454545454544;
+                    break;
+            }
+        }
+        <div class="tenor-gif-embed" data-style="border-radius: 0.25rem;" data-postid="@postId" data-share-method="host" data-width="100%" data-aspect-ratio="@aspect">
+            <a href="https://tenor.com/view/what-is-that-what-the-hell-wtf-what-gif-16131457">What Is That What The Hell GIF</a> from <a href="https://tenor.com/search/whatisthat-gifs">Whatisthat GIFs</a>
+        </div>
+        <script type="text/javascript" async src="https://tenor.com/embed.js"></script>
+    </div>
+    <div class="col-12 mt-4">
         @if (Model.ShowRequestId)
         {
             <p>
