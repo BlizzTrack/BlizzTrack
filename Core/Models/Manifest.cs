@@ -14,6 +14,8 @@ namespace Core.Models
 
         public DateTime Indexed { get; set; }
 
+        public string Raw { get; set; }
+
         [NotMapped]
         public string Name => BNetLib.Helpers.GameName.Get(Code);
 

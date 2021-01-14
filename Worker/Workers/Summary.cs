@@ -81,12 +81,13 @@ namespace Worker.Workers
                     firstRun = false;
                 }
 
-                (var summary, int seqn) = await _bNetClient.Do<List<BNetLib.Models.Summary>>(new SummaryCommand());
+                (var summary, int seqn, string raw) = await _bNetClient.Do<List<BNetLib.Models.Summary>>(new SummaryCommand());
                 if (latest?.Seqn < seqn)
                 {
                     latest = Manifest<BNetLib.Models.Summary[]>.Create(seqn, "summary", summary.ToArray());
                     try
                     {
+                        latest.Raw = raw;
                         _dbContext.Summary.Add(latest);
                         _dbContext.SaveChanges();
                     }
@@ -167,7 +168,7 @@ namespace Worker.Workers
             // Update the config for only games we detect changes for
             await CheckifEncrypted(msg, db, _logger, cancellationToken);
 
-            var (data, seqn) = await GetMetaData(msg);
+            var (data, seqn, raw) = await GetMetaData(msg);
             if (seqn == -1) return;
 
             switch (data)
@@ -175,18 +176,21 @@ namespace Worker.Workers
                 case List<BNetLib.Models.Versions> ver:
                     {
                         var f = Manifest<BNetLib.Models.Versions[]>.Create(seqn, code, ver.ToArray());
+                        f.Raw = raw;
                         db.Versions.Add(f);
                         break;
                     }
                 case List<BNetLib.Models.CDN> cdn:
                     {
                         var f = Manifest<BNetLib.Models.CDN[]>.Create(seqn, code, cdn.ToArray());
+                        f.Raw = raw;
                         db.CDN.Add(f);
                         break;
                     }
                 case List<BNetLib.Models.BGDL> bgdl:
                     {
                         var f = Manifest<BNetLib.Models.BGDL[]>.Create(seqn, code, bgdl.ToArray());
+                        f.Raw = raw;
                         db.BGDL.Add(f);
                         break;
                     }
@@ -196,17 +200,17 @@ namespace Worker.Workers
             }
         }
 
-        private async Task<(IList data, int seqn)> GetMetaData(BNetLib.Models.Summary msg)
+        private async Task<(IList data, int seqn, string raw)> GetMetaData(BNetLib.Models.Summary msg)
         {
-            (IList data, int seqn) res = msg.Flags switch
+            (IList data, int seqn, string raw) res = msg.Flags switch
             {
                 "version" or "versions" => await _bNetClient.Do<List<BNetLib.Models.Versions>>(new VersionCommand(msg.Product)),
                 "cdn" or "cdns" => await _bNetClient.Do<List<BNetLib.Models.CDN>>(new CDNCommand(msg.Product)),
                 "bgdl" => await _bNetClient.Do<List<BNetLib.Models.BGDL>>(new BGDLCommand(msg.Product)),
-                _ => (null, -1)
+                _ => (null, -1, string.Empty)
             };
 
-            if (res.seqn == -1) return (res.data, res.seqn);
+            if (res.seqn == -1) return (res.data, res.seqn, res.raw);
 
             if (res.seqn != msg.Seqn)
             {
@@ -214,7 +218,7 @@ namespace Worker.Workers
                 return await GetMetaData(msg);
             }
 
-            return (res.data, res.seqn);
+            return (res.data, res.seqn, res.raw);
         }
 
         private async Task CheckifEncrypted(BNetLib.Models.Summary msg, DBContext dbContext, ILogger<Summary> _logger, CancellationToken cancellationToken)
