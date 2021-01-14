@@ -9,7 +9,7 @@ using Tooling.Attributes;
 
 namespace Tooling.Tools
 {
-    [Tool(Name = "Raw Manfiest Files")]
+    [Tool(Name = "Raw Manfiest Files", Disabled = true)]
 
     class RawManifestFiles : ITool
     {
