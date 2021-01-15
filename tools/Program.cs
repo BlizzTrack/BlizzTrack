@@ -29,7 +29,7 @@ namespace tools
             foreach(var (key, value) in tools)
             {
                 logger.LogInformation($"Running: {key}");
-                await value.Start();
+               await value.Start();
             }
         }
 
@@ -75,7 +75,7 @@ namespace tools
                             hostContext.Configuration.GetConnectionString("ConnectionString"), o =>
                             {
                                 o.UseTrigrams();
-                            }));
+                            }).EnableSensitiveDataLogging());
 
                     services.AddSingleton(x => new BNetLib.Networking.BNetClient(BNetLib.Networking.ServerRegion.US));
                     services.AddSingleton<BNetLib.Http.ProductConfig>();

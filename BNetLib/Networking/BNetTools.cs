@@ -17,9 +17,9 @@ namespace BNetLib.Networking
         public string Type { get; }
     }
 
-    internal static class BNetTools<T>
+    public static class BNetTools<T>
     {
-        internal static (T Value, int Seqn) Parse(IEnumerable<string> lines)
+        public static (T Value, int Seqn) Parse(IEnumerable<string> lines)
         {
             var dataItems = new List<Dictionary<string, dynamic>>();
 
@@ -66,7 +66,7 @@ namespace BNetLib.Networking
                         continue;
                     }
 
-                    lineItem[key.Key] = item == "" ? "versions" : item;
+                    lineItem[key.Key] = item == "" ? "" : item;
                 }
 
                 dataItems.Add(lineItem);
