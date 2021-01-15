@@ -39,6 +39,7 @@ namespace Core.Models
 
             builder.Entity<Manifest<BNetLib.Models.Summary[]>>().Property(x => x.Indexed).HasDefaultValueSql("CURRENT_TIMESTAMP");
             builder.Entity<Manifest<BNetLib.Models.Summary[]>>().HasKey(x => x.Seqn);
+            builder.Entity<Manifest<BNetLib.Models.Summary[]>>().Ignore(x => x.Parent);
             builder.Entity<Manifest<BNetLib.Models.Summary[]>>().ToTable("summary");
 
             builder.Entity<GameParents>().Property(x => x.PatchNoteTool).HasDefaultValue("legacy");

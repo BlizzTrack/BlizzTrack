@@ -57,7 +57,7 @@ namespace BNetLib.Networking
                 for (var i = 0; i < keys.Count; i++)
                 {
                     var key = keys[i];
-                    var item = values[i];
+                    var item = values[i].Trim();
 
                     if (key.Type.Equals("dec", StringComparison.CurrentCultureIgnoreCase))
                     {
@@ -66,7 +66,13 @@ namespace BNetLib.Networking
                         continue;
                     }
 
-                    lineItem[key.Key] = item == "" ? "" : item;
+                    if (key.Key.ToLower() == "flags")
+                    {
+                        lineItem[key.Key] = item == "" ? "versions" : item.Trim();
+                    } else
+                    {
+                        lineItem[key.Key] = item == "" ? "" : item.Trim();
+                    }
                 }
 
                 dataItems.Add(lineItem);

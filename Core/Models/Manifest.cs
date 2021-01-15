@@ -16,6 +16,8 @@ namespace Core.Models
 
         public string Raw { get; set; }
 
+        public int Parent { get; set; }
+
         [NotMapped]
         public string Name => BNetLib.Helpers.GameName.Get(Code);
 

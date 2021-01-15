@@ -78,7 +78,7 @@
                                         </td>
                                         <td>@config.GetName()</td>
                                         <td>@item.Product</td>
-                                        <td>@item.Flags</td>
+                                        <td>@(string.IsNullOrEmpty(item.Flags) ? "versions" : item.Flags)</td>
                                         <td>@item.Seqn</td>
                                         <td>@(f == null ? "N/A" : f.Seqn.ToString())</td>
                                         <td class="text-center">
@@ -88,8 +88,8 @@
                                             }
                                             else
                                             {
-                                                <a asp-page="/ViewGame" asp-route-code="@item.Product" asp-route-file="@item.Flags" asp-route-latest-seqn="@item.Seqn">
-                                                    View Manifest
+                                                <a asp-page="/ViewGame" asp-route-code="@item.Product" asp-route-file="@(string.IsNullOrEmpty(item.Flags) ? "versions" : item.Flags)" asp-route-latest-seqn="@item.Seqn">
+                                                    View Manifest L =
                                                 </a>
                                             }
                                         </td>
@@ -160,7 +160,7 @@
                                     </td>
                                     <td>@config.GetName()</td>
                                     <td>@item.newest.Product</td>
-                                    <td>@item.newest.Flags</td>
+                                    <td>@(string.IsNullOrEmpty(item.newest.Flags) ? "versions" : item.newest.Flags)</td>
                                     <td>@item.newest.Seqn</td>
                                     <td>@(item.previous == null ? "N/A" : item.previous.Seqn.ToString())</td>
                                     <td class="text-center">
@@ -170,7 +170,7 @@
                                         }
                                         else
                                         {
-                                            <a asp-page="/ViewGame" asp-route-code="@item.newest.Product" asp-route-file="@item.newest.Flags" asp-route-previous-seqn="@item.previous?.Seqn" asp-route-latest-seqn="@item.newest.Seqn">
+                                            <a asp-page="/ViewGame" asp-route-code="@item.newest.Product" asp-route-file="@(string.IsNullOrEmpty(item.newest.Flags) ? "versions" : item.newest.Flags)" asp-route-previous-seqn="@item.previous?.Seqn" asp-route-latest-seqn="@item.newest.Seqn">
                                                 View Manifest
                                             </a>
                                         }
@@ -291,7 +291,7 @@
                                         </td>
                                         <td>@config.GetName()</td>
                                         <td>@item.Product</td>
-                                        <td>@item.Flags</td>
+                                        <td>@(string.IsNullOrEmpty(item.Flags) ? "versions" : item.Flags)</td>
                                         <td>@item.Seqn</td>
                                         <td>@(f == null ? "N/A" : f.Seqn.ToString())</td>
                                         <td class="text-center">
@@ -301,7 +301,7 @@
                                             }
                                             else
                                             {
-                                                <a asp-page="/ViewGame" asp-route-code="@item.Product" asp-route-file="@item.Flags" asp-route-latest-seqn="@item.Seqn">
+                                                <a asp-page="/ViewGame" asp-route-code="@item.Product" asp-route-file="@(string.IsNullOrEmpty(item.Flags) ? "versions" : item.Flags)" asp-route-latest-seqn="@item.Seqn">
                                                     View Manifest
                                                 </a>
                                             }

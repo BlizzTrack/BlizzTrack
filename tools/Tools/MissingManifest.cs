@@ -15,7 +15,7 @@ using Tooling.Attributes;
 
 namespace Tooling.Tools
 {
-    [Tool(Name = "Missing Manifest", Disabled = false)]
+    [Tool(Name = "Missing Manifest", Disabled = true)]
     public class MissingManifest : ITool
     {
         private readonly DBContext _dbContext;
@@ -30,7 +30,7 @@ namespace Tooling.Tools
         public async Task Start()
         {
             await MissingSummary();
-            await MissingGameManifest();
+            //await MissingGameManifest();
         }
 
         public async Task MissingSummary()
@@ -68,6 +68,7 @@ namespace Tooling.Tools
                 {
                     updateCycle++;
                     exist.Raw = fileContent;
+                    exist.Content = summary.Value.ToArray();
 
                     _dbContext.Update(exist);
                 }

@@ -29,7 +29,7 @@ namespace tools
             foreach(var (key, value) in tools)
             {
                 logger.LogInformation($"Running: {key}");
-               await value.Start();
+                await value.Start();
             }
         }
 

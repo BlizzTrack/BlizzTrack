@@ -74,7 +74,7 @@ namespace Worker.Workers
                 {
                     foreach (var item in latest.Content)
                     {
-                        await AddItemToData(item, _dbContext, cancellationToken);
+                        await AddItemToData(item, latest.Seqn, _dbContext, cancellationToken);
                         _dbContext.SaveChanges();
                     }
 
@@ -101,7 +101,7 @@ namespace Worker.Workers
                     {
                         try
                         {
-                            await AddItemToData(item, _dbContext, cancellationToken);
+                            await AddItemToData(item, latest.Seqn, _dbContext, cancellationToken);
                             _dbContext.SaveChanges();
                         }
                         catch (Exception ex)
@@ -119,7 +119,7 @@ namespace Worker.Workers
             }
         }
 
-        private async Task AddItemToData(BNetLib.Models.Summary msg, DBContext db, CancellationToken cancellationToken)
+        private async Task AddItemToData(BNetLib.Models.Summary msg, int parentSeqn, DBContext db, CancellationToken cancellationToken)
         {
             var code = msg.Product;
 
@@ -177,6 +177,7 @@ namespace Worker.Workers
                     {
                         var f = Manifest<BNetLib.Models.Versions[]>.Create(seqn, code, ver.ToArray());
                         f.Raw = raw;
+                        f.Parent = parentSeqn;
                         db.Versions.Add(f);
                         break;
                     }
@@ -184,6 +185,7 @@ namespace Worker.Workers
                     {
                         var f = Manifest<BNetLib.Models.CDN[]>.Create(seqn, code, cdn.ToArray());
                         f.Raw = raw;
+                        f.Parent = parentSeqn;
                         db.CDN.Add(f);
                         break;
                     }
@@ -191,6 +193,7 @@ namespace Worker.Workers
                     {
                         var f = Manifest<BNetLib.Models.BGDL[]>.Create(seqn, code, bgdl.ToArray());
                         f.Raw = raw;
+                        f.Parent = parentSeqn;
                         db.BGDL.Add(f);
                         break;
                     }
