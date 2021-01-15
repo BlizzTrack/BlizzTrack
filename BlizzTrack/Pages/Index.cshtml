@@ -89,7 +89,7 @@
                                             else
                                             {
                                                 <a asp-page="/ViewGame" asp-route-code="@item.Product" asp-route-file="@(string.IsNullOrEmpty(item.Flags) ? "versions" : item.Flags)" asp-route-latest-seqn="@item.Seqn">
-                                                    View Manifest L =
+                                                    View Manifest
                                                 </a>
                                             }
                                         </td>
@@ -223,7 +223,9 @@
                             <div class="btn-group special no-radius" role="group" aria-label="...">
                                 @foreach (var item in parent.PatchNoteAreas)
                                 {
-                                    <a asp-page="/PatchNotes" asp-route-slug="@parent.Slug" asp-route-game_type="@item" class="btn btn-outline-default text-white m-0">@item Patch Notes</a>
+                                    <a asp-page="/PatchNotes" asp-route-slug="@parent.Slug" asp-route-game_type="@item" class="btn btn-outline-default text-white m-0">
+                                        @GameTypeFixer.Fix(item) Patch Notes
+                                    </a>
                                 }
                             </div>
                         </div>

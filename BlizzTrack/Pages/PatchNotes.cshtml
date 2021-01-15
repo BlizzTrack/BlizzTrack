@@ -9,7 +9,7 @@
         return;
     }
 
-    ViewData["Title"] = $"{Model.GameParent.Name} // {Model.GameType} Patch Notes";
+    ViewData["Title"] = $"{Model.GameParent.Name} // {GameTypeFixer.Fix(Model.GameType)} Patch Notes";
 }
 
 @if (Model.GameParent?.Logos?.Count > 0)
@@ -35,7 +35,7 @@
                 </a>
             </li>
             <li class="breadcrumb-item active" aria-current="page">@Model.GameParent.Name</li>
-            <li class="breadcrumb-item active" aria-current="page">@Model.GameType</li>
+            <li class="breadcrumb-item active" aria-current="page">@GameTypeFixer.Fix(Model.GameType)</li>
         </ol>
     </div>
 
@@ -50,7 +50,7 @@
                             {
                                 <a asp-page="/PatchNotes" asp-route-slug="@Model.GameParent.Slug" asp-route-game_type="@item"
                                    class="btn btn-outline-light m-0 text-white @(item.Equals(Model.GameType, StringComparison.OrdinalIgnoreCase) ? "active" : "")">
-                                    @item Patch Notes
+                                    @GameTypeFixer.Fix(item) Patch Notes
                                 </a>
                             }
                         </div>

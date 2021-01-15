@@ -33,21 +33,31 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var item in Model.First().Content)
+                        @if (Model.First().Content.Length > 0)
+                        {
+                            @foreach (var item in Model.First().Content)
+                            {
+                                <tr>
+                                    <td>@item.GetName()</td>
+                                    <td class="@(item.Versionsname != Model.Last().Content.FirstOrDefault(x => x.Region == item.Region)?.Versionsname ? "has-changed-data" : "")">
+                                        @item.Versionsname
+                                    </td>
+                                    <td class="@(item.Buildconfig != Model.Last().Content.FirstOrDefault(x => x.Region == item.Region)?.Buildconfig ? "has-changed-data" : "")">
+                                        @item.Buildconfig
+                                    </td>
+                                    <td class="@(item.Cdnconfig != Model.Last().Content.FirstOrDefault(x => x.Region == item.Region)?.Cdnconfig ? "has-changed-data" : "")">
+                                        @item.Cdnconfig
+                                    </td>
+                                    <td class="@(item.Productconfig != Model.Last().Content.FirstOrDefault(x => x.Region == item.Region)?.Productconfig ? "has-changed-data" : "")">
+                                        @(item.Productconfig == "versions" ? "N/A" : item.Productconfig)
+                                    </td>
+                                </tr>
+                            }
+                        } else
                         {
                             <tr>
-                                <td>@item.GetName()</td>
-                                <td class="@(item.Versionsname != Model.Last().Content.FirstOrDefault(x => x.Region == item.Region)?.Versionsname ? "has-changed-data" : "")">
-                                    @item.Versionsname
-                                </td>
-                                <td class="@(item.Buildconfig != Model.Last().Content.FirstOrDefault(x => x.Region == item.Region)?.Buildconfig ? "has-changed-data" : "")">
-                                    @item.Buildconfig
-                                </td>
-                                <td class="@(item.Cdnconfig != Model.Last().Content.FirstOrDefault(x => x.Region == item.Region)?.Cdnconfig ? "has-changed-data" : "")">
-                                    @item.Cdnconfig
-                                </td>
-                                <td class="@(item.Productconfig != Model.Last().Content.FirstOrDefault(x => x.Region == item.Region)?.Productconfig ? "has-changed-data" : "")">
-                                    @(item.Productconfig == "versions" ? "N/A" : item.Productconfig)
+                                <td colspan="5" class="text-center my-3" style="font-size: large">
+                                    <i class="fas fa-times mr-1"></i> Empty Manifest
                                 </td>
                             </tr>
                         }
