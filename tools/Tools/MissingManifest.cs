@@ -2,20 +2,18 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MimeKit;
+using ShellProgressBar;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography.Pkcs;
-using System.Text;
 using System.Threading.Tasks;
 using Tooling.Attributes;
 
 namespace Tooling.Tools
 {
-    [Tool(Name = "Missing Manifest", Disabled = true)]
+    [Tool(Name = "Missing Manifest", Disabled = false)]
     public class MissingManifest : ITool
     {
         private readonly DBContext _dbContext;
@@ -30,7 +28,7 @@ namespace Tooling.Tools
         public async Task Start()
         {
             await MissingSummary();
-            //await MissingGameManifest();
+            await MissingGameManifest();
         }
 
         public async Task MissingSummary()
@@ -40,15 +38,28 @@ namespace Tooling.Tools
 
             int updateCycle = 1;
 
+            Console.Clear();
+
+            using var pbar = new ProgressBar(files.Count(), "main progressbar", new ProgressBarOptions
+            {
+                ForegroundColor = ConsoleColor.Yellow,
+                ForegroundColorDone = ConsoleColor.DarkGreen,
+                BackgroundColor = ConsoleColor.DarkGray,
+                BackgroundCharacter = '\u2593'
+            });
+
             while (eFiles.MoveNext())
             {
                 var file = eFiles.Current;
 
-                var options = System.IO.Path.GetFileNameWithoutExtension(file).Split("-");
+                var options = Path.GetFileNameWithoutExtension(file).Split("-");
+
+                pbar.Message = $"Reading: {Path.GetFileName(file)}";
+
                 (string code, string hashtash, int seqn) = (options[0], options[1], int.Parse(options[2]));
 
-                var fileContent = System.IO.File.ReadAllText(file);
-                var mail = await MimeKit.MimeMessage.LoadAsync(file);
+                var fileContent = File.ReadAllText(file);
+                var mail = await MimeMessage.LoadAsync(file);
 
                 var manifest = mail.BodyParts.OfType<MimePart>().LastOrDefault();
                 var body = mail.BodyParts.OfType<TextPart>().LastOrDefault();
@@ -56,12 +67,10 @@ namespace Tooling.Tools
                 using StreamReader reader = new StreamReader(manifest.Content.Stream);
                 string text = reader.ReadToEnd().Replace("\n", "");
 
-                var signDate = getSignerCert(text);
+                var signDate = GetSignerCert(text);
                 var payload = body.Text.Split("\n").ToList();
                 payload.Insert(0, "## Nothing");
                 var summary = BNetLib.Networking.BNetTools<List<BNetLib.Models.Summary>>.Parse(payload);
-
-                _logger.LogInformation($"{code} {seqn} {signDate}");
 
                 var exist = await _dbContext.Summary.AsNoTracking().FirstOrDefaultAsync(x => x.Seqn == seqn);
                 if(exist != null)
@@ -87,6 +96,8 @@ namespace Tooling.Tools
                     await _dbContext.SaveChangesAsync();
                     updateCycle = 1;
                 }
+
+                pbar.Tick();
             }
 
             await _dbContext.SaveChangesAsync();
@@ -100,15 +111,28 @@ namespace Tooling.Tools
 
             int updateCycle = 1;
 
+            Console.Clear();
+
+            using var pbar = new ProgressBar(files.Count(), "main progressbar", new ProgressBarOptions
+            {
+                ForegroundColor = ConsoleColor.Yellow,
+                ForegroundColorDone = ConsoleColor.DarkGreen,
+                BackgroundColor = ConsoleColor.DarkGray,
+                BackgroundCharacter = '\u2593'
+            });
+
             while (eFiles.MoveNext())
             {
                 var file = eFiles.Current;
 
-                var options = System.IO.Path.GetFileNameWithoutExtension(file).Split("-");
+                var options = Path.GetFileNameWithoutExtension(file).Split("-");
                 (string type, string code, int seqn) = (options[0], options[1], int.Parse(options[2]));
 
-                var fileContent = System.IO.File.ReadAllText(file);
-                var mail = await MimeKit.MimeMessage.LoadAsync(file);
+                pbar.Message = $"Reading: {Path.GetFileName(file)}";
+
+
+                var fileContent = File.ReadAllText(file);
+                var mail = await MimeMessage.LoadAsync(file);
 
                 var manifest = mail.BodyParts.OfType<MimePart>().LastOrDefault();
                 var body = mail.BodyParts.OfType<TextPart>().LastOrDefault();
@@ -116,11 +140,9 @@ namespace Tooling.Tools
                 using StreamReader reader = new StreamReader(manifest.Content.Stream);
                 string text = reader.ReadToEnd().Replace("\n", "");
 
-                var signDate = getSignerCert(text);
+                var signDate = GetSignerCert(text);
                 var payload = body.Text.Split("\n").ToList();
                 payload.Insert(0, "## Nothing");
-
-                _logger.LogInformation($"{type} {code} {seqn} {signDate}");
 
                 switch(type)
                 {
@@ -130,12 +152,11 @@ namespace Tooling.Tools
 
                             if (exist == null)
                             {
-                                var objects = BNetLib.Networking.BNetTools<List<BNetLib.Models.Versions>>.Parse(payload);
-                                var p = Manifest<BNetLib.Models.Versions[]>.Create(seqn, code, objects.Value.ToArray());
+                                var (Value, Seqn) = BNetLib.Networking.BNetTools<List<BNetLib.Models.Versions>>.Parse(payload);
+                                var p = Manifest<BNetLib.Models.Versions[]>.Create(seqn, code, Value.ToArray());
                                 if (signDate != null) p.Indexed = signDate.Value;
                                 p.Raw = fileContent;
 
-                                if (seqn == 34370) Debugger.Break();
                                 updateCycle++;
                                 _dbContext.Add(p);
                             }
@@ -155,8 +176,8 @@ namespace Tooling.Tools
 
                             if (exist == null)
                             {
-                                var objects = BNetLib.Networking.BNetTools<List<BNetLib.Models.CDN>>.Parse(payload);
-                                var p = Manifest<BNetLib.Models.CDN[]>.Create(seqn, code, objects.Value.ToArray());
+                                var (Value, Seqn) = BNetLib.Networking.BNetTools<List<BNetLib.Models.CDN>>.Parse(payload);
+                                var p = Manifest<BNetLib.Models.CDN[]>.Create(seqn, code, Value.ToArray());
                                 if (signDate != null) p.Indexed = signDate.Value;
                                 p.Raw = fileContent;
 
@@ -179,8 +200,8 @@ namespace Tooling.Tools
 
                             if (exist == null)
                             {
-                                var objects = BNetLib.Networking.BNetTools<List<BNetLib.Models.BGDL>>.Parse(payload);
-                                var p = Manifest<BNetLib.Models.BGDL[]>.Create(seqn, code, objects.Value.ToArray());
+                                var (Value, Seqn) = BNetLib.Networking.BNetTools<List<BNetLib.Models.BGDL>>.Parse(payload);
+                                var p = Manifest<BNetLib.Models.BGDL[]>.Create(seqn, code, Value.ToArray());
                                 if (signDate != null) p.Indexed = signDate.Value;
                                 p.Raw = fileContent;
 
@@ -204,12 +225,14 @@ namespace Tooling.Tools
                     await _dbContext.SaveChangesAsync();
                     updateCycle = 1;
                 }
+
+                pbar.Tick();
             }
 
             await _dbContext.SaveChangesAsync();
         }
 
-        private DateTime? getSignerCert(String b64Signature)
+        private DateTime? GetSignerCert(String b64Signature)
         {
             byte[] binarySignature = Convert.FromBase64String(b64Signature);
 

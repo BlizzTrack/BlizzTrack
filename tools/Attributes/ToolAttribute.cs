@@ -10,5 +10,6 @@ namespace Tooling.Attributes
     {
         public string Name { get; set; }
         public bool Disabled { get; set; }
+        public int Order { get; set; } = 0;
     }
 }

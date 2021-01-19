@@ -40,6 +40,7 @@
 
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="5.0.0" />
+    <PackageReference Include="ShellProgressBar" Version="5.0.0" />
     <PackageReference Include="System.Security.Cryptography.Pkcs" Version="5.0.1" />
   </ItemGroup>
 

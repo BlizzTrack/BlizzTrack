@@ -23,7 +23,6 @@ namespace tools
 
             var logger = host.Services.GetRequiredService<ILoggerFactory>().CreateLogger<Program>();
 
-
             var tools = LoadTools(host.Services);
 
             foreach(var (key, value) in tools)
@@ -38,16 +37,20 @@ namespace tools
             var tasks = Assembly.GetExecutingAssembly().GetTypes().Where(typ => typ.GetInterfaces().Contains(typeof(ITool)) && !typ.IsAbstract && typ.GetCustomAttributes(typeof(ToolAttribute), true).Length > 0).ToList();
 
             var results = new Dictionary<string, ITool>();
-            foreach (var task in tasks)
+            foreach (var task in tasks
+                .Select(x => new { 
+                    task = x, 
+                    config = x.GetCustomAttributes(typeof(ToolAttribute), true).First() as ToolAttribute 
+                }).OrderBy(x => x.config.Order))
             {
-                if (task.GetCustomAttributes(typeof(ToolAttribute), true).First() is ToolAttribute attr)
+                if (task.task.GetCustomAttributes(typeof(ToolAttribute), true).First() is ToolAttribute attr)
                 {
                     var name = attr.Name;
-                    if (string.IsNullOrEmpty(name)) name = task.Name.ToLower();
+                    if (string.IsNullOrEmpty(name)) name = task.config.Name.ToLower();
 
                     if (attr.Disabled) continue;
 
-                    var tool = (ITool)ActivatorUtilities.CreateInstance(services, task);
+                    var tool = (ITool)ActivatorUtilities.CreateInstance(services, task.task);
                     results.Add(name, tool);
                 }
             }

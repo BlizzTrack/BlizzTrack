@@ -115,7 +115,9 @@ namespace Worker.Workers
                 string elapsedTime = $"{ts.Hours:00}:{ts.Minutes:00}:{ts.Seconds:00}.{ts.Milliseconds / 10:00}";
                 _logger.LogInformation($"Version Tracking took {elapsedTime}");
 
-                await Task.Delay(TimeSpan.FromSeconds(30), cancellationToken);
+
+                // Check every 5 seconds, at some point this might need to be proxied again, but until this i realllllllllllllllllllllllllly don't care
+                await Task.Delay(TimeSpan.FromSeconds(5), cancellationToken);
             }
         }
 
@@ -198,7 +200,7 @@ namespace Worker.Workers
                         break;
                     }
                 default:
-                    _logger.LogCritical("Unhandled type");
+                    _logger.LogCritical($"Unhandled type {data.GetType()}");
                     break;
             }
         }
