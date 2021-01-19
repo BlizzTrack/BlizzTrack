@@ -2,17 +2,15 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MimeKit;
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Tooling.Attributes;
 
 namespace Tooling.Tools
 {
-    [Tool(Name = "Fix Botched Summary Manifest")]
+    [Tool(Name = "Fix Botched Summary Manifest", Disabled = true)]
     class FixBotchedSummaryManifests : ITool
     {
         private readonly DBContext _dbContext;
@@ -53,11 +51,10 @@ namespace Tooling.Tools
 
                 var payload = body.Text.Split("\n").ToList();
                 payload.Insert(0, "## Nothing");
-                var summaryData = BNetLib.Networking.BNetTools<List<BNetLib.Models.Summary>>.Parse(payload);
-
+                var (Value, Seqn) = BNetLib.Networking.BNetTools<List<BNetLib.Models.Summary>>.Parse(payload);
 
                 updateCycle++;
-                summary.Content = summaryData.Value.ToArray();
+                summary.Content = Value.ToArray();
 
                 _dbContext.Update(summary);
 
