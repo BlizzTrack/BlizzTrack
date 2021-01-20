@@ -49,13 +49,15 @@ namespace Worker.Workers
         private readonly ProductConfig _productConfig;
         private readonly ILogger<Summary> _logger;
         private readonly IServiceScopeFactory _serviceScope;
+        private readonly System.Threading.Channels.ChannelWriter<string> _channelWriter;
 
-        public Summary(BNetClient bNetClient, ProductConfig productConfig, ILogger<Summary> logger, IServiceScopeFactory scopeFactory)
+        public Summary(BNetClient bNetClient, ProductConfig productConfig, ILogger<Summary> logger, IServiceScopeFactory scopeFactory, System.Threading.Channels.ChannelWriter<string> channelWriter)
         {
             _bNetClient = bNetClient;
             _productConfig = productConfig;
             _logger = logger;
             _serviceScope = scopeFactory;
+            _channelWriter = channelWriter;
         }
 
         public async void Run(CancellationToken cancellationToken)
@@ -177,6 +179,11 @@ namespace Worker.Workers
             {
                 case List<BNetLib.Models.Versions> ver:
                     {
+                        if (code == "catalogs")
+                        {
+                            _channelWriter.TryWrite(ver.Last().Buildconfig);
+                        }
+
                         var f = Manifest<BNetLib.Models.Versions[]>.Create(seqn, code, ver.ToArray());
                         f.Raw = raw;
                         f.Parent = parentSeqn;

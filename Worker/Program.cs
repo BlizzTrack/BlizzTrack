@@ -43,11 +43,17 @@ namespace Worker
                     services.AddScoped<Core.Services.ICDNs, Core.Services.CDNs>();
                     services.AddScoped<Core.Services.IBGDL, Core.Services.BGDL>();
                     services.AddScoped<Core.Services.IGameParents, Core.Services.GameParents>();
+                    services.AddScoped<Core.Services.IVersions, Core.Services.Versions>();
+
+
+                    var c = System.Threading.Channels.Channel.CreateUnbounded<string>();
+                    services.AddSingleton(x => c.Reader);
+                    services.AddSingleton(x => c.Writer);
 
                     services.AddHostedService<Workers.PatchnotesHosted>();
                     services.AddHostedService<Workers.SummaryHosted>();
+                    services.AddHostedService<Workers.CatalogWorkerHosted>();
 
-                    services.AddScoped<Core.Services.IVersions, Core.Services.Versions>();
                 })
                 .ConfigureLogging((hostingContext, logging) =>
                 {
