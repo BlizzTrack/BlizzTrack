@@ -2,6 +2,7 @@ using Core.Models;
 using Core.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -10,17 +11,26 @@ namespace BlizzTrack.Pages
 {
     public class IndexModel : PageModel
     {
+        public class CatalogEntryType
+        {
+            public string Code { get; set; }
+
+            public bool Activison { get; set; }
+        }
+
         private readonly ISummary _summary;
         private readonly IGameConfig _gameConfig;
         private readonly IVersions _versions;
         private readonly IGameParents _gameParents;
+        private readonly DBContext _dbContext;
 
-        public IndexModel(ISummary summary, IGameConfig gameConfig, IVersions versions, IGameParents gameParents)
+        public IndexModel(ISummary summary, IGameConfig gameConfig, IVersions versions, IGameParents gameParents, DBContext dbContext)
         {
             _summary = summary;
             _gameConfig = gameConfig;
             _versions = versions;
             _gameParents = gameParents;
+            _dbContext = dbContext;
         }
 
         public List<Manifest<BNetLib.Models.Summary[]>> Manifests = null;
@@ -33,9 +43,20 @@ namespace BlizzTrack.Pages
 
         public List<Core.Models.GameParents> Parents;
 
+        public List<CatalogEntryType> CatalogEntries { get; set; }
+
         public async Task OnGetAsync()
         {
             Parents = await _gameParents.All();
+
+            CatalogEntries  = await _dbContext.Catalogs
+                .OrderByDescending(x => x.Indexed)
+                .Where(x => Parents.Select(x => x.ManifestID).Contains(x.Name))
+                .Select(x => new CatalogEntryType
+                {
+                    Code = x.Name,
+                    Activison = x.Activision
+                }).Distinct().ToListAsync();
 
             Manifests = await _summary.Take(2);
 

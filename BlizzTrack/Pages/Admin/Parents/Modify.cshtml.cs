@@ -3,6 +3,7 @@ using Core.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Minio;
 using System;
@@ -46,6 +47,9 @@ namespace BlizzTrack.Pages.Admin.Parents
         [Display(Name = "Patch Note Types")]
         public string PatchNoteTypes { get; set; }
 
+        [Display(Name = "Catalog Manifest ID")]
+        public string CatalogManifestID { get; set; }
+
         public Core.Models.GameParents ToGameParents => new Core.Models.GameParents()
         {
             Name = GameName,
@@ -79,6 +83,8 @@ namespace BlizzTrack.Pages.Admin.Parents
 
         public Core.Models.GameParents GameInfo;
 
+        public List<string> ManifestIDs { get; set; }
+
         public async Task OnGetNewAsync()
         {
             ViewData["Title"] = "Add New Parent";
@@ -88,6 +94,8 @@ namespace BlizzTrack.Pages.Admin.Parents
             {
                 Logos = new List<Core.Models.Icons>()
             };
+
+            ManifestIDs = await _dbContext.Catalogs.GroupBy(x => x.Name).Select(x => x.Key).ToListAsync();
         }
 
         public async Task<IActionResult> OnPostNewAsync()
@@ -106,6 +114,8 @@ namespace BlizzTrack.Pages.Admin.Parents
             }
 
             var parent = GameInfoModel.ToGameParents;
+            parent.ManifestID = GameInfoModel.CatalogManifestID;
+
             parent.Logos = new List<Core.Models.Icons>();
 
             if (GameInfoModel.Icon != null)
@@ -172,6 +182,8 @@ namespace BlizzTrack.Pages.Admin.Parents
                 return;
             }
 
+            ManifestIDs = await _dbContext.Catalogs.GroupBy(x => x.Name).Select(x => x.Key).ToListAsync();
+
             ViewData["Title"] = $"Editing {GameInfo.Name}";
 
             if (GameInfoModel == null)
@@ -184,7 +196,8 @@ namespace BlizzTrack.Pages.Admin.Parents
                     GameChildOverride = string.Join(", ", GameInfo.ChildrenOverride ?? new List<string>()),
                     PatchNoteTypes = string.Join(", ", GameInfo.PatchNoteAreas ?? new List<string>()),
                     PatchNoteTool = GameInfo.PatchNoteTool,
-                    PatchNoteCode = GameInfo.PatchNoteCode
+                    PatchNoteCode = GameInfo.PatchNoteCode,
+                    CatalogManifestID = GameInfo.ManifestID ?? GameInfo.Code
                 };
         }
 
@@ -246,6 +259,7 @@ namespace BlizzTrack.Pages.Admin.Parents
             GameInfo.PatchNoteCode = GameInfoModel.PatchNoteCode;
             GameInfo.ChildrenOverride = new List<string>();
             GameInfo.PatchNoteAreas = new List<string>();
+            GameInfo.ManifestID = GameInfoModel.CatalogManifestID;
 
             if (!string.IsNullOrWhiteSpace(GameInfoModel.GameChildOverride))
                 foreach (var item in GameInfoModel.GameChildOverride.Split(','))

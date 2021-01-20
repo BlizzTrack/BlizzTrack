@@ -12,6 +12,7 @@ namespace Core.Models
         public DbSet<GameConfig> GameConfigs { get; set; }
         public DbSet<GameParents> GameParents { get; set; }
         public DbSet<PatchNote> PatchNotes { get; set; }
+        public DbSet<Catalog> Catalogs { get; set; }
 
         public DBContext(DbContextOptions<DBContext> options) : base(options)
         {
@@ -43,6 +44,9 @@ namespace Core.Models
             builder.Entity<Manifest<BNetLib.Models.Summary[]>>().ToTable("summary");
 
             builder.Entity<GameParents>().Property(x => x.PatchNoteTool).HasDefaultValue("legacy");
+
+            builder.Entity<Catalog>().Property(x => x.Indexed).HasDefaultValueSql("CURRENT_TIMESTAMP");
+
         }
     }
 }

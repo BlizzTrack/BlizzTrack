@@ -6,15 +6,17 @@ using BNetLib.Models;
 using Core.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace Core.Migrations
 {
     [DbContext(typeof(DBContext))]
-    partial class DBContextModelSnapshot : ModelSnapshot
+    [Migration("20210120001113_AddCatalogActivisionStruct")]
+    partial class AddCatalogActivisionStruct
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -36,19 +38,10 @@ namespace Core.Migrations
                         .HasColumnType("timestamp without time zone")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
-                    b.Property<List<CatalogInstall>>("Installs")
-                        .HasColumnType("jsonb");
-
                     b.Property<string>("Name")
                         .HasColumnType("text");
 
                     b.Property<JsonDocument>("Payload")
-                        .HasColumnType("jsonb");
-
-                    b.Property<string>("ProperName")
-                        .HasColumnType("text");
-
-                    b.Property<Dictionary<string, string>>("Translations")
                         .HasColumnType("jsonb");
 
                     b.Property<int>("Type")
@@ -94,9 +87,6 @@ namespace Core.Migrations
 
                     b.Property<List<Icons>>("Logos")
                         .HasColumnType("jsonb");
-
-                    b.Property<string>("ManifestID")
-                        .HasColumnType("text");
 
                     b.Property<string>("Name")
                         .IsRequired()

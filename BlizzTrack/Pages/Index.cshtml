@@ -105,133 +105,15 @@
 
     @if (Model.SummaryDiff.OrderByAlphaNumeric(x => x.newest.Product).Count() > 0)
     {
-    <div class="col-12">
-        <div class="card ">
-            <div class="card-header">
-                <div class="col-sm-12 text-left">
-                    <h2 class="card-title">What's changed between versions</h2>
-                    <h5 class="card-category">Recent Updates @Model.Manifests.First().Seqn &#x2B05; @Model.Manifests.Last().Seqn</h5>
-                </div>
-            </div>
-            <div class="card-body">
-                <div class="table-responsive ps">
-                    <table class="table tablesorter table-hover" id="">
-                        <thead class=" text-primary">
-                            <tr>
-                                <th style="width: 25px;" data-toggle="tooltip" data-placement="right" title="Is game encrypted">
-                                    <i class="fa fa-lock"></i>
-                                </th>
-                                <th>
-                                    Name
-                                </th>
-                                <th>
-                                    Code
-                                </th>
-                                <th>
-                                    File
-                                </th>
-                                <th>
-                                    Current Seqn
-                                </th>
-                                <th>
-                                    Previous Seqn
-                                </th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var item in Model.SummaryDiff.OrderByAlphaNumeric(x => x.newest.Product))
-                            {
-                                var config = Model.Configs.FirstOrDefault(x => x.Code == item.newest.Product);
-                                if (config == null)
-                                {
-                                    config = new Core.Models.GameConfig()
-                                    {
-                                        Config = new Core.Models.ConfigItems()
-                                        {
-                                            Encrypted = true,
-                                        },
-                                        Code = item.newest.Product
-                                    };
-                                }
-                                <tr>
-                                    <td>
-                                        <i class="fa fa-@(config.Config.Encrypted ? "lock" : "lock-open")"></i>
-                                    </td>
-                                    <td>@config.GetName()</td>
-                                    <td>@item.newest.Product</td>
-                                    <td>@(string.IsNullOrEmpty(item.newest.Flags) ? "versions" : item.newest.Flags)</td>
-                                    <td>@item.newest.Seqn</td>
-                                    <td>@(item.previous == null ? "N/A" : item.previous.Seqn.ToString())</td>
-                                    <td class="text-center">
-                                        @if (item.newest.Flags == "cdn")
-                                        {
-                                            @("N/A")
-                                        }
-                                        else
-                                        {
-                                            <a asp-page="/ViewGame" asp-route-code="@item.newest.Product" asp-route-file="@(string.IsNullOrEmpty(item.newest.Flags) ? "versions" : item.newest.Flags)" asp-route-previous-seqn="@item.previous?.Seqn" asp-route-latest-seqn="@item.newest.Seqn">
-                                                View Manifest
-                                            </a>
-                                        }
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-    }
-    @{
-        var latestCodes = Model.Manifests.First().Content.ToList();
-        latestCodes.Remove(latestCodes.FirstOrDefault(x => x.Product == "storm"));
-
-        var previousCodes = Model.Manifests.Last().Content;
-    }
-
-    @foreach (var parent in Model.Parents.OrderBy(x => x.Code))
-    {
         <div class="col-12">
             <div class="card ">
-                <div class="card-header border-0 pt-3 pb-1 d-flex align-items-center" id="@parent.Slug">
-                    @if (parent.Logos?.Count > 0)
-                    {
-                        var logo = parent.Logos.FirstOrDefault(x => x.Type.Contains("svg"));
-                        if (logo != null)
-                        {
-                            <img src="@logo.URL" class="mr-3" width="45">
-                        }
-                        else
-                        {
-                            <img src="~/images/logos/bt.svg" class="mr-3" width="45">
-                        }
-                    }
-                    else
-                    {
-                        <img src="~/images/logos/bt.svg" class="mr-3" width="45">
-                    }
-                    <div>
-                        <h2 class="card-title mb-0">@parent.Name <small style="font-size: x-small"><a href="#@parent.Slug"><i class="fas fa-anchor"></i></a></small></h2>
+                <div class="card-header">
+                    <div class="col-sm-12 text-left">
+                        <h2 class="card-title">What's changed between versions</h2>
+                        <h5 class="card-category">Recent Updates @Model.Manifests.First().Seqn &#x2B05; @Model.Manifests.Last().Seqn</h5>
                     </div>
                 </div>
-                <feature name="@nameof(Helpers.FeatureFlags.PatchNotes)">
-                    @if (parent.PatchNoteAreas?.Count > 0)
-                    {
-                        <div class="card-body py-1 px-0">
-                            <div class="btn-group special no-radius" role="group" aria-label="...">
-                                @foreach (var item in parent.PatchNoteAreas)
-                                {
-                                    <a asp-page="/PatchNotes" asp-route-slug="@parent.Slug" asp-route-game_type="@item" class="btn btn-outline-default text-white m-0">
-                                        @GameTypeFixer.Fix(item) Patch Notes
-                                    </a>
-                                }
-                            </div>
-                        </div>
-                    }
-                </feature>
-                <div class="card-body pt-1">
+                <div class="card-body">
                     <div class="table-responsive ps">
                         <table class="table tablesorter table-hover" id="">
                             <thead class=" text-primary">
@@ -258,23 +140,9 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @{
-                                    var gamesList = latestCodes.Where(x => x.Product.StartsWith(parent.Code)).ToList();
-                                    if(parent.ChildrenOverride?.Count > 0)
-                                    {
-                                        gamesList = latestCodes.Where(x => parent.ChildrenOverride.Contains(x.Product)).ToList();
-                                    }
-                                }
-
-                                @foreach (var item in gamesList.OrderByAlphaNumeric(x => x.Product))
+                                @foreach (var item in Model.SummaryDiff.OrderByAlphaNumeric(x => x.newest.Product))
                                 {
-                                    latestCodes.Remove(item);
-
-                                    if (item.Flags == "cdn") continue;
-
-                                    var f = previousCodes.FirstOrDefault(x => x.Product == item.Product && x.Flags == item.Flags);
-
-                                    var config = Model.Configs.FirstOrDefault(x => x.Code == item.Product);
+                                    var config = Model.Configs.FirstOrDefault(x => x.Code == item.newest.Product);
                                     if (config == null)
                                     {
                                         config = new Core.Models.GameConfig()
@@ -283,27 +151,26 @@
                                             {
                                                 Encrypted = true,
                                             },
-                                            Code = item.Product
+                                            Code = item.newest.Product
                                         };
                                     }
-
                                     <tr>
                                         <td>
                                             <i class="fa fa-@(config.Config.Encrypted ? "lock" : "lock-open")"></i>
                                         </td>
                                         <td>@config.GetName()</td>
-                                        <td>@item.Product</td>
-                                        <td>@(string.IsNullOrEmpty(item.Flags) ? "versions" : item.Flags)</td>
-                                        <td>@item.Seqn</td>
-                                        <td>@(f == null ? "N/A" : f.Seqn.ToString())</td>
+                                        <td>@item.newest.Product</td>
+                                        <td>@(string.IsNullOrEmpty(item.newest.Flags) ? "versions" : item.newest.Flags)</td>
+                                        <td>@item.newest.Seqn</td>
+                                        <td>@(item.previous == null ? "N/A" : item.previous.Seqn.ToString())</td>
                                         <td class="text-center">
-                                            @if (item.Flags == "cdn")
+                                            @if (item.newest.Flags == "cdn")
                                             {
                                                 @("N/A")
                                             }
                                             else
                                             {
-                                                <a asp-page="/ViewGame" asp-route-code="@item.Product" asp-route-file="@(string.IsNullOrEmpty(item.Flags) ? "versions" : item.Flags)" asp-route-latest-seqn="@item.Seqn">
+                                                <a asp-page="/ViewGame" asp-route-code="@item.newest.Product" asp-route-file="@(string.IsNullOrEmpty(item.newest.Flags) ? "versions" : item.newest.Flags)" asp-route-previous-seqn="@item.previous?.Seqn" asp-route-latest-seqn="@item.newest.Seqn">
                                                     View Manifest
                                                 </a>
                                             }
@@ -317,7 +184,165 @@
             </div>
         </div>
     }
+    @{
+        var latestCodes = Model.Manifests.First().Content.ToList();
+        latestCodes.Remove(latestCodes.FirstOrDefault(x => x.Product == "storm"));
 
+        var previousCodes = Model.Manifests.Last().Content;
+
+        List<(bool, List<Core.Models.GameParents>)> games = new List<(bool, List<Core.Models.GameParents>)>();
+
+        games.Add((false, Model.Parents.Where(x => {
+            var f = Model.CatalogEntries.Where(s => s.Code == x.ManifestID).FirstOrDefault();
+            if (f == null) return true;
+            return !f.Activison;
+        }).ToList()));
+        games.Add((true, Model.Parents.Where(x => Model.CatalogEntries.Where(s => s.Code == x.ManifestID).FirstOrDefault()?.Activison ?? true).ToList()));
+    }
+
+    @foreach (var gameEntry in games)
+    {
+
+        <div class="card bg-transparent mb-2" style="box-shadow: none;">
+            <div class="card-header">
+                <div class="col-sm-12 text-left">
+                    <h2 class="card-title">
+                        @if (gameEntry.Item1)
+                        {
+                            @Html.Raw("Activision")
+                        }
+                        else
+                        {
+                            @Html.Raw("Blizzard Entertainment")
+                        }
+                    </h2>
+                </div>
+            </div>
+        </div>
+
+        @foreach (var parent in gameEntry.Item2.OrderBy(x => x.Code))
+        {
+            <div class="col-12">
+                <div class="card ">
+                    <div class="card-header border-0 pt-3 pb-1 d-flex align-items-center" id="@parent.Slug">
+                        @if (parent.Logos?.Count > 0)
+                        {
+                            var logo = parent.Logos.FirstOrDefault(x => x.Type.Contains("svg"));
+                            if (logo != null)
+                            {
+                                <img src="@logo.URL" class="mr-3" width="45">
+                            }
+                            else
+                            {
+                                <img src="~/images/logos/bt.svg" class="mr-3" width="45">
+                            }
+                        }
+                        else
+                        {
+                            <img src="~/images/logos/bt.svg" class="mr-3" width="45">
+                        }
+                        <div>
+                            <h2 class="card-title mb-0">@parent.Name <small style="font-size: x-small"><a href="#@parent.Slug"><i class="fas fa-anchor"></i></a></small></h2>
+                        </div>
+                    </div>
+                    <feature name="@nameof(Helpers.FeatureFlags.PatchNotes)">
+                        @if (parent.PatchNoteAreas?.Count > 0)
+                        {
+                            <div class="card-body py-1 px-0">
+                                <div class="btn-group special no-radius" role="group" aria-label="...">
+                                    @foreach (var item in parent.PatchNoteAreas)
+                                    {
+                                        <a asp-page="/PatchNotes" asp-route-slug="@parent.Slug" asp-route-game_type="@item" class="btn btn-outline-default text-white m-0">
+                                            @GameTypeFixer.Fix(item) Patch Notes
+                                        </a>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    </feature>
+                    <div class="card-body pt-1">
+                        <div class="table-responsive ps">
+                            <table class="table tablesorter table-hover" id="">
+                                <thead class=" text-primary">
+                                    <tr>
+                                        <th style="width: 25px;" data-toggle="tooltip" data-placement="right" title="Is game encrypted">
+                                            <i class="fa fa-lock"></i>
+                                        </th>
+                                        <th>
+                                            Name
+                                        </th>
+                                        <th>
+                                            Code
+                                        </th>
+                                        <th>
+                                            File
+                                        </th>
+                                        <th>
+                                            Seqn
+                                        </th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @{
+                                        var gamesList = latestCodes.Where(x => x.Product.StartsWith(parent.Code)).ToList();
+                                        if (parent.ChildrenOverride?.Count > 0)
+                                        {
+                                            gamesList = latestCodes.Where(x => parent.ChildrenOverride.Contains(x.Product)).ToList();
+                                        }
+                                    }
+
+                                    @foreach (var item in gamesList.OrderByAlphaNumeric(x => x.Product))
+                                    {
+                                        latestCodes.Remove(item);
+
+                                        if (item.Flags == "cdn") continue;
+
+                                        var f = previousCodes.FirstOrDefault(x => x.Product == item.Product && x.Flags == item.Flags);
+
+                                        var config = Model.Configs.FirstOrDefault(x => x.Code == item.Product);
+                                        if (config == null)
+                                        {
+                                            config = new Core.Models.GameConfig()
+                                            {
+                                                Config = new Core.Models.ConfigItems()
+                                                {
+                                                    Encrypted = true,
+                                                },
+                                                Code = item.Product
+                                            };
+                                        }
+
+                                        <tr>
+                                            <td>
+                                                <i class="fa fa-@(config.Config.Encrypted ? "lock" : "lock-open")"></i>
+                                            </td>
+                                            <td>@config.GetName()</td>
+                                            <td>@item.Product</td>
+                                            <td>@(string.IsNullOrEmpty(item.Flags) ? "versions" : item.Flags)</td>
+                                            <td>@item.Seqn</td>
+                                            <td class="text-center">
+                                                @if (item.Flags == "cdn")
+                                                {
+                                                    @("N/A")
+                                                }
+                                                else
+                                                {
+                                                    <a asp-page="/ViewGame" asp-route-code="@item.Product" asp-route-file="@(string.IsNullOrEmpty(item.Flags) ? "versions" : item.Flags)" asp-route-latest-seqn="@item.Seqn">
+                                                        View Manifest
+                                                    </a>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
     @if (latestCodes.Count > 0)
     {
         <div class="col-12">
@@ -373,28 +398,28 @@
                                         };
                                     }
 
-                                <tr>
-                                    <td>
-                                        <i class="fa fa-@(config.Config.Encrypted ? "lock" : "lock-open")"></i>
-                                    </td>
-                                    <td>@config.GetName()</td>
-                                    <td>@item.Product</td>
-                                    <td>@item.Flags</td>
-                                    <td>@item.Seqn</td>
-                                    <td>@(f == null ? "N/A" : f.Seqn.ToString())</td>
-                                    <td class="text-center">
-                                        @if (item.Flags == "cdn")
-                                        {
-                                            @("N/A")
-                                        }
-                                        else
-                                        {
-                                            <a asp-page="/ViewGame" asp-route-code="@item.Product" asp-route-file="@item.Flags" asp-route-latest-seqn="@item.Seqn">
-                                                View Manifest
-                                            </a>
-                                        }
-                                    </td>
-                                </tr>
+                                    <tr>
+                                        <td>
+                                            <i class="fa fa-@(config.Config.Encrypted ? "lock" : "lock-open")"></i>
+                                        </td>
+                                        <td>@config.GetName()</td>
+                                        <td>@item.Product</td>
+                                        <td>@item.Flags</td>
+                                        <td>@item.Seqn</td>
+                                        <td>@(f == null ? "N/A" : f.Seqn.ToString())</td>
+                                        <td class="text-center">
+                                            @if (item.Flags == "cdn")
+                                            {
+                                                @("N/A")
+                                            }
+                                            else
+                                            {
+                                                <a asp-page="/ViewGame" asp-route-code="@item.Product" asp-route-file="@item.Flags" asp-route-latest-seqn="@item.Seqn">
+                                                    View Manifest
+                                                </a>
+                                            }
+                                        </td>
+                                    </tr>
 
                                 }
                             </tbody>
