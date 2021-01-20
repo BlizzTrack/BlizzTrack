@@ -39,7 +39,7 @@ namespace Core.Services
         public async Task<Models.GameParents> Get(string code)
         {
             code = code.ToLower();
-            return await _dbContext.GameParents.FirstOrDefaultAsync(x => code.StartsWith(x.Code) || code == x.Code || x.Slug == code.ToLower());
+            return await _dbContext.GameParents.FirstOrDefaultAsync(x => code.StartsWith(x.Code) || code == x.Code || x.Slug == code.ToLower() || x.ChildrenOverride.Contains(code.ToLower()));
         }
 
         public async Task Update(Models.GameParents config)
