@@ -30,8 +30,6 @@ namespace Tooling.Tools
 
             var summeries = await _dbContext.Summary.OrderByDescending(x => x.Seqn).ToListAsync();
 
-            int updateCyle = 1;
-
             var options = new ProgressBarOptions
             {
                 ForegroundColor = ConsoleColor.Yellow,

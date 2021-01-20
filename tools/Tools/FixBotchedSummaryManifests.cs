@@ -30,7 +30,7 @@ namespace Tooling.Tools
         public async Task BotchedSummaryManifest()
         {
             var summeries = await _dbContext.Summary.OrderByDescending(x => x.Seqn).ToListAsync();
-            var tempFile = System.IO.Path.GetTempFileName();
+            var tempFile = Path.GetTempFileName();
 
             int updateCycle = 1;
 
@@ -39,9 +39,9 @@ namespace Tooling.Tools
                 var code = summary.Code;
                 var seqn = summary.Seqn;
 
-                System.IO.File.WriteAllText(tempFile, summary.Raw);
+                File.WriteAllText(tempFile, summary.Raw);
 
-                var mail = await MimeKit.MimeMessage.LoadAsync(tempFile);
+                var mail = await MimeMessage.LoadAsync(tempFile);
 
                 var manifest = mail.BodyParts.OfType<MimePart>().LastOrDefault();
                 var body = mail.BodyParts.OfType<TextPart>().LastOrDefault();

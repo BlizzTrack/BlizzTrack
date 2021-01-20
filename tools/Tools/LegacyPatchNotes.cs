@@ -40,7 +40,7 @@ namespace Tooling.Tools
                 using (logger.BeginScope(parent.Name))
                 {
 
-                    List<Core.Models.PatchNote> data = parent.PatchNoteTool switch
+                    List<PatchNote> data = parent.PatchNoteTool switch
                     {
                         "overwatch" => await OverwatchPatchNotes(parent),
                         "legacy" => await OldPatchNotes(parent),
@@ -94,9 +94,9 @@ namespace Tooling.Tools
             logger.LogInformation($"Patch Notes took {elapsedTime}");
         }
 
-        private static async Task<List<Core.Models.PatchNote>> OverwatchPatchNotes(Core.Models.GameParents parent)
+        private static async Task<List<PatchNote>> OverwatchPatchNotes(Core.Models.GameParents parent)
         {
-            var res = new List<Core.Models.PatchNote>();
+            var res = new List<PatchNote>();
 
             foreach (var code in parent.PatchNoteAreas)
             {
@@ -113,7 +113,7 @@ namespace Tooling.Tools
                 if (data.Item1.Entries.Count > 0)
                 {
                     foreach (var f in data.Item1.Entries) {
-                        var note = Core.Models.PatchNote.Create(JsonConvert.SerializeObject(f));
+                        var note = PatchNote.Create(JsonConvert.SerializeObject(f));
                         note.Created = f.PostDate;
                         note.Updated = f.UpdatedAt;
 
@@ -128,9 +128,9 @@ namespace Tooling.Tools
             return res;
         }
 
-        private static async Task<List<Core.Models.PatchNote>> OldPatchNotes(Core.Models.GameParents parent)
+        private static async Task<List<PatchNote>> OldPatchNotes(Core.Models.GameParents parent)
         {
-            var res = new List<Core.Models.PatchNote>();
+            var res = new List<PatchNote>();
 
             foreach (var code in parent.PatchNoteAreas)
             {
@@ -148,7 +148,7 @@ namespace Tooling.Tools
                 foreach (var item in data.Item1.PatchNotes) {
                     var f = item;
 
-                    var note = Core.Models.PatchNote.Create(JsonConvert.SerializeObject(f));
+                    var note = PatchNote.Create(JsonConvert.SerializeObject(f));
                     note.Created = DateTimeOffset.FromUnixTimeMilliseconds(f.Publish).UtcDateTime;
                     if (f.Updated > 0)
                     {

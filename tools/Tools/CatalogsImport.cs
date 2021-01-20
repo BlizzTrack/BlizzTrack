@@ -64,7 +64,7 @@ namespace Tooling.Tools
                     }
                 }
 
-                _dbContext.Add(new Core.Models.Catalog()
+                _dbContext.Add(new Catalog()
                 {
                     Payload = json,
                     Hash = hash,
@@ -156,7 +156,7 @@ namespace Tooling.Tools
                         }
                     }
 
-                    _dbContext.Add(new Core.Models.Catalog()
+                    _dbContext.Add(new Catalog()
                     {
                         Payload = gameJson,
                         Hash = item.hash,

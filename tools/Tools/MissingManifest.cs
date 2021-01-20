@@ -70,21 +70,21 @@ namespace Tooling.Tools
                 var signDate = GetSignerCert(text);
                 var payload = body.Text.Split("\n").ToList();
                 payload.Insert(0, "## Nothing");
-                var summary = BNetLib.Networking.BNetTools<List<BNetLib.Models.Summary>>.Parse(payload);
+                var (Value, Seqn) = BNetLib.Networking.BNetTools<List<BNetLib.Models.Summary>>.Parse(payload);
 
                 var exist = await _dbContext.Summary.AsNoTracking().FirstOrDefaultAsync(x => x.Seqn == seqn);
                 if(exist != null)
                 {
                     updateCycle++;
                     exist.Raw = fileContent;
-                    exist.Content = summary.Value.ToArray();
+                    exist.Content = Value.ToArray();
 
                     _dbContext.Update(exist);
                 }
                 else
                 {
                     updateCycle++;
-                    var p = Manifest<BNetLib.Models.Summary[]>.Create(seqn, "summary", summary.Value.ToArray());
+                    var p = Manifest<BNetLib.Models.Summary[]>.Create(seqn, "summary", Value.ToArray());
                     if (signDate != null)  p.Indexed = signDate.Value;
                     p.Raw = fileContent;
 
