@@ -3,6 +3,7 @@ using Core.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -11,6 +12,13 @@ namespace BlizzTrack.Pages
 {
     public class IndexModel : PageModel
     {
+        public class UpdateTimes
+        {
+            public string Type { get; set; }
+            public string Code { get; set; }
+            public DateTime Updated { get; set; }
+        }
+
         public class CatalogEntryType
         {
             public string Code { get; set; }
@@ -43,6 +51,8 @@ namespace BlizzTrack.Pages
 
         public List<Core.Models.GameParents> Parents;
 
+        public List<UpdateTimes> GameVersions { get; set; } = new List<UpdateTimes>();
+
         public List<CatalogEntryType> CatalogEntries { get; set; }
 
         public async Task OnGetAsync()
@@ -64,6 +74,26 @@ namespace BlizzTrack.Pages
             var previous = Manifests.Last().Content;
 
             Configs = await _gameConfig.In(latest.Where(x => x.Flags == "versions").Select(x => x.Product).ToArray());
+
+            var verCodes = latest.Where(x => x.Flags == "versions").Select(x => x.Product).ToList();
+            var verSeqn = latest.Where(x => x.Flags == "versions").Select(x => x.Seqn).ToList();
+            var vers = await _dbContext.Versions.OrderByDescending(x => x.Seqn).Where(s => verSeqn.Contains(s.Seqn)).Select(x => new UpdateTimes
+            {
+                Type = "versions",
+                Code = x.Code,
+                Updated = x.Indexed
+            }).Distinct().ToListAsync();
+
+            var bgdlCodes = latest.Where(x => x.Flags == "bgdl").Select(x => x.Seqn).ToList();
+            var bgdl = await _dbContext.BGDL.OrderByDescending(x => x.Seqn).Where(s => bgdlCodes.Contains(s.Seqn)).Select(x => new UpdateTimes
+            {
+                Type = "bgdl",
+                Code = x.Code,
+                Updated = x.Indexed
+            }).Distinct().ToListAsync();
+
+            GameVersions.AddRange(vers);
+            GameVersions.AddRange(bgdl);
 
             foreach (var item in latest)
             {

@@ -197,7 +197,15 @@
             if (f == null) return true;
             return !f.Activison;
         }).ToList()));
-        games.Add((true, Model.Parents.Where(x => Model.CatalogEntries.Where(s => s.Code == x.ManifestID).FirstOrDefault()?.Activison ?? true).ToList()));
+
+        games.Add((false, Model.Parents.Where(x =>
+        {
+            var f = Model.CatalogEntries.Where(s => s.Code == x.ManifestID).FirstOrDefault();
+            if (f == null) return false;
+            return f.Activison;
+        }).ToList()));
+
+        // games.Add((true, Model.Parents.Where(x => Model.CatalogEntries.Where(s => s.Code == x.ManifestID).FirstOrDefault()?.Activison ?? true).ToList()));
     }
 
     @foreach (var gameEntry in games)
@@ -272,6 +280,9 @@
                                             Name
                                         </th>
                                         <th>
+                                            Indexed
+                                        </th>
+                                        <th>
                                             Code
                                         </th>
                                         <th>
@@ -318,6 +329,9 @@
                                                 <i class="fa fa-@(config.Config.Encrypted ? "lock" : "lock-open")"></i>
                                             </td>
                                             <td>@config.GetName()</td>
+                                            <td>
+                                                @Model.GameVersions.FirstOrDefault(x => x.Code == item.Product && x.Type == item.Flags)?.Updated
+                                            </td>
                                             <td>@item.Product</td>
                                             <td>@(string.IsNullOrEmpty(item.Flags) ? "versions" : item.Flags)</td>
                                             <td>@item.Seqn</td>
