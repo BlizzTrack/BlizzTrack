@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -44,10 +45,10 @@ namespace Worker.Workers
     public class CatalogWorker
     {
         private readonly ILogger<CatalogWorker> _logger;
-        private readonly System.Threading.Channels.ChannelReader<ConfigUpdate> _channel;
+        private readonly ConcurrentQueue<ConfigUpdate> _channel;
         private readonly IServiceScopeFactory _serviceScope;
 
-        public CatalogWorker(ILogger<CatalogWorker> logger, System.Threading.Channels.Channel<ConfigUpdate> channel, IServiceScopeFactory serviceScope)
+        public CatalogWorker(ILogger<CatalogWorker> logger, ConcurrentQueue<ConfigUpdate> channel, IServiceScopeFactory serviceScope)
         {
             _logger = logger;
             _channel = channel;
@@ -55,26 +56,32 @@ namespace Worker.Workers
         }
         internal async void Run(CancellationToken cancellationToken)
         {
-            await foreach (ConfigUpdate item in _channel.ReadAllAsync(cancellationToken))
+          
+            while(!cancellationToken.IsCancellationRequested)
             {
-                using var sc = _serviceScope.CreateScope();
-                _logger.LogInformation($"Build Manfest Catalog: {item}");
+                if(_channel.TryDequeue(out var item))
+                {
+                    using var sc = _serviceScope.CreateScope();
+                    _logger.LogInformation($"Build Manfest Catalog: {item}");
 
-                if (item.Code == "catalogs")
-                {
-                    await CatalogsConfig(item,
-                        sc.ServiceProvider.GetRequiredService<ICDNs>(),
-                        sc.ServiceProvider.GetRequiredService<ProductConfig>(),
-                        sc.ServiceProvider.GetRequiredService<DBContext>()
-                    );
+                    if (item.Code == "catalogs")
+                    {
+                        await CatalogsConfig(item,
+                            sc.ServiceProvider.GetRequiredService<ICDNs>(),
+                            sc.ServiceProvider.GetRequiredService<ProductConfig>(),
+                            sc.ServiceProvider.GetRequiredService<DBContext>()
+                        );
+                    }
+                    else
+                    {
+                        await ProductConfig(item,
+                            sc.ServiceProvider.GetRequiredService<ProductConfig>(),
+                            sc.ServiceProvider.GetRequiredService<DBContext>()
+                        );
+                    }
                 }
-                else
-                {
-                    await ProductConfig(item,
-                        sc.ServiceProvider.GetRequiredService<ProductConfig>(),
-                        sc.ServiceProvider.GetRequiredService<DBContext>()
-                    );
-                }
+
+                await Task.Delay(TimeSpan.FromMilliseconds(250), cancellationToken);
             }
 
             _logger.LogCritical("Some how we got here for CatalogWorker");

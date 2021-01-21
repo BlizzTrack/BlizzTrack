@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -50,9 +51,9 @@ namespace Worker.Workers
         private readonly ProductConfig _productConfig;
         private readonly ILogger<Summary> _logger;
         private readonly IServiceScopeFactory _serviceScope;
-        private readonly System.Threading.Channels.ChannelWriter<ConfigUpdate> _channelWriter;
+        private readonly ConcurrentQueue<ConfigUpdate> _channelWriter;
 
-        public Summary(BNetClient bNetClient, ProductConfig productConfig, ILogger<Summary> logger, IServiceScopeFactory scopeFactory, System.Threading.Channels.ChannelWriter<ConfigUpdate> channelWriter)
+        public Summary(BNetClient bNetClient, ProductConfig productConfig, ILogger<Summary> logger, IServiceScopeFactory scopeFactory, ConcurrentQueue<ConfigUpdate> channelWriter)
         {
             _bNetClient = bNetClient;
             _productConfig = productConfig;
@@ -180,21 +181,21 @@ namespace Worker.Workers
             {
                 case List<BNetLib.Models.Versions> ver:
                     {
-                        if (code == "catalogs")
+                        if (msg.Product == "catalogs")
                         {
-                            await _channelWriter.WriteAsync(new ConfigUpdate()
+                            _channelWriter.Enqueue(new ConfigUpdate()
                             {
-                                Code = "catalogs",
+                                Code = msg.Product,
                                 Hash = ver.Last().Buildconfig,
-                            }, cancellationToken);
+                            });
                         } 
                         else
                         {
-                            await _channelWriter.WriteAsync(new ConfigUpdate()
+                            _channelWriter.Enqueue(new ConfigUpdate()
                             {
-                                Code = code,
-                                Hash = ver.Last().Productconfig,
-                            }, cancellationToken);
+                                Code = msg.Product,
+                                Hash = ver.Last().Buildconfig,
+                            });
                         }
 
                         var f = Manifest<BNetLib.Models.Versions[]>.Create(seqn, code, ver.ToArray());
@@ -258,6 +259,12 @@ namespace Worker.Workers
             var currentGameConfig = await dbContext.GameConfigs.FirstOrDefaultAsync(x => x.Code == msg.Product, cancellationToken: cancellationToken);
 
             string file = string.Empty;
+
+            if(string.IsNullOrWhiteSpace(config.Productconfig))
+            {
+                return;
+            }
+
             try
             {
                 file = await _productConfig.GetRaw(config.Productconfig);
