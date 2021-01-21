@@ -55,28 +55,29 @@ namespace Worker.Workers
         }
         internal async void Run(CancellationToken cancellationToken)
         {
-            while (await _channel.WaitToReadAsync(cancellationToken))
-                while (_channel.TryRead(out ConfigUpdate item))
-                {
-                    using var sc = _serviceScope.CreateScope();
-                    _logger.LogInformation($"Build Manfest Catalog: {item}");
+            await foreach (ConfigUpdate item in _channel.ReadAllAsync(cancellationToken))
+            {
+                using var sc = _serviceScope.CreateScope();
+                _logger.LogInformation($"Build Manfest Catalog: {item}");
 
-                    if (item.Code == "catalogs")
-                    {
-                        await CatalogsConfig(item,
-                            sc.ServiceProvider.GetRequiredService<ICDNs>(),
-                            sc.ServiceProvider.GetRequiredService<ProductConfig>(),
-                            sc.ServiceProvider.GetRequiredService<DBContext>()
-                        );
-                    } 
-                    else
-                    {
-                        await ProductConfig(item,
-                            sc.ServiceProvider.GetRequiredService<ProductConfig>(),
-                            sc.ServiceProvider.GetRequiredService<DBContext>()
-                        );
-                    }
+                if (item.Code == "catalogs")
+                {
+                    await CatalogsConfig(item,
+                        sc.ServiceProvider.GetRequiredService<ICDNs>(),
+                        sc.ServiceProvider.GetRequiredService<ProductConfig>(),
+                        sc.ServiceProvider.GetRequiredService<DBContext>()
+                    );
                 }
+                else
+                {
+                    await ProductConfig(item,
+                        sc.ServiceProvider.GetRequiredService<ProductConfig>(),
+                        sc.ServiceProvider.GetRequiredService<DBContext>()
+                    );
+                }
+            }
+
+            _logger.LogCritical("Some how we got here for CatalogWorker");
         }
 
         public async Task ProductConfig(ConfigUpdate config, ProductConfig _productConfig, DBContext _dbContext)

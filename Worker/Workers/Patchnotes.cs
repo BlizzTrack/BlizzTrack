@@ -104,7 +104,7 @@ namespace Worker.Workers
 
                 TimeSpan ts = stopWatch.Elapsed;
                 string elapsedTime = $"{ts.Hours:00}:{ts.Minutes:00}:{ts.Seconds:00}.{ts.Milliseconds / 10:00}";
-                _logger.LogInformation($"Patch Notes took {elapsedTime}");
+                _logger.LogDebug($"Patch Notes took {elapsedTime}");
 
                 await Task.Delay(TimeSpan.FromSeconds(30), cancellationToken);
             }

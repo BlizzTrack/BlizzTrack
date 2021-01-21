@@ -116,7 +116,7 @@ namespace Worker.Workers
 
                 TimeSpan ts = stopWatch.Elapsed;
                 string elapsedTime = $"{ts.Hours:00}:{ts.Minutes:00}:{ts.Seconds:00}.{ts.Milliseconds / 10:00}";
-                _logger.LogInformation($"Version Tracking took {elapsedTime}");
+                _logger.LogDebug($"Version Tracking took {elapsedTime}");
 
 
                 // Check every 5 seconds, at some point this might need to be proxied again, but until this i realllllllllllllllllllllllllly don't care
@@ -182,19 +182,19 @@ namespace Worker.Workers
                     {
                         if (code == "catalogs")
                         {
-                            _channelWriter.TryWrite(new ConfigUpdate()
+                            await _channelWriter.WriteAsync(new ConfigUpdate()
                             {
                                 Code = "catalogs",
                                 Hash = ver.Last().Buildconfig,
-                            });
+                            }, cancellationToken);
                         } 
                         else
                         {
-                            _channelWriter.TryWrite(new ConfigUpdate()
+                            await _channelWriter.WriteAsync(new ConfigUpdate()
                             {
                                 Code = code,
                                 Hash = ver.Last().Productconfig,
-                            });
+                            }, cancellationToken);
                         }
 
                         var f = Manifest<BNetLib.Models.Versions[]>.Create(seqn, code, ver.ToArray());
@@ -284,7 +284,7 @@ namespace Worker.Workers
                 return;
             }
 
-            _logger.LogInformation($"checking {msg.Product} if encrypted or not ");
+            _logger.LogDebug($"checking {msg.Product} if encrypted or not ");
 
             if (file.Contains("\"decryption_key_name\""))
             {
