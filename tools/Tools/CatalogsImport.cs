@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -32,6 +33,47 @@ namespace Tooling.Tools
         }
 
         public async Task Start()
+        {
+            await ProductConfig();
+        }
+
+        public async Task ProductConfig()
+        {
+            var versions = await _dbContext.Versions.OrderByDescending(x => x.Seqn).ToListAsync();
+            versions = versions.GroupBy(x => x.Code).Select(x => x.OrderByDescending(s => s.Seqn).First()).ToList();
+
+            foreach(var version in  versions)
+            {
+                var hash = version.Content.FirstOrDefault(x => x.Region.Equals("us", StringComparison.OrdinalIgnoreCase));
+                if (hash == null) continue;
+
+                try
+                {
+                    var rootConfig = await _productConfig.GetRaw(hash.Productconfig);
+                    var json = JsonDocument.Parse(rootConfig);
+
+                    if (!await ManifestExist(hash.Productconfig))
+                    {
+                        _dbContext.Add(new Catalog()
+                        {
+                            Payload = json,
+                            Hash = hash.Productconfig,
+                            Name = $"product_config_{version.Code}",
+                            Type = CatalogType.ProductConfig,
+                        });
+
+                    }
+                }catch
+                {
+                    _logger.LogError($"Failed to download product config for: {version.Code} -> {hash.Productconfig}");
+                    continue;
+                }
+            }
+
+            await _dbContext.SaveChangesAsync();
+        }
+
+        public async Task Catalogs()
         {
             var latestCatalogVersion = await _versions.Latest("catalogs");
             var latestCatalogCDN = await _cdns.Latest("catalogs");

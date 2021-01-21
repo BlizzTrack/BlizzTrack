@@ -14,6 +14,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Worker.Events;
 
 namespace Worker.Workers
 {
@@ -49,9 +50,9 @@ namespace Worker.Workers
         private readonly ProductConfig _productConfig;
         private readonly ILogger<Summary> _logger;
         private readonly IServiceScopeFactory _serviceScope;
-        private readonly System.Threading.Channels.ChannelWriter<string> _channelWriter;
+        private readonly System.Threading.Channels.ChannelWriter<ConfigUpdate> _channelWriter;
 
-        public Summary(BNetClient bNetClient, ProductConfig productConfig, ILogger<Summary> logger, IServiceScopeFactory scopeFactory, System.Threading.Channels.ChannelWriter<string> channelWriter)
+        public Summary(BNetClient bNetClient, ProductConfig productConfig, ILogger<Summary> logger, IServiceScopeFactory scopeFactory, System.Threading.Channels.ChannelWriter<ConfigUpdate> channelWriter)
         {
             _bNetClient = bNetClient;
             _productConfig = productConfig;
@@ -181,7 +182,19 @@ namespace Worker.Workers
                     {
                         if (code == "catalogs")
                         {
-                            _channelWriter.TryWrite(ver.Last().Buildconfig);
+                            _channelWriter.TryWrite(new ConfigUpdate()
+                            {
+                                Code = "catalogs",
+                                Hash = ver.Last().Buildconfig,
+                            });
+                        } 
+                        else
+                        {
+                            _channelWriter.TryWrite(new ConfigUpdate()
+                            {
+                                Code = code,
+                                Hash = ver.Last().Productconfig,
+                            });
                         }
 
                         var f = Manifest<BNetLib.Models.Versions[]>.Create(seqn, code, ver.ToArray());

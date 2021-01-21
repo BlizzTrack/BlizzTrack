@@ -12,6 +12,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using Worker.Events;
 
 namespace Worker.Workers
 {
@@ -43,10 +44,10 @@ namespace Worker.Workers
     public class CatalogWorker
     {
         private readonly ILogger<CatalogWorker> _logger;
-        private readonly System.Threading.Channels.ChannelReader<string> _channel;
+        private readonly System.Threading.Channels.ChannelReader<ConfigUpdate> _channel;
         private readonly IServiceScopeFactory _serviceScope;
 
-        public CatalogWorker(ILogger<CatalogWorker> logger, System.Threading.Channels.Channel<string> channel, IServiceScopeFactory serviceScope)
+        public CatalogWorker(ILogger<CatalogWorker> logger, System.Threading.Channels.Channel<ConfigUpdate> channel, IServiceScopeFactory serviceScope)
         {
             _logger = logger;
             _channel = channel;
@@ -55,28 +56,56 @@ namespace Worker.Workers
         internal async void Run(CancellationToken cancellationToken)
         {
             while (await _channel.WaitToReadAsync(cancellationToken))
-                while (_channel.TryRead(out string item))
+                while (_channel.TryRead(out ConfigUpdate item))
                 {
                     using var sc = _serviceScope.CreateScope();
                     _logger.LogInformation($"Build Manfest Catalog: {item}");
-                    await Start(item, 
-                        sc.ServiceProvider.GetRequiredService<ICDNs>(), 
-                        sc.ServiceProvider.GetRequiredService<ProductConfig>(),
-                        sc.ServiceProvider.GetRequiredService<DBContext>()
-                    );
+
+                    if (item.Code == "catalogs")
+                    {
+                        await CatalogsConfig(item,
+                            sc.ServiceProvider.GetRequiredService<ICDNs>(),
+                            sc.ServiceProvider.GetRequiredService<ProductConfig>(),
+                            sc.ServiceProvider.GetRequiredService<DBContext>()
+                        );
+                    } 
+                    else
+                    {
+                        await ProductConfig(item,
+                            sc.ServiceProvider.GetRequiredService<ProductConfig>(),
+                            sc.ServiceProvider.GetRequiredService<DBContext>()
+                        );
+                    }
                 }
         }
 
-        public async Task Start(string configHash, ICDNs _cdns, ProductConfig _productConfig, DBContext _dbContext)
+        public async Task ProductConfig(ConfigUpdate config, ProductConfig _productConfig, DBContext _dbContext)
         {
-            var latestCatalogCDN = await _cdns.Latest("catalogs");
+            var rootConfig = await _productConfig.GetRaw(config.Hash);
+            var json = JsonDocument.Parse(rootConfig);
 
-            var usCDNConfig = latestCatalogCDN.Content.FirstOrDefault(x => x.Name.Equals("us", StringComparison.OrdinalIgnoreCase));
+            if(!await ManifestExist(config.Hash, _dbContext))
+            {
+                _dbContext.Add(new Catalog()
+                {
+                    Payload = json,
+                    Hash = config.Hash,
+                    Name = $"product_config_{config.Code}",
+                    Type = CatalogType.ProductConfig,
+                });
 
-            var buildConfig = await _productConfig.GetDictionary(configHash, $"{usCDNConfig.Hosts.Split(" ").First()}/{usCDNConfig.Path}/config");
+                await _dbContext.SaveChangesAsync();
+            }
+        }
+
+        public async Task CatalogsConfig(ConfigUpdate config, ICDNs _cdns, ProductConfig _productConfig, DBContext _dbContext)
+        {
+            var cdnUrl = await GetCDNUrl(_cdns, config.Code);
+
+            var buildConfig = await _productConfig.GetDictionary(config.Hash, $"{cdnUrl.Hosts.Split(" ").First()}/{cdnUrl.Path}/config");
 
             var hash = buildConfig["root"];
-            var rootConfig = await _productConfig.GetRaw(hash, $"{usCDNConfig.Hosts.Split(" ").First()}/{usCDNConfig.Path}/data");
+            var rootConfig = await _productConfig.GetRaw(hash, $"{cdnUrl.Hosts.Split(" ").First()}/{cdnUrl.Path}/data");
             var json = JsonDocument.Parse(rootConfig);
 
             var fragments = new List<BNetLib.Catalogs.Models.Fragment>();
@@ -96,7 +125,7 @@ namespace Worker.Workers
                     }
                 }
 
-                _dbContext.Add(new Core.Models.Catalog()
+                _dbContext.Add(new Catalog()
                 {
                     Payload = json,
                     Hash = hash,
@@ -125,7 +154,7 @@ namespace Worker.Workers
                 {
                     _logger.LogInformation($"Missing (Inserting): {item.name} {item.hash}");
 
-                    var gameConfig = await _productConfig.GetRaw(item.hash, $"{usCDNConfig.Hosts.Split(" ").First()}/{usCDNConfig.Path}/data");
+                    var gameConfig = await _productConfig.GetRaw(item.hash, $"{cdnUrl.Hosts.Split(" ").First()}/{cdnUrl.Path}/data");
                     var gameJson = JsonDocument.Parse(gameConfig);
 
 
@@ -206,6 +235,13 @@ namespace Worker.Workers
 
             _logger.LogInformation($"Saved fragment data");
             await _dbContext.SaveChangesAsync();
+        }
+
+        private async Task<BNetLib.Models.CDN> GetCDNUrl(ICDNs _cdns, string code)
+        {
+            var latestCatalogCDN = await _cdns.Latest(code);
+
+            return latestCatalogCDN.Content.FirstOrDefault(x => x.Name.Equals("us", StringComparison.OrdinalIgnoreCase));
         }
 
         private async Task<bool> ManifestExist(string hash, DBContext _dbContext)

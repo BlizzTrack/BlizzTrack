@@ -6,6 +6,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System.IO;
 using System.Threading.Tasks;
+using Worker.Events;
 
 namespace Worker
 {
@@ -46,7 +47,7 @@ namespace Worker
                     services.AddScoped<Core.Services.IVersions, Core.Services.Versions>();
 
 
-                    var c = System.Threading.Channels.Channel.CreateUnbounded<string>();
+                    var c = System.Threading.Channels.Channel.CreateUnbounded<ConfigUpdate>();
                     services.AddSingleton(x => c.Reader);
                     services.AddSingleton(x => c.Writer);
 

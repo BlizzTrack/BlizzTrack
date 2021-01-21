@@ -9,7 +9,8 @@ namespace Core.Models
     public enum CatalogType
     {
         Config,
-        Fragment
+        Fragment,
+        ProductConfig
     }
 
     public class Catalog
