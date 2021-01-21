@@ -14552,7 +14552,7 @@ a.text-darker:focus {
 }
 
 .footer {
-   /* padding: 24px 0 24px 250px; */
+   padding: 24px 0 24px 250px;
 }
 
     .footer [class*="container-"] {
