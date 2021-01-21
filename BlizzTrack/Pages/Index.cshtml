@@ -26,7 +26,7 @@
                 <div class="card-header">
                     <div class="col-sm-12 text-left">
                         <h2 class="card-title">Games matching your search</h2>
-                        <h5 class="card-category">Search Results in latest manifest</h5>
+                        <div class="card-category">Search Results in latest manifest</div>
                     </div>
                 </div>
                 <div class="card-body">
@@ -110,7 +110,7 @@
                 <div class="card-header">
                     <div class="col-sm-12 text-left">
                         <h2 class="card-title">What's changed between versions</h2>
-                        <h5 class="card-category">Recent Updates @Model.Manifests.First().Seqn &#x2B05; @Model.Manifests.Last().Seqn</h5>
+                        <div class="card-category">Recent Updates @Model.Manifests.First().Seqn &#x2B05; @Model.Manifests.Last().Seqn</div>
                     </div>
                 </div>
                 <div class="card-body">
@@ -236,16 +236,16 @@
                             var logo = parent.Logos.FirstOrDefault(x => x.Type.Contains("svg"));
                             if (logo != null)
                             {
-                                <img src="@logo.URL" class="mr-3" width="45" alt="@parent.Name Logo">
+                                <img src="@logo.URL" class="mr-3" width="45" height="45" alt="@parent.Name Logo">
                             }
                             else
                             {
-                                <img src="~/images/logos/bt.svg" class="mr-3" width="45" alt="@parent.Name Logo">
+                                <img src="~/images/logos/bt.svg" class="mr-3" width="45" height="45" alt="@parent.Name Logo">
                             }
                         }
                         else
                         {
-                            <img src="~/images/logos/bt.svg" class="mr-3" width="45" alt="@parent.Name Logo">
+                            <img src="~/images/logos/bt.svg" class="mr-3" width="45" height="45"  alt="@parent.Name Logo">
                         }
                         <div>
                             <h2 class="card-title mb-0">@parent.Name <small style="font-size: x-small"><a href="#@parent.Slug" aria-label="@parent.Name"><i class="fas fa-anchor"></i></a></small></h2>

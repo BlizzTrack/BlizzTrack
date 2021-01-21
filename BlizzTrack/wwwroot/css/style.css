@@ -17824,7 +17824,8 @@ table.tablesorter thead tr .headerSortDown {
     }
 
     .main-panel[data="blue"] a {
-        color: #1d8cf8;
+        /* color: #1d8cf8; */
+        color: white;
         transition: all 0.05s;
     }
 

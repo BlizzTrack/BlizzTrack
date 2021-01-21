@@ -1,4 +1,6 @@
-﻿<!DOCTYPE html>
+﻿@using static Extensions.HTMLExtensions; 
+
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -67,17 +69,17 @@
 <body class="">
     <div class="wrapper">
         <div class="navbar-minimize-fixed" style="opacity: 0;">
-            <button class="minimize-sidebar btn btn-link btn-just-icon">
+            <button class="minimize-sidebar btn btn-link btn-just-icon" aria-label="Menu Toggle">
                 <i class="tim-icons fa fa-align-center text-muted"></i>
             </button>
         </div>
         <div class="sidebar" data="blue">
             <div class="sidebar-wrapper" style="overflow-x: hidden">
                 <div class="logo">
-                    <a href="javascript:void(0)" class="simple-text logo-mini"  aria-label="Mini navbar">
+                    <a href="/" class="simple-text logo-mini"  aria-label="Mini navbar">
                         <img width="32" height="32" src="~/images/logos/bt.svg" alt="BlizzTrack" />
                     </a>
-                    <a href="javascript:void(0)" class="simple-text logo-normal" aria-label="Mini navbar">
+                    <a href="/" class="simple-text logo-normal" aria-label="Mini navbar">
                         BlizzTrack
                     </a>
                 </div>
@@ -109,12 +111,12 @@
                 <div class="container-fluid">
                     <div class="navbar-wrapper">
                         <div class="navbar-minimize d-inline">
-                            <button class="minimize-sidebar btn btn-link btn-just-icon" data-toggle="tooltip" rel="tooltip" title="Sidebar toggle" data-placement="right" id="minimizeSidebar">
+                            <button class="minimize-sidebar btn btn-link btn-just-icon" aria-label="Menu Toggle" data-toggle="tooltip" rel="tooltip" title="Sidebar toggle" data-placement="right" id="minimizeSidebar">
                                 <i class="tim-icons fa fa-align-center"></i>
                             </button>
                         </div>
                         <div class="navbar-toggle d-inline">
-                            <button type="button" class="navbar-toggler">
+                            <button type="button" class="navbar-toggler" aria-label="Toggle navigation">
                                 <span class="navbar-toggler-bar bar1"></span>
                                 <span class="navbar-toggler-bar bar2"></span>
                                 <span class="navbar-toggler-bar bar3"></span>
@@ -130,7 +132,7 @@
                     <div class="collapse navbar-collapse" id="navigation">
                         <ul class="navbar-nav ml-auto">
                             <li class="search-bar input-group" style="width: auto !important;">
-                                <button class="btn btn-link" id="search-button" data-toggle="modal" data-target="#searchModal">
+                                <button class="btn btn-link" id="search-button" data-toggle="modal" data-target="#searchModal" aria-label="Search">
                                     <i class="tim-icons fa fa-search"></i>
                                     <span class="d-lg-none d-md-block">Search</span>
                                 </button>
@@ -141,7 +143,7 @@
                                     <li class="dropdown nav-item">
                                         <a href="#" class="dropdown-toggle nav-link" data-toggle="dropdown">
                                             <div class="photo">
-                                                <img src="~/images/user/placeholder.png" alt="Profile Photo">
+                                                <img src="~/images/user/placeholder.png" alt="Profile Photo" width="30" height="30">
                                             </div>
                                             <b class="caret d-none d-lg-block d-xl-block"></b>
                                             <p class="d-lg-none">
@@ -150,7 +152,7 @@
                                         </a>
                                         <ul class="dropdown-menu dropdown-navbar">
                                             <li class="nav-link">
-                                                <a href="javascript:void(0)" class="nav-item dropdown-item">
+                                                <a href="javascript:void(0)" rel="nofollow" class="nav-item dropdown-item">
                                                     <i class="fa fa-user tim-icons"></i> My Profile
                                                 </a>
                                             </li>
@@ -246,6 +248,18 @@
             </ul>
         </div>
     </div>
+
+    @if (!Html.IsDebug())
+    {
+        <script>
+            if (!window.console) window.console = {};
+            var methods = ["log", "debug", "warn", "info"];
+            for (var i = 0; i < methods.length; i++) {
+                console[methods[i]] = function () { };
+            }
+        </script>
+    }
+
     <!--   Core JS Files   -->
     <script src="~/lib/jquery/jquery.min.js" asp-append-version="true"></script>
     <script src="~/lib/popper.js/umd/popper.min.js" asp-append-version="true"></script>
