@@ -198,14 +198,12 @@
             return !f.Activison;
         }).ToList()));
 
-        games.Add((false, Model.Parents.Where(x =>
+        games.Add((true, Model.Parents.Where(x =>
         {
             var f = Model.CatalogEntries.Where(s => s.Code == x.ManifestID).FirstOrDefault();
             if (f == null) return false;
             return f.Activison;
         }).ToList()));
-
-        // games.Add((true, Model.Parents.Where(x => Model.CatalogEntries.Where(s => s.Code == x.ManifestID).FirstOrDefault()?.Activison ?? true).ToList()));
     }
 
     @foreach (var gameEntry in games)
