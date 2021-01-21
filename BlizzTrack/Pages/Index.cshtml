@@ -236,19 +236,19 @@
                             var logo = parent.Logos.FirstOrDefault(x => x.Type.Contains("svg"));
                             if (logo != null)
                             {
-                                <img src="@logo.URL" class="mr-3" width="45">
+                                <img src="@logo.URL" class="mr-3" width="45" alt="@parent.Name Logo">
                             }
                             else
                             {
-                                <img src="~/images/logos/bt.svg" class="mr-3" width="45">
+                                <img src="~/images/logos/bt.svg" class="mr-3" width="45" alt="@parent.Name Logo">
                             }
                         }
                         else
                         {
-                            <img src="~/images/logos/bt.svg" class="mr-3" width="45">
+                            <img src="~/images/logos/bt.svg" class="mr-3" width="45" alt="@parent.Name Logo">
                         }
                         <div>
-                            <h2 class="card-title mb-0">@parent.Name <small style="font-size: x-small"><a href="#@parent.Slug"><i class="fas fa-anchor"></i></a></small></h2>
+                            <h2 class="card-title mb-0">@parent.Name <small style="font-size: x-small"><a href="#@parent.Slug" aria-label="@parent.Name"><i class="fas fa-anchor"></i></a></small></h2>
                         </div>
                     </div>
                     <feature name="@nameof(Helpers.FeatureFlags.PatchNotes)">
@@ -328,7 +328,9 @@
                                             </td>
                                             <td>@config.GetName()</td>
                                             <td>
-                                                @Model.GameVersions.FirstOrDefault(x => x.Code == item.Product && x.Type == item.Flags)?.Updated
+                                                <time>
+                                                    @Model.GameVersions.FirstOrDefault(x => x.Code == item.Product && x.Type == item.Flags)?.Updated.ToString("ddd, dd MMM yyyy hh:mm:ss ") GMT
+                                                </time>
                                             </td>
                                             <td>@item.Product</td>
                                             <td>@(string.IsNullOrEmpty(item.Flags) ? "versions" : item.Flags)</td>

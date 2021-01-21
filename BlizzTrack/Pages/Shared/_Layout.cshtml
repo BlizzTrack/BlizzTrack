@@ -74,10 +74,10 @@
         <div class="sidebar" data="blue">
             <div class="sidebar-wrapper" style="overflow-x: hidden">
                 <div class="logo">
-                    <a href="javascript:void(0)" class="simple-text logo-mini">
-                        <img width="32" src="~/images/logos/bt.svg" alt="BlizzTrack" />
+                    <a href="javascript:void(0)" class="simple-text logo-mini"  aria-label="Mini navbar">
+                        <img width="32" height="32" src="~/images/logos/bt.svg" alt="BlizzTrack" />
                     </a>
-                    <a href="javascript:void(0)" class="simple-text logo-normal">
+                    <a href="javascript:void(0)" class="simple-text logo-normal" aria-label="Mini navbar">
                         BlizzTrack
                     </a>
                 </div>
@@ -208,7 +208,7 @@
                 <div class="container-fluid">
                     <ul class="nav">
                         <li class="nav-item">
-                            <a href="https://twitter.com/helba_the_ai" target="_blank" class="nav-link">
+                            <a href="https://twitter.com/helba_the_ai" target="_blank" class="nav-link" rel="noopener">
                                 Helba_The_AI
                             </a>
                         </li>
@@ -222,7 +222,7 @@
     </div>
     <div class="fixed-plugin">
         <div class="dropdown show-dropdown">
-            <a href="#" data-toggle="dropdown">
+            <a href="#" data-toggle="dropdown" aria-label="Settings">
                 <i class="fa fa-cog fa-2x"></i>
             </a>
             <ul class="dropdown-menu">
@@ -263,6 +263,7 @@
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="~/js/bootstrap-notify.js" asp-append-version="true"></script>
     <script src="~/js/storage.js" asp-append-version="true"></script>
+    <script src="~/lib/moment.js/moment.min.js" asp-append-version="true"></script>
 
     @RenderSection("Scripts", required: false)
 
@@ -415,6 +416,20 @@
                     window.localSettings.theme = "dark";
                     window.store.set("config", JSON.stringify(window.localSettings));
                 });
+            });
+        });
+    </script>
+    <script>
+        $(function () {
+            $("time").each(function () {
+                const lDate = moment($(this).text().trim());
+
+                let format = "LLL";
+                if ($(this).data("format")) {
+                    format = $(this).data("format");
+                }
+
+                $(this).text(lDate.format(format));
             });
         });
     </script>

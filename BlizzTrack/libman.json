@@ -29,6 +29,10 @@
     {
       "library": "jquery.terminal@2.20.1",
       "destination": "wwwroot/lib/jquery.terminal/"
+    },
+    {
+      "library": "moment.js@2.29.1",
+      "destination": "wwwroot/lib/moment.js/"
     }
   ]
 }
