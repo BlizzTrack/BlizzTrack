@@ -194,7 +194,7 @@ namespace Worker.Workers
                             _channelWriter.Enqueue(new ConfigUpdate()
                             {
                                 Code = msg.Product,
-                                Hash = ver.Last().Buildconfig,
+                                Hash = ver.Last().Productconfig,
                             });
                         }
 
