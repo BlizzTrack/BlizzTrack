@@ -192,7 +192,8 @@
 
         List<(bool, List<Core.Models.GameParents>)> games = new List<(bool, List<Core.Models.GameParents>)>();
 
-        games.Add((false, Model.Parents.Where(x => {
+        games.Add((false, Model.Parents.Where(x =>
+        {
             var f = Model.CatalogEntries.Where(s => s.Code == x.ManifestID).FirstOrDefault();
             if (f == null) return true;
             return !f.Activison;
@@ -228,6 +229,14 @@
 
         @foreach (var parent in gameEntry.Item2.OrderBy(x => x.Code))
         {
+            var gamesList = latestCodes.Where(x => x.Product.StartsWith(parent.Code)).ToList();
+            if (parent.ChildrenOverride?.Count > 0)
+            {
+                gamesList = latestCodes.Where(x => parent.ChildrenOverride.Contains(x.Product)).ToList();
+            }
+
+            if (gamesList.Count <= 0) continue; // Bypass games that have empty childre, we don't want these visible
+
             <div class="col-12">
                 <div class="card ">
                     <div class="card-header border-0 pt-3 pb-1 d-flex align-items-center" id="@parent.Slug">
@@ -245,7 +254,7 @@
                         }
                         else
                         {
-                            <img src="~/images/logos/bt.svg" class="mr-3" width="45" height="45"  alt="@parent.Name Logo">
+                            <img src="~/images/logos/bt.svg" class="mr-3" width="45" height="45" alt="@parent.Name Logo">
                         }
                         <div>
                             <h2 class="card-title mb-0">@parent.Name <small style="font-size: x-small"><a href="#@parent.Slug" aria-label="@parent.Name"><i class="fas fa-anchor"></i></a></small></h2>
@@ -293,13 +302,6 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @{
-                                        var gamesList = latestCodes.Where(x => x.Product.StartsWith(parent.Code)).ToList();
-                                        if (parent.ChildrenOverride?.Count > 0)
-                                        {
-                                            gamesList = latestCodes.Where(x => parent.ChildrenOverride.Contains(x.Product)).ToList();
-                                        }
-                                    }
 
                                     @foreach (var item in gamesList.OrderByAlphaNumeric(x => x.Product))
                                     {

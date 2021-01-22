@@ -50,6 +50,9 @@ namespace BlizzTrack.Pages.Admin.Parents
         [Display(Name = "Catalog Manifest ID")]
         public string CatalogManifestID { get; set; }
 
+        [Display(Name = "Visible")]
+        public bool Visible { get; set; }
+
         public Core.Models.GameParents ToGameParents => new Core.Models.GameParents()
         {
             Name = GameName,
@@ -57,6 +60,7 @@ namespace BlizzTrack.Pages.Admin.Parents
             PatchNoteTool = PatchNoteTool,
             Website = GameWebsite,
             PatchNoteCode = PatchNoteCode,
+            Visible = Visible,
         };
     }
 
@@ -92,7 +96,8 @@ namespace BlizzTrack.Pages.Admin.Parents
             if (GameInfoModel == null) GameInfoModel = new GameInfoModel();
             GameInfo = new Core.Models.GameParents
             {
-                Logos = new List<Core.Models.Icons>()
+                Logos = new List<Core.Models.Icons>(),
+                Visible = true
             };
 
             ManifestIDs = await _dbContext.Catalogs.GroupBy(x => x.Name).Select(x => x.Key).ToListAsync();
@@ -168,6 +173,7 @@ namespace BlizzTrack.Pages.Admin.Parents
                 parent.Slug = GameInfoModel.GameSlug;
             }
 
+            parent.Visible = true;
             await _gameParents.Add(parent);
 
             return Redirect($"/admin/game-parents/modify?handler=Edit&code={parent.Code}");
@@ -197,7 +203,8 @@ namespace BlizzTrack.Pages.Admin.Parents
                     PatchNoteTypes = string.Join(", ", GameInfo.PatchNoteAreas ?? new List<string>()),
                     PatchNoteTool = GameInfo.PatchNoteTool,
                     PatchNoteCode = GameInfo.PatchNoteCode,
-                    CatalogManifestID = GameInfo.ManifestID ?? GameInfo.Code
+                    CatalogManifestID = GameInfo.ManifestID ?? GameInfo.Code,
+                    Visible = true
                 };
         }
 
@@ -260,6 +267,7 @@ namespace BlizzTrack.Pages.Admin.Parents
             GameInfo.ChildrenOverride = new List<string>();
             GameInfo.PatchNoteAreas = new List<string>();
             GameInfo.ManifestID = GameInfoModel.CatalogManifestID;
+            GameInfo.Visible = true;
 
             if (!string.IsNullOrWhiteSpace(GameInfoModel.GameChildOverride))
                 foreach (var item in GameInfoModel.GameChildOverride.Split(','))

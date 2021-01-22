@@ -132,12 +132,12 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row">   
+                    <div class="row">
                         <div class="col-sm-12">
-                            <div class="form-group" >
+                            <div class="form-group">
                                 @Html.LabelFor(x => x.GameInfoModel.CatalogManifestID)
-                                @Html.DropDownListFor(x => x.GameInfoModel.CatalogManifestID, new SelectList(Model.ManifestIDs), "Select Manfest ID", 
-                                    new { placeholder = "Catalog Manfest ID", @class = "form-control mb-1", style="color: black !important" })
+                                @Html.DropDownListFor(x => x.GameInfoModel.CatalogManifestID, new SelectList(Model.ManifestIDs), "Select Manfest ID",
+                                    new { placeholder = "Catalog Manfest ID", @class = "form-control mb-1", style = "color: black !important" })
                                 @Html.ValidationMessageFor(x => x.GameInfoModel.CatalogManifestID, "", new { @class = "text-danger" })
                             </div>
                         </div>

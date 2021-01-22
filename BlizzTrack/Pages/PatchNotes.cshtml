@@ -15,7 +15,7 @@
 @if (Model.GameParent?.Logos?.Count > 0)
 {
     @section Header {
-        <link rel="alternate" type="application/rss+xml" title="RSS" href="@Url.Action("Get", "rss", new { slug = Model.GameParent.Slug, type = Model.GameType.ToLower() }, HttpContext.Request.Scheme)" />
+        <link rel="alternate" type="application/rss+xml" title="@ViewData["Title"]" href="@Url.Action("Get", "rss", new { slug = Model.GameParent.Slug, type = Model.GameType.ToLower() }, HttpContext.Request.Scheme)" />
 
         @{
             var logo = Model.GameParent.Logos.FirstOrDefault(x => x.Type == "image/png");

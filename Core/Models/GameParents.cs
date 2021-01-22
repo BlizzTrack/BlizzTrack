@@ -27,6 +27,8 @@ namespace Core.Models
 
         public string ManifestID { get; set; }
 
+        public bool? Visible { get; set; }
+
         [Column(TypeName = "jsonb")]
         public List<Icons> Logos { get; set; } = new List<Icons>();
     }
