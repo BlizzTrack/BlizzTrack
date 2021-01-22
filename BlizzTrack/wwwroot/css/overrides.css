@@ -170,3 +170,7 @@ code {
     .build-list li i {
         margin-right: 3px;
     }
+
+.btn.btn-primary {
+    color: white !important;
+}
