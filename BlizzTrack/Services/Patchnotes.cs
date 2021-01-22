@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace BlizzTrack.Services
@@ -12,6 +13,8 @@ namespace BlizzTrack.Services
     public interface IPatchnotes
     {
         Task<PatchNoteData> Get(string code, string type, DateTime? buildTime = null);
+
+        Task<List<PatchNoteData>> All(string code, string type);
 
         Task<List<PatchNoteData>> GetByTypes(string code, params string[] type);
 
@@ -52,6 +55,54 @@ namespace BlizzTrack.Services
                 .OrderByDescending(x => x.Created).ThenByDescending(x => x.Updated).FirstOrDefaultAsync();
             if (data == null) return null;
 
+            return Parse(data);
+        }
+
+        public async Task<List<PatchNoteData>> GetByTypes(string code, params string[] types)
+        {
+            var items = new List<PatchNoteData>();
+
+            foreach(var type in types)
+            {
+                var data = await Get(code, type);
+                if (data == null) continue;
+
+                items.Add(data);
+            }
+
+            return items;
+        }
+
+        private static Overwatch.Metadata ReadMetaData(System.Text.Json.JsonElement jsonElement)
+        {
+            if (jsonElement.ValueKind == System.Text.Json.JsonValueKind.Null) return null;
+
+            return new Overwatch.Metadata()
+            {
+                IconGuid = jsonElement.GetProperty("icon_guid").GetString(),
+                AssetGuid = jsonElement.GetProperty("asset_guid").GetString()
+            };
+        }
+
+        public async Task<List<PatchNoteData>> All(string code, string type)
+        {
+            var data = await _dbContext.PatchNotes
+                .Where(x => code.ToLower().StartsWith(x.Code) && type.ToLower().Equals(x.Type))
+                .OrderByDescending(x => x.Created).ThenByDescending(x => x.Updated).ToListAsync();
+            if (data == null) return null;
+
+            var res = new List<PatchNoteData>();
+
+            foreach(var note in data)
+            {
+                res.Add(Parse(note));
+            }
+
+            return res;
+        }
+
+        private PatchNoteData Parse(PatchNote data)
+        {
             var note = new PatchNoteData()
             {
                 Created = data.Created,
@@ -153,32 +204,6 @@ namespace BlizzTrack.Services
             }
 
             return note;
-        }
-
-        public async Task<List<PatchNoteData>> GetByTypes(string code, params string[] types)
-        {
-            var items = new List<PatchNoteData>();
-
-            foreach(var type in types)
-            {
-                var data = await Get(code, type);
-                if (data == null) continue;
-
-                items.Add(data);
-            }
-
-            return items;
-        }
-
-        private static Overwatch.Metadata ReadMetaData(System.Text.Json.JsonElement jsonElement)
-        {
-            if (jsonElement.ValueKind == System.Text.Json.JsonValueKind.Null) return null;
-
-            return new Overwatch.Metadata()
-            {
-                IconGuid = jsonElement.GetProperty("icon_guid").GetString(),
-                AssetGuid = jsonElement.GetProperty("asset_guid").GetString()
-            };
         }
     }
 }

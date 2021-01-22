@@ -2,9 +2,14 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.ServiceModel.Syndication;
+using System.Text;
 using System.Threading.Tasks;
+using System.Xml;
 
 namespace BlizzTrack.API
 {
@@ -88,6 +93,54 @@ namespace BlizzTrack.API
 
         #endregion /patch-notes/:code/:type
 
+        #region /patch-notes/:code/:type/rss
+
+        [ResponseCache(Duration = 1200)]
+        [HttpGet("patch-notes/{code}/{type}/rss")]
+        public async Task<IActionResult> PatchNotesRss([FromServices] Services.IPatchnotes patchnotes, [FromServices] Core.Services.IGameParents gameParents, string code, string type)
+        {
+            var notes = await patchnotes.All(code, type);
+
+            var parent = await gameParents.Get(code);
+
+            var feed = new SyndicationFeed($"{parent.Name} {Helpers.GameTypeFixer.Fix(type)} Patch Notes", $"Patch notes for {parent.Name} {Helpers.GameTypeFixer.Fix(type)}", new Uri("https://blizztrack.com"), $"https://blizztrack.com/rss/{parent.Slug}/{type}", DateTime.Now);
+
+            feed.Copyright = new TextSyndicationContent($"{DateTime.Now.Year} Mitchel Sellers");
+            var items = new List<SyndicationItem>();
+            foreach (var item in notes)
+            {
+                var postUrl = $"https://blizztrack.com/patch-notes/{parent.Slug}/{type}?build_time={item.Created.Ticks}";
+                var title = $"Posted: {item.Created}";
+                var description = $"New patch notes discovered on {item.Created}";
+                var f = new SyndicationItem(title, description, new Uri(postUrl), postUrl, item.Created);
+
+                f.PublishDate = item.Created;
+                f.LastUpdatedTime = item.Updated;
+                f.Id = item.Created.Ticks.ToString();
+
+                f.Categories.Add(new SyndicationCategory(type));
+                items.Add(f);
+            }
+
+            feed.Items = items;
+            var settings = new XmlWriterSettings
+            {
+                Encoding = Encoding.UTF8,
+                NewLineHandling = NewLineHandling.None,
+                NewLineOnAttributes = false,
+                Indent = true
+            };
+            using var stream = new MemoryStream();
+            using (var xmlWriter = XmlWriter.Create(stream, settings))
+            {
+                var rssFormatter = new Rss20FeedFormatter(feed, false);
+                rssFormatter.WriteTo(xmlWriter);
+                xmlWriter.Flush();
+            }
+            return File(stream.ToArray(), "application/rss+xml; charset=utf-8");
+        }
+
+        #endregion /patch-notes/:code/:type/rss
 #endif
     }
 }

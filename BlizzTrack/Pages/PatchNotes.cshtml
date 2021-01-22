@@ -14,14 +14,19 @@
 
 @if (Model.GameParent?.Logos?.Count > 0)
 {
-    var logo = Model.GameParent.Logos.FirstOrDefault(x => x.Type == "image/png");
-    if (logo != null)
-    {
-        @section Header {
-            <meta Name="twitter:image:src" Content="@logo.URL" />
-            <meta Name="og:image" Content="@logo.URL" />
-            <meta Name="twitter:url" Content="@logo.URL" />
-            <meta Name="og:url" Content="@logo.URL" />
+    @section Header {
+        <link rel="alternate" type="application/rss+xml" title="RSS" href="@Url.Action("Get", "rss", new { slug = Model.GameParent.Slug, type = Model.GameType.ToLower() }, HttpContext.Request.Scheme)" />
+
+        @{
+            var logo = Model.GameParent.Logos.FirstOrDefault(x => x.Type == "image/png");
+
+            if (logo != null)
+            {
+                    <meta Name="twitter:image:src" Content="@logo.URL" />
+                    <meta Name="og:image" Content="@logo.URL" />
+                    <meta Name="twitter:url" Content="@logo.URL" />
+                    <meta Name="og:url" Content="@logo.URL" />
+            }
         }
     }
 }
@@ -36,6 +41,11 @@
             </li>
             <li class="breadcrumb-item active" aria-current="page">@Model.GameParent.Name</li>
             <li class="breadcrumb-item active" aria-current="page">@GameTypeFixer.Fix(Model.GameType)</li>
+            <li class="breadcrumb-item active" aria-current="page">
+                <a asp-controller="rss" asp-action="Get" asp-route-slug="@Model.GameParent.Slug" asp-route-type="@Model.GameType.ToLower()">
+                    <i class="fas fa-rss mr-1"></i> RSS Feed
+                </a>
+            </li>
         </ol>
     </div>
 
