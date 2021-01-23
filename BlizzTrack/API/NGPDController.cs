@@ -162,8 +162,8 @@ namespace BlizzTrack.API
                                 data.Indexed,
                                 data.Seqn,
                                 code,
-                                encrypted = config.Config.Encrypted,
-                                logos = config.Logos,
+                                encrypted = config?.Config.Encrypted,
+                                logos = config?.Logos,
                                 command = cmd.ToString(),
                                 data = ver
                             };
@@ -192,8 +192,8 @@ namespace BlizzTrack.API
                                 data.Indexed,
                                 data.Seqn,
                                 code,
-                                encrypted = config.Config.Encrypted,
-                                logos = config.Logos,
+                                encrypted = config?.Config.Encrypted,
+                                logos = config?.Logos,
                                 command = cmd.ToString(),
                                 data = ver
                             };
@@ -224,8 +224,8 @@ namespace BlizzTrack.API
                                 data.Indexed,
                                 data.Seqn,
                                 code,
-                                encrypted = config.Config.Encrypted,
-                                logos = config.Logos,
+                                encrypted = config?.Config.Encrypted,
+                                logos = config?.Logos,
                                 command = cmd.ToString(),
                                 data = ver
                             };
@@ -254,8 +254,8 @@ namespace BlizzTrack.API
                                         {
                                             name = BNetLib.Helpers.GameName.Get(code),
                                             code = code.ToLower(),
-                                            encrypted = config.Config.Encrypted,
-                                            logos = config.Logos,
+                                            encrypted = config?.Config.Encrypted,
+                                            logos = config?.Logos,
                                             latest = f.First(),
                                             data = f
                                         };
@@ -279,8 +279,8 @@ namespace BlizzTrack.API
                                         {
                                             name = BNetLib.Helpers.GameName.Get(code),
                                             code = code.ToLower(),
-                                            encrypted = config.Config.Encrypted,
-                                            logos = config.Logos,
+                                            encrypted = config?.Config.Encrypted,
+                                            logos = config?.Logos,
                                             latest = f.First(),
                                             data = f
                                         };
@@ -304,8 +304,8 @@ namespace BlizzTrack.API
                                         {
                                             name = BNetLib.Helpers.GameName.Get(code),
                                             code = code.ToLower(),
-                                            encrypted = config.Config.Encrypted,
-                                            logos = config.Logos,
+                                            encrypted = config?.Config.Encrypted,
+                                            logos = config?.Logos,
                                             latest = f.First(),
                                             data = f
                                         };

@@ -1,8 +1,6 @@
 ﻿using BNetLib.Models;
 using BNetLib.Networking.Commands;
-using System;
-using System.Collections;
-using System.Collections.Generic;
+using System;   
 using System.IO;
 using System.Linq;
 using System.Net.Sockets;
@@ -20,24 +18,24 @@ namespace BNetLib.Networking
             _serverUrl = $"{region.ToString().ToLower()}.version.battle.net";
         }
 
-        public async Task<ClientResult<BNetLib.Models.Versions>> Versions(string code)
+        public async Task<ClientResult<Versions>> Versions(string code)
         {
-            return await Do<BNetLib.Models.Versions>(new VersionCommand(code));
+            return await Do<Versions>(new VersionCommand(code));
         }
 
-        public async Task<ClientResult<BNetLib.Models.BGDL>> BGDL(string code)
+        public async Task<ClientResult<BGDL>> BGDL(string code)
         {
-            return await Do<BNetLib.Models.BGDL>(new BGDLCommand(code));
+            return await Do<BGDL>(new BGDLCommand(code));
         }
 
-        public async Task<ClientResult<BNetLib.Models.CDN>> CDN(string code)
+        public async Task<ClientResult<CDN>> CDN(string code)
         {
-            return await Do<BNetLib.Models.CDN>(new CDNCommand(code));
+            return await Do<CDN>(new CDNCommand(code));
         }
 
-        public async Task<ClientResult<BNetLib.Models.Summary>> Summary()
+        public async Task<ClientResult<Summary>> Summary()
         {
-            return await Do<BNetLib.Models.Summary>(new SummaryCommand());
+            return await Do<Summary>(new SummaryCommand());
         }
 
         public async Task<ClientResult<T>> Do<T>(AbstractCommand command) where T : NGPD, new() => await Do<T>(command.ToString());
