@@ -86,13 +86,13 @@ namespace Worker.Workers
                     firstRun = false;
                 }
 
-                (var summary, int seqn, string raw) = await _bNetClient.Do<BNetLib.Models.Summary>(new SummaryCommand());
-                if (latest?.Seqn < seqn)
+                var res = await _bNetClient.Summary();
+                if (latest?.Seqn < res.Seqn)
                 {
-                    latest = Manifest<BNetLib.Models.Summary[]>.Create(seqn, "summary", summary.ToArray());
+                    latest = Manifest<BNetLib.Models.Summary[]>.Create(res.Seqn, "summary", res.Payload.ToArray());
                     try
                     {
-                        latest.Raw = raw;
+                        latest.Raw = res.Raw;
                         _dbContext.Summary.Add(latest);
                         _dbContext.SaveChanges();
                     }
@@ -102,7 +102,7 @@ namespace Worker.Workers
                     }
 
                     var latestItems = latest?.Content.ToList() ?? new List<BNetLib.Models.Summary>();
-                    foreach (var item in summary)
+                    foreach (var item in res.Payload)
                     {
                         try
                         {
@@ -146,11 +146,11 @@ namespace Worker.Workers
                             return;
                         }
 
-                        var payload = await GetMetaData<BNetLib.Models.Versions>(msg);
+                        var (Value, Seqn, Raw) = await GetMetaData<BNetLib.Models.Versions>(msg);
 
-                        data = payload.Value;
-                        seqn = payload.Seqn;
-                        raw = payload.Raw;
+                        data = Value;
+                        seqn = Seqn;
+                        raw = Raw;
 
                         break;
                     }
@@ -164,11 +164,11 @@ namespace Worker.Workers
                             return;
                         }
 
-                        var payload = await GetMetaData<BNetLib.Models.CDN>(msg);
+                        var (Value, Seqn, Raw) = await GetMetaData<BNetLib.Models.CDN>(msg);
 
-                        data = payload.Value;
-                        seqn = payload.Seqn;
-                        raw = payload.Raw;
+                        data = Value;
+                        seqn = Seqn;
+                        raw = Raw;
                         break;
                     }
                 case "bgdl":
@@ -182,11 +182,11 @@ namespace Worker.Workers
                         }
 
 
-                        var payload = await GetMetaData<BNetLib.Models.BGDL>(msg);
+                        var (Value, Seqn, Raw) = await GetMetaData<BNetLib.Models.BGDL>(msg);
 
-                        data = payload.Value;
-                        seqn = payload.Seqn;
-                        raw = payload.Raw;
+                        data = Value;
+                        seqn = Seqn;
+                        raw = Raw;
                         break;
                     }
                 default:
@@ -260,8 +260,8 @@ namespace Worker.Workers
             {
                 case Type versionType when versionType == typeof(BNetLib.Models.Versions):
                     {
-                        var payload = await _bNetClient.Do<BNetLib.Models.Versions>(new VersionCommand(msg.Product));
-                        data = (IList<T>)payload.Value;
+                        var payload = await _bNetClient.Versions(msg.Product);
+                        data = (IList<T>)payload.Payload;
                         seqn = payload.Seqn;
                         raw = payload.Raw;
                     }
@@ -269,8 +269,8 @@ namespace Worker.Workers
 
                 case Type bgdlType when bgdlType == typeof(BNetLib.Models.BGDL):
                     {
-                        var payload = await _bNetClient.Do<BNetLib.Models.BGDL>(new BGDLCommand(msg.Product));
-                        data = (IList<T>)payload.Value;
+                        var payload = await _bNetClient.BGDL(msg.Product);
+                        data = (IList<T>)payload.Payload;
                         seqn = payload.Seqn;
                         raw = payload.Raw;
                     }
@@ -278,8 +278,8 @@ namespace Worker.Workers
 
                 case Type cdnType when cdnType == typeof(BNetLib.Models.CDN):
                     {
-                        var payload = await _bNetClient.Do<BNetLib.Models.CDN>(new CDNCommand(msg.Product));
-                        data = (IList<T>)payload.Value;
+                        var payload = await _bNetClient.CDN(msg.Product);
+                        data = (IList<T>)payload.Payload;
                         seqn = payload.Seqn;
                         raw = payload.Raw;
                     }

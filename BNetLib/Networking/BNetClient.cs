@@ -20,9 +20,29 @@ namespace BNetLib.Networking
             _serverUrl = $"{region.ToString().ToLower()}.version.battle.net";
         }
 
-        public async Task<(IList<T> Value, int Seqn, string Raw)> Do<T>(AbstractCommand command) where T : NGPD, new() => await Do<T>(command.ToString());
+        public async Task<ClientResult<BNetLib.Models.Versions>> Versions(string code)
+        {
+            return await Do<BNetLib.Models.Versions>(new VersionCommand(code));
+        }
 
-        public async Task<(IList<T> Value, int Seqn, string Raw)> Do<T>(string command) where T : NGPD, new()
+        public async Task<ClientResult<BNetLib.Models.BGDL>> BGDL(string code)
+        {
+            return await Do<BNetLib.Models.BGDL>(new BGDLCommand(code));
+        }
+
+        public async Task<ClientResult<BNetLib.Models.CDN>> CDN(string code)
+        {
+            return await Do<BNetLib.Models.CDN>(new CDNCommand(code));
+        }
+
+        public async Task<ClientResult<BNetLib.Models.Summary>> Summary()
+        {
+            return await Do<BNetLib.Models.Summary>(new SummaryCommand());
+        }
+
+        public async Task<ClientResult<T>> Do<T>(AbstractCommand command) where T : NGPD, new() => await Do<T>(command.ToString());
+
+        public async Task<ClientResult<T>> Do<T>(string command) where T : NGPD, new()
         {
             using var client = new TcpClient();
             await client.ConnectAsync(_serverUrl, 1119);
@@ -46,7 +66,12 @@ namespace BNetLib.Networking
 
                     var outData = BNetTools.Parse<T>(data);
 
-                    return (outData.Value, outData.Seqn, result);
+                    return new ClientResult<T>()
+                    {
+                        Payload = outData.Value,
+                        Seqn = outData.Seqn,
+                        Raw = result
+                    };
                 }
                 finally
                 {
