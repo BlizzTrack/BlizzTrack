@@ -13,7 +13,7 @@ using Tooling.Attributes;
 
 namespace Tooling.Tools
 {
-    [Tool(Name = "Missing Manifest", Disabled = true)]
+    [Tool(Name = "Missing Manifest", Disabled = false)]
     public class MissingManifest : ITool
     {
         private readonly DBContext _dbContext;
@@ -70,7 +70,7 @@ namespace Tooling.Tools
                 var signDate = GetSignerCert(text);
                 var payload = body.Text.Split("\n").ToList();
                 payload.Insert(0, "## Nothing");
-                var (Value, Seqn) = BNetLib.Networking.BNetTools<List<BNetLib.Models.Summary>>.Parse(payload);
+                var (Value, Seqn) = BNetLib.Networking.BNetTools.Parse<BNetLib.Models.Summary>(payload);
 
                 var exist = await _dbContext.Summary.AsNoTracking().FirstOrDefaultAsync(x => x.Seqn == seqn);
                 if(exist != null)
@@ -152,7 +152,7 @@ namespace Tooling.Tools
 
                             if (exist == null)
                             {
-                                var (Value, Seqn) = BNetLib.Networking.BNetTools<List<BNetLib.Models.Versions>>.Parse(payload);
+                                var (Value, Seqn) = BNetLib.Networking.BNetTools.Parse<BNetLib.Models.Versions> (payload);
                                 var p = Manifest<BNetLib.Models.Versions[]>.Create(seqn, code, Value.ToArray());
                                 if (signDate != null) p.Indexed = signDate.Value;
                                 p.Raw = fileContent;
@@ -176,7 +176,7 @@ namespace Tooling.Tools
 
                             if (exist == null)
                             {
-                                var (Value, Seqn) = BNetLib.Networking.BNetTools<List<BNetLib.Models.CDN>>.Parse(payload);
+                                var (Value, Seqn) = BNetLib.Networking.BNetTools.Parse<BNetLib.Models.CDN>(payload);
                                 var p = Manifest<BNetLib.Models.CDN[]>.Create(seqn, code, Value.ToArray());
                                 if (signDate != null) p.Indexed = signDate.Value;
                                 p.Raw = fileContent;
@@ -200,7 +200,7 @@ namespace Tooling.Tools
 
                             if (exist == null)
                             {
-                                var (Value, Seqn) = BNetLib.Networking.BNetTools<List<BNetLib.Models.BGDL>>.Parse(payload);
+                                var (Value, Seqn) = BNetLib.Networking.BNetTools.Parse<BNetLib.Models.BGDL>(payload);
                                 var p = Manifest<BNetLib.Models.BGDL[]>.Create(seqn, code, Value.ToArray());
                                 if (signDate != null) p.Indexed = signDate.Value;
                                 p.Raw = fileContent;

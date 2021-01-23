@@ -1,0 +1,37 @@
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+
+namespace BNetLib.Extensions
+{
+    public static class ObjectExtensions
+    {
+        public static T ToObject<T>(this IDictionary<string, object> source) where T : class, new()
+        {
+            T someObject = new T();
+            Assert.IsTrue(someObject != null, $"{nameof(someObject)} was null");
+
+            var someObjectType = someObject.GetType();
+
+            foreach (var item in source)
+            {
+                someObjectType
+                         .GetProperty(item.Key, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance)
+                         .SetValue(someObject, item.Value, null);
+            }
+
+            return someObject;
+        }
+
+        public static IDictionary<string, object> AsDictionary(this object source, BindingFlags bindingAttr = BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance)
+        {
+            return source.GetType().GetProperties(bindingAttr).ToDictionary
+            (
+                propInfo => propInfo.Name,
+                propInfo => propInfo.GetValue(source, null)
+            );
+
+        }
+    }
+}

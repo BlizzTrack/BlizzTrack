@@ -1,5 +1,7 @@
-﻿using Newtonsoft.Json;
+﻿using BNetLib.Extensions;
+using Newtonsoft.Json;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -17,11 +19,13 @@ namespace BNetLib.Networking
         public string Type { get; }
     }
 
-    public static class BNetTools<T>
+    public static class BNetTools
     {
-        public static (T Value, int Seqn) Parse(IEnumerable<string> lines)
+        public static (IList<T> Value, int Seqn) Parse<T>(IEnumerable<string> lines) where T : class, new()
         {
-            var dataItems = new List<Dictionary<string, dynamic>>();
+            // var dataItems = new List<Dictionary<string, dynamic>>();
+
+            var dataItems = new List<T>();
 
             var keys = new List<KeyType>();
             var enumerable = lines as string[] ?? lines.ToArray();
@@ -52,7 +56,7 @@ namespace BNetLib.Networking
 
                 var values = line.Split('|');
 
-                var lineItem = new Dictionary<string, dynamic>();
+                var lineItem = new Dictionary<string, object>();
 
                 for (var i = 0; i < keys.Count; i++)
                 {
@@ -75,13 +79,10 @@ namespace BNetLib.Networking
                     }
                 }
 
-                dataItems.Add(lineItem);
+                dataItems.Add(lineItem.ToObject<T>());
             }
 
-            // FIXME: Make this not relay on json to convert between the objects... This feels wrong
-            var ff = JsonConvert.SerializeObject(dataItems);
-
-            return (JsonConvert.DeserializeObject<T>(ff), seqn);
+            return (dataItems, seqn);
         }
     }
 }

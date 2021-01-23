@@ -1,5 +1,7 @@
 ﻿using BNetLib.Networking.Commands;
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Sockets;
@@ -17,9 +19,9 @@ namespace BNetLib.Networking
             _serverUrl = $"{region.ToString().ToLower()}.version.battle.net";
         }
 
-        public async Task<(T Value, int Seqn, string Raw)> Do<T>(AbstractCommand command) where T : System.Collections.IEnumerable => await Do<T>(command.ToString());
+        public async Task<(IList<T> Value, int Seqn, string Raw)> Do<T>(AbstractCommand command) where T : class, new() => await Do<T>(command.ToString());
 
-        public async Task<(T Value, int Seqn, string Raw)> Do<T>(string command) where T : System.Collections.IEnumerable
+        public async Task<(IList<T> Value, int Seqn, string Raw)> Do<T>(string command) where T : class, new()
         {
             using var client = new TcpClient();
             await client.ConnectAsync(_serverUrl, 1119);
@@ -41,7 +43,7 @@ namespace BNetLib.Networking
                     var boundary = text.FirstOrDefault(x => x.Trim().StartsWith("Content-Type:"))?.Split(';').FirstOrDefault(x => x.Trim().StartsWith("boundary="))?.Split('"')[1].Trim();
                     var data = text.SkipWhile(x => x.Trim() != "--" + boundary).Skip(1).TakeWhile(x => x.Trim() != "--" + boundary).Skip(1);
 
-                    var outData = BNetTools<T>.Parse(data);
+                    var outData = BNetTools.Parse<T>(data);
 
                     return (outData.Value, outData.Seqn, result);
                 }

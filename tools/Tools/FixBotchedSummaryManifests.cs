@@ -51,7 +51,7 @@ namespace Tooling.Tools
 
                 var payload = body.Text.Split("\n").ToList();
                 payload.Insert(0, "## Nothing");
-                var (Value, Seqn) = BNetLib.Networking.BNetTools<List<BNetLib.Models.Summary>>.Parse(payload);
+                var (Value, Seqn) = BNetLib.Networking.BNetTools.Parse<BNetLib.Models.Summary>(payload);
 
                 updateCycle++;
                 summary.Content = Value.ToArray();

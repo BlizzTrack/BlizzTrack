@@ -79,13 +79,14 @@ namespace Worker.Workers
                     foreach (var item in latest.Content)
                     {
                         await AddItemToData(item, latest.Seqn, _dbContext, cancellationToken);
-                        _dbContext.SaveChanges();
                     }
+
+                    _dbContext.SaveChanges();
 
                     firstRun = false;
                 }
 
-                (var summary, int seqn, string raw) = await _bNetClient.Do<List<BNetLib.Models.Summary>>(new SummaryCommand());
+                (var summary, int seqn, string raw) = await _bNetClient.Do<BNetLib.Models.Summary>(new SummaryCommand());
                 if (latest?.Seqn < seqn)
                 {
                     latest = Manifest<BNetLib.Models.Summary[]>.Create(seqn, "summary", summary.ToArray());
@@ -129,6 +130,10 @@ namespace Worker.Workers
         {
             var code = msg.Product;
 
+            object data;
+            int seqn = -1;
+            string raw;
+
             switch (msg.Flags)
             {
                 case "versions" or "version":
@@ -140,6 +145,13 @@ namespace Worker.Workers
                             _logger.LogDebug($"Skipping {code}:{msg.Seqn}:{msg.Flags}");
                             return;
                         }
+
+                        var payload = await GetMetaData<BNetLib.Models.Versions>(msg);
+
+                        data = payload.Value;
+                        seqn = payload.Seqn;
+                        raw = payload.Raw;
+
                         break;
                     }
                 case "cdn" or "cdns":
@@ -151,6 +163,12 @@ namespace Worker.Workers
                             _logger.LogDebug($"Skipping {code}:{msg.Seqn}:{msg.Flags}");
                             return;
                         }
+
+                        var payload = await GetMetaData<BNetLib.Models.CDN>(msg);
+
+                        data = payload.Value;
+                        seqn = payload.Seqn;
+                        raw = payload.Raw;
                         break;
                     }
                 case "bgdl":
@@ -162,6 +180,13 @@ namespace Worker.Workers
                             _logger.LogDebug($"Skipping {code}:{msg.Seqn}:{msg.Flags}");
                             return;
                         }
+
+
+                        var payload = await GetMetaData<BNetLib.Models.BGDL>(msg);
+
+                        data = payload.Value;
+                        seqn = payload.Seqn;
+                        raw = payload.Raw;
                         break;
                     }
                 default:
@@ -174,7 +199,6 @@ namespace Worker.Workers
             // Update the config for only games we detect changes for
             await CheckifEncrypted(msg, db, _logger, cancellationToken);
 
-            var (data, seqn, raw) = await GetMetaData(msg);
             if (seqn == -1) return;
 
             switch (data)
@@ -226,25 +250,52 @@ namespace Worker.Workers
             }
         }
 
-        private async Task<(IList data, int seqn, string raw)> GetMetaData(BNetLib.Models.Summary msg)
+        private async Task<(object Value, int Seqn, string Raw)> GetMetaData<T>(BNetLib.Models.Summary msg) where T : class, new()
         {
-            (IList data, int seqn, string raw) res = msg.Flags switch
-            {
-                "version" or "versions" => await _bNetClient.Do<List<BNetLib.Models.Versions>>(new VersionCommand(msg.Product)),
-                "cdn" or "cdns" => await _bNetClient.Do<List<BNetLib.Models.CDN>>(new CDNCommand(msg.Product)),
-                "bgdl" => await _bNetClient.Do<List<BNetLib.Models.BGDL>>(new BGDLCommand(msg.Product)),
-                _ => (null, -1, string.Empty)
-            };
+            IList<T> data;
+            int seqn;
+            string raw;
 
-            if (res.seqn == -1) return (res.data, res.seqn, res.raw);
-
-            if (res.seqn != msg.Seqn)
+            switch (typeof(T))
             {
-                await Task.Delay(TimeSpan.FromSeconds(1));
-                return await GetMetaData(msg);
+                case Type versionType when versionType == typeof(BNetLib.Models.Versions):
+                    {
+                        var payload = await _bNetClient.Do<BNetLib.Models.Versions>(new VersionCommand(msg.Product));
+                        data = (IList<T>)payload.Value;
+                        seqn = payload.Seqn;
+                        raw = payload.Raw;
+                    }
+                    break;
+
+                case Type bgdlType when bgdlType == typeof(BNetLib.Models.BGDL):
+                    {
+                        var payload = await _bNetClient.Do<BNetLib.Models.BGDL>(new BGDLCommand(msg.Product));
+                        data = (IList<T>)payload.Value;
+                        seqn = payload.Seqn;
+                        raw = payload.Raw;
+                    }
+                    break;
+
+                case Type cdnType when cdnType == typeof(BNetLib.Models.CDN):
+                    {
+                        var payload = await _bNetClient.Do<BNetLib.Models.CDN>(new CDNCommand(msg.Product));
+                        data = (IList<T>)payload.Value;
+                        seqn = payload.Seqn;
+                        raw = payload.Raw;
+                    }
+                    break;
+
+                default:
+                    return (null, -1, null);
             }
 
-            return (res.data, res.seqn, res.raw);
+            if (seqn != msg.Seqn)
+            {
+                await Task.Delay(TimeSpan.FromSeconds(1));
+                return await GetMetaData<T>(msg);
+            }
+
+            return (data, seqn, raw);
         }
 
         private async Task CheckifEncrypted(BNetLib.Models.Summary msg, DBContext dbContext, ILogger<Summary> _logger, CancellationToken cancellationToken)
