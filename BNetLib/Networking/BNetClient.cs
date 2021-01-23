@@ -40,7 +40,7 @@ namespace BNetLib.Networking
 
         public async Task<ClientResult<T>> Do<T>(AbstractCommand command) where T : NGPD, new() => await Do<T>(command.ToString());
 
-        public async Task<ClientResult<T>> Do<T>(string command) where T : NGPD, new()
+        private async Task<ClientResult<T>> Do<T>(string command) where T : NGPD, new()
         {
             using var client = new TcpClient();
             await client.ConnectAsync(_serverUrl, 1119);
