@@ -1,4 +1,5 @@
-﻿using BNetLib.Networking.Commands;
+﻿using BNetLib.Models;
+using BNetLib.Networking.Commands;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -19,9 +20,9 @@ namespace BNetLib.Networking
             _serverUrl = $"{region.ToString().ToLower()}.version.battle.net";
         }
 
-        public async Task<(IList<T> Value, int Seqn, string Raw)> Do<T>(AbstractCommand command) where T : class, new() => await Do<T>(command.ToString());
+        public async Task<(IList<T> Value, int Seqn, string Raw)> Do<T>(AbstractCommand command) where T : NGPD, new() => await Do<T>(command.ToString());
 
-        public async Task<(IList<T> Value, int Seqn, string Raw)> Do<T>(string command) where T : class, new()
+        public async Task<(IList<T> Value, int Seqn, string Raw)> Do<T>(string command) where T : NGPD, new()
         {
             using var client = new TcpClient();
             await client.ConnectAsync(_serverUrl, 1119);

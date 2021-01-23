@@ -1,4 +1,5 @@
 ﻿using BNetLib.Extensions;
+using BNetLib.Models;
 using Newtonsoft.Json;
 using System;
 using System.Collections;
@@ -21,7 +22,7 @@ namespace BNetLib.Networking
 
     public static class BNetTools
     {
-        public static (IList<T> Value, int Seqn) Parse<T>(IEnumerable<string> lines) where T : class, new()
+        public static (IList<T> Value, int Seqn) Parse<T>(IEnumerable<string> lines) where T : NGPD, new()
         {
             // var dataItems = new List<Dictionary<string, dynamic>>();
 
