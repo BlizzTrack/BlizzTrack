@@ -13,7 +13,7 @@
             @if (!string.IsNullOrEmpty(Model.Search))
             {
                 <li class="breadcrumb-item">
-                    <a asp-page="/Index">Reset Search</a>
+                    <a asp-page="/Index"><i class="fa fa-search mr-1"></i> Reset Search</a>
                 </li>
             }
         </ol>
@@ -41,6 +41,9 @@
                                         Name
                                     </th>
                                     <th>
+                                       Indexed
+                                    </th>
+                                    <th>
                                         Code
                                     </th>
                                     <th>
@@ -48,9 +51,6 @@
                                     </th>
                                     <th>
                                         Current Seqn
-                                    </th>
-                                    <th>
-                                        Previous Seqn
                                     </th>
                                     <th></th>
                                 </tr>
@@ -72,28 +72,32 @@
                                             Code = item.Product
                                         };
                                     }
-                                    <tr>
-                                        <td>
-                                            <i class="fa fa-@(config.Config.Encrypted ? "lock" : "lock-open")"></i>
-                                        </td>
-                                        <td>@config.GetName()</td>
-                                        <td>@item.Product</td>
-                                        <td>@(string.IsNullOrEmpty(item.Flags) ? "versions" : item.Flags)</td>
-                                        <td>@item.Seqn</td>
-                                        <td>@(f == null ? "N/A" : f.Seqn.ToString())</td>
-                                        <td class="text-center">
-                                            @if (item.Flags == "cdn")
-                                            {
-                                                @("N/A");
-                                            }
-                                            else
-                                            {
-                                                <a asp-page="/ViewGame" asp-route-code="@item.Product" asp-route-file="@(string.IsNullOrEmpty(item.Flags) ? "versions" : item.Flags)" asp-route-latest-seqn="@item.Seqn">
-                                                    View Manifest
-                                                </a>
-                                            }
-                                        </td>
-                                    </tr>
+                                <tr>
+                                    <td>
+                                        <i class="fa fa-@(config.Config.Encrypted ? "lock" : "lock-open")"></i>
+                                    </td>
+                                    <td>@config.GetName()</td>
+                                    <td>
+                                        <time>
+                                            @Model.GameVersions.FirstOrDefault(x => x.Code == item.Product && x.Type == item.Flags)?.Updated.ToString("ddd, dd MMM yyyy hh:mm:ss ") GMT
+                                        </time>
+                                    </td>
+                                    <td>@item.Product</td>
+                                    <td>@(string.IsNullOrEmpty(item.Flags) ? "versions" : item.Flags)</td>
+                                    <td>@item.Seqn</td>
+                                    <td class="text-center">
+                                        @if (item.Flags == "cdn")
+                                        {
+                                            @("N/A");
+                                        }
+                                        else
+                                        {
+                                            <a asp-page="/ViewGame" asp-route-code="@item.Product" asp-route-file="@(string.IsNullOrEmpty(item.Flags) ? "versions" : item.Flags)" asp-route-latest-seqn="@item.Seqn">
+                                                View Manifest
+                                            </a>
+                                        }
+                                    </td>
+                                </tr>
                                 }
                             </tbody>
                         </table>
@@ -125,6 +129,9 @@
                                         Name
                                     </th>
                                     <th>
+                                        Indexed
+                                    </th>
+                                    <th>
                                         Code
                                     </th>
                                     <th>
@@ -132,9 +139,6 @@
                                     </th>
                                     <th>
                                         Current Seqn
-                                    </th>
-                                    <th>
-                                        Previous Seqn
                                     </th>
                                     <th></th>
                                 </tr>
@@ -154,28 +158,32 @@
                                             Code = item.newest.Product
                                         };
                                     }
-                                    <tr>
-                                        <td>
-                                            <i class="fa fa-@(config.Config.Encrypted ? "lock" : "lock-open")"></i>
-                                        </td>
-                                        <td>@config.GetName()</td>
-                                        <td>@item.newest.Product</td>
-                                        <td>@(string.IsNullOrEmpty(item.newest.Flags) ? "versions" : item.newest.Flags)</td>
-                                        <td>@item.newest.Seqn</td>
-                                        <td>@(item.previous == null ? "N/A" : item.previous.Seqn.ToString())</td>
-                                        <td class="text-center">
-                                            @if (item.newest.Flags == "cdn")
-                                            {
-                                                @("N/A")
-                                            }
-                                            else
-                                            {
-                                                <a asp-page="/ViewGame" asp-route-code="@item.newest.Product" asp-route-file="@(string.IsNullOrEmpty(item.newest.Flags) ? "versions" : item.newest.Flags)" asp-route-previous-seqn="@item.previous?.Seqn" asp-route-latest-seqn="@item.newest.Seqn">
-                                                    View Manifest
-                                                </a>
-                                            }
-                                        </td>
-                                    </tr>
+                                <tr>
+                                    <td>
+                                        <i class="fa fa-@(config.Config.Encrypted ? "lock" : "lock-open")"></i>
+                                    </td>
+                                    <td>@config.GetName()</td>
+                                    <td>
+                                        <time>
+                                            @Model.GameVersions.FirstOrDefault(x => x.Code == item.newest.Product && x.Type == item.newest.Flags)?.Updated.ToString("ddd, dd MMM yyyy hh:mm:ss ") GMT
+                                        </time>
+                                    </td>
+                                    <td>@item.newest.Product</td>
+                                    <td>@(string.IsNullOrEmpty(item.newest.Flags) ? "versions" : item.newest.Flags)</td>
+                                    <td>@item.newest.Seqn</td>
+                                    <td class="text-center">
+                                        @if (item.newest.Flags == "cdn")
+                                        {
+                                            @("N/A")
+                                        }
+                                        else
+                                        {
+                                            <a asp-page="/ViewGame" asp-route-code="@item.newest.Product" asp-route-file="@(string.IsNullOrEmpty(item.newest.Flags) ? "versions" : item.newest.Flags)" asp-route-previous-seqn="@item.previous?.Seqn" asp-route-latest-seqn="@item.newest.Seqn">
+                                                View Manifest
+                                            </a>
+                                        }
+                                    </td>
+                                </tr>
                                 }
                             </tbody>
                         </table>

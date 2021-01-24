@@ -4,7 +4,7 @@ using System.Linq;
 using System.Reflection;
 
 namespace Core.Extensions
-{
+{ 
     public static class ObjectExtensions
     {
         public static T ToObject<T>(this IDictionary<string, object> source, BindingFlags bindingAttr = BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance) where T : class, new()
