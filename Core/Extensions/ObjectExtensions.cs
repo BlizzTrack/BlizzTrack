@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
@@ -6,15 +7,17 @@ namespace Core.Extensions
 {
     public static class ObjectExtensions
     {
-        public static T ToObject<T>(this IDictionary<string, object> source) where T : class, new()
+        public static T ToObject<T>(this IDictionary<string, object> source, BindingFlags bindingAttr = BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance) where T : class, new()
         {
-            var someObject = new T();
+            T someObject = new T();
+            Assert.IsTrue(someObject != null, $"{nameof(someObject)} was null");
+
             var someObjectType = someObject.GetType();
 
             foreach (var item in source)
             {
                 someObjectType
-                         .GetProperty(item.Key)
+                         .GetProperty(item.Key, bindingAttr)
                          .SetValue(someObject, item.Value, null);
             }
 

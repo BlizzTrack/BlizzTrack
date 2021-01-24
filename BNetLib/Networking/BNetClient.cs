@@ -62,12 +62,12 @@ namespace BNetLib.Networking
                     var boundary = text.FirstOrDefault(x => x.Trim().StartsWith("Content-Type:"))?.Split(';').FirstOrDefault(x => x.Trim().StartsWith("boundary="))?.Split('"')[1].Trim();
                     var data = text.SkipWhile(x => x.Trim() != "--" + boundary).Skip(1).TakeWhile(x => x.Trim() != "--" + boundary).Skip(1);
 
-                    var outData = BNetTools.Parse<T>(data);
+                    var (Value, Seqn) = BNetTools.Parse<T>(data);
 
                     return new ClientResult<T>()
                     {
-                        Payload = outData.Value,
-                        Seqn = outData.Seqn,
+                        Payload = Value,
+                        Seqn = Seqn,
                         Raw = result
                     };
                 }

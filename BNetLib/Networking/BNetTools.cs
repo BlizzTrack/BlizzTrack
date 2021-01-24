@@ -24,8 +24,6 @@ namespace BNetLib.Networking
     {
         public static (IList<T> Value, int Seqn) Parse<T>(IEnumerable<string> lines) where T : NGPD, new()
         {
-            // var dataItems = new List<Dictionary<string, dynamic>>();
-
             var dataItems = new List<T>();
 
             var keys = new List<KeyType>();
