@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 
 namespace BlizzTrack.API
 {
+    [ApiExplorerSettings(IgnoreApi = true)]
     [Route("api/[controller]")]
     [ApiController]
     public class UIController : ControllerBase

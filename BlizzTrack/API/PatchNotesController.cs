@@ -10,6 +10,8 @@ namespace BlizzTrack.API
 {
     [Route("api/patch-notes")]
     [ApiController]
+    [ApiExplorerSettings(GroupName = "Game Patch Notes")]
+    [Produces("application/json")]
     public class PatchNotesController : ControllerBase
     {
         private readonly Core.Services.IGameParents gameParents;
@@ -21,6 +23,12 @@ namespace BlizzTrack.API
             this.patchnotes = patchnotes;
         }
 
+
+        /// <summary>
+        ///     List all games with supported patch notes
+        /// </summary>
+        /// <returns>List all games with supported patch notes</returns>
+        /// <response code="200">Returns list of all games with relations to there patch notes</response>
         [HttpGet]
         public async Task<IActionResult> List()
         {
@@ -58,7 +66,15 @@ namespace BlizzTrack.API
             return Ok(returnResults);
         }
 
+        /// <summary>
+        ///     Latest patch note for game and game_type
+        /// </summary>
+        /// <returns>Latest patch note for game and game_type</returns>
+        /// <response code="200">Returns latest patch notes for given game_type</response>
+        /// <param name="game">The game slug (EX: overwatch)</param>
+        /// <param name="game_type">The game type (EX: ptr)</param>
         [HttpGet("{game}/{game_type?}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> View(string game, string game_type = default)
         {
             var scheme = Request.Scheme;

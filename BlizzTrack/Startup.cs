@@ -1,3 +1,4 @@
+using BlizzTrack.Constraint;
 using Core.Models;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OAuth;
@@ -6,6 +7,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Razor;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,8 +15,12 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.FeatureManagement;
 using Microsoft.Net.Http.Headers;
 using Minio.AspNetCore;
+using Newtonsoft.Json.Converters;
 using StackExchange.Redis.Extensions.Core.Configuration;
 using StackExchange.Redis.Extensions.Newtonsoft;
+using System;
+using System.IO;
+using System.Reflection;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
@@ -33,6 +39,16 @@ namespace BlizzTrack
         {
             services.AddResponseCompression();
 
+            services.AddSwaggerGen(options =>
+            {
+                options.DocInclusionPredicate((_, api) => !string.IsNullOrWhiteSpace(api.GroupName));
+                options.TagActionsBy(api => new[] { api.GroupName });
+
+                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+                options.IncludeXmlComments(xmlPath);
+            }).AddSwaggerGenNewtonsoftSupport();
+
             services.AddFeatureManagement(Configuration.GetSection("Features"));
 
             services.Configure<RazorViewEngineOptions>(o =>
@@ -42,8 +58,17 @@ namespace BlizzTrack
                 o.PageViewLocationFormats.Add("/Pages/Partials/{0}" + RazorViewEngine.ViewExtension);
             });
 
+            services.Configure<RouteOptions>(options =>
+            {
+                options.ConstraintMap.Add("enum", typeof(EnumConstraint));
+            });
+
             services.AddControllers().AddNewtonsoftJson(options => options.SerializerSettings.Formatting = Newtonsoft.Json.Formatting.Indented).AddXmlSerializerFormatters();
-            services.AddControllersWithViews().AddNewtonsoftJson(options => options.SerializerSettings.Formatting = Newtonsoft.Json.Formatting.Indented);
+            services.AddControllersWithViews().AddNewtonsoftJson(options =>
+            {
+                options.SerializerSettings.Formatting = Newtonsoft.Json.Formatting.Indented;
+                options.SerializerSettings.Converters.Add(new StringEnumConverter());
+            });
             services.AddRazorPages().AddNewtonsoftJson(options => options.SerializerSettings.Formatting = Newtonsoft.Json.Formatting.Indented);
             services.Configure<MvcNewtonsoftJsonOptions>(x => x.SerializerSettings.NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore);
 
@@ -181,6 +206,15 @@ namespace BlizzTrack
                         "public,max-age=" + durationInSeconds;
                 }
             });
+
+            app.UseSwagger();
+
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "BlizzTrack API V1");
+                c.RoutePrefix = "api";
+            });
+
 
             app.UseStatusCodePagesWithReExecute("/errors/{0}");
             app.UseRouting();

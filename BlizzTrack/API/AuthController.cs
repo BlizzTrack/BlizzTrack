@@ -17,6 +17,7 @@ using System.Threading.Tasks;
 
 namespace BlizzTrack.API
 {
+    [ApiExplorerSettings(IgnoreApi = true)]
     [Route("Auth")]
     [ApiController]
     [FeatureGate(nameof(FeatureFlags.UserAuth))]

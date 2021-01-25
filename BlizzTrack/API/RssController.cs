@@ -12,8 +12,10 @@ using System.Xml;
 
 namespace BlizzTrack.API
 {
+    [ApiExplorerSettings(GroupName = "RSS Feeds")]
     [Route("rss")]
     [ApiController]
+    [Produces("application/rss+xml")]
     public class RssController : ControllerBase
     {
         private readonly Core.Services.IGameParents _gameParents;
@@ -25,6 +27,13 @@ namespace BlizzTrack.API
             _gameParents = gameParents;
         }
 
+        /// <summary>
+        ///     Get RSS feed for given game
+        /// </summary>
+        /// <returns>Returns the RSS feed for the given game</returns>
+        /// <response code="200">Returns valid RSS feed</response>
+        /// <param name="slug">The game slug (EX: overwatch)</param>
+        /// <param name="type">The game type (EX: ptr)</param>
         [ResponseCache(Duration = 60 * 5)]
         [HttpGet("{slug}/{type}")]
         public async Task<IActionResult> Get(string slug, string type)

@@ -47,7 +47,7 @@ namespace Core.Services
 
         public async Task<Manifest<BNetLib.Models.Summary[]>> Single(int? seqn)
         {
-            return await _dbContext.Summary.AsNoTracking().OrderByDescending(x => x.Seqn).Where(x => (seqn == null || x.Seqn == seqn)).FirstOrDefaultAsync();
+            return await _dbContext.Summary.AsNoTracking().OrderByDescending(x => x.Seqn).Where(x => seqn == null || x.Seqn == seqn).FirstOrDefaultAsync();
         }
 
         public async Task<List<Manifest<BNetLib.Models.Summary[]>>> Take(int amount)
