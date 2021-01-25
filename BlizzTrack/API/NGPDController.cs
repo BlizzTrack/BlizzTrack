@@ -1,16 +1,11 @@
-﻿using BlizzTrack.Constraint;
-using BNetLib.Networking.Commands;
-using Core.Models;
+﻿using BNetLib.Networking.Commands;
 using Core.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
@@ -221,7 +216,7 @@ namespace BlizzTrack.API
                                     {
                                         data.Seqn,
                                         data.Indexed,
-                                        view = Url.Action("Get", "ngpd", new { code, file = "versions", seqn = data.Seqn }, scheme),
+                                        view = Url.Action("Get", "ngpd", new { code, file_type = "versions", seqn = data.Seqn }, scheme),
                                     }).ToList();
 
                                     data = new
@@ -246,7 +241,7 @@ namespace BlizzTrack.API
                                     {
                                         data.Seqn,
                                         data.Indexed,
-                                        view = Url.Action("Get", "ngpd", new { code, file = "cdn", seqn = data.Seqn }, scheme),
+                                        view = Url.Action("Get", "ngpd", new { code, file_type = "cdn", seqn = data.Seqn }, scheme),
                                     }).ToList();
 
                                     data = new
@@ -271,7 +266,7 @@ namespace BlizzTrack.API
                                     {
                                         data.Seqn,
                                         data.Indexed,
-                                        view = Url.Action("Get", "ngpd", new { code, file = "bdgl", seqn = data.Seqn }, scheme),
+                                        view = Url.Action("Get", "ngpd", new { code, file_type = "bdgl", seqn = data.Seqn }, scheme),
                                     }).ToList();
 
                                     data = new
@@ -291,9 +286,9 @@ namespace BlizzTrack.API
                                     error = "Unknown filter",
                                     accepted = new
                                     {
-                                        versions = Url.Action("Get", "ngpd", new { code, file = "seqn", filter = "versions" }, scheme),
-                                        cdns = Url.Action("Get", "ngpd", new { code, file = "seqn", filter = "cdns" }, scheme),
-                                        bgdl = Url.Action("Get", "ngpd", new { code, file = "seqn", filter = "bgdl" }, scheme),
+                                        versions = Url.Action("Get", "ngpd", new { code, file_type = "seqn", filter = "versions" }, scheme),
+                                        cdns = Url.Action("Get", "ngpd", new { code, file_type = "seqn", filter = "cdn" }, scheme),
+                                        bgdl = Url.Action("Get", "ngpd", new { code, file_type = "seqn", filter = "bgdl" }, scheme),
                                     }
                                 });
                         }
@@ -305,12 +300,12 @@ namespace BlizzTrack.API
                     result = new
                     {
                         versions = Url.Action("Get", "ngpd", new { code, file_type = "version" }, scheme),
-                        cdns = Url.Action("Get", "ngpd", new { code, file_type = "cdns" }, scheme),
+                        cdns = Url.Action("Get", "ngpd", new { code, file_type = "cdn" }, scheme),
                         bgdl = Url.Action("Get", "ngpd", new { code, file_type = "bgdl" }, scheme),
                         seqn = new
                         {
                             versions = Url.Action("Get", "ngpd", new { code, file_type = "seqn", filter = "versions" }, scheme),
-                            cdns = Url.Action("Get", "ngpd", new { code, file_type = "seqn", filter = "cdns" }, scheme),
+                            cdns = Url.Action("Get", "ngpd", new { code, file_type = "seqn", filter = "cdn" }, scheme),
                             bgdl = Url.Action("Get", "ngpd", new { code, file_type = "seqn", filter = "bgdl" }, scheme),
                         },
                         supported = Url.Action("Get", "ngpd", new { code, file_type = "help" }, scheme),

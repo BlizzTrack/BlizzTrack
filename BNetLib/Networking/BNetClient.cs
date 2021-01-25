@@ -42,45 +42,52 @@ namespace BNetLib.Networking
 
         private async Task<ClientResult<T>> Do<T>(string command) where T : NGPD, new()
         {
-            using var client = new TcpClient();
-            await client.ConnectAsync(_serverUrl, 1119);
-
-            await using var ms = client.GetStream();
-
-            var payload = Encoding.UTF8.GetBytes($"{command}\r\n");
-            await ms.WriteAsync(payload.AsMemory(0, payload.Length));
-
-            if (ms.CanRead)
+            try
             {
-                using var reader = new StreamReader(ms, Encoding.UTF8);
-                try
+                using var client = new TcpClient();
+                await client.ConnectAsync(_serverUrl, 1119);
+
+                await using var ms = client.GetStream();
+
+                var payload = Encoding.UTF8.GetBytes($"{command}\r\n");
+                await ms.WriteAsync(payload.AsMemory(0, payload.Length));
+
+                if (ms.CanRead)
                 {
-                    var result = await reader.ReadToEndAsync();
-
-                    /// From TactLib -> https://github.com/overtools/TACTLib/blob/7d2ecbc98b83a315ea599fd519403fa0d8b24dce/TACTLib/Protocol/Ribbit/RibbitClient.cs
-                    var text = result.Split("\n");
-                    var boundary = text.FirstOrDefault(x => x.Trim().StartsWith("Content-Type:"))?.Split(';').FirstOrDefault(x => x.Trim().StartsWith("boundary="))?.Split('"')[1].Trim();
-                    var data = text.SkipWhile(x => x.Trim() != "--" + boundary).Skip(1).TakeWhile(x => x.Trim() != "--" + boundary).Skip(1);
-
-                    var (Value, Seqn) = BNetTools.Parse<T>(data);
-
-                    return new ClientResult<T>()
+                    using var reader = new StreamReader(ms, Encoding.UTF8);
+                    try
                     {
-                        Payload = Value,
-                        Seqn = Seqn,
-                        Raw = result
-                    };
-                }
-                finally
-                {
-                    client.Close();
-                    ms.Close();
-                }
-            }
+                        var result = await reader.ReadToEndAsync();
 
-            client.Close();
-            ms.Close();
-            return default;
+                        /// From TactLib -> https://github.com/overtools/TACTLib/blob/7d2ecbc98b83a315ea599fd519403fa0d8b24dce/TACTLib/Protocol/Ribbit/RibbitClient.cs
+                        var text = result.Split("\n");
+                        var boundary = text.FirstOrDefault(x => x.Trim().StartsWith("Content-Type:"))?.Split(';').FirstOrDefault(x => x.Trim().StartsWith("boundary="))?.Split('"')[1].Trim();
+                        var data = text.SkipWhile(x => x.Trim() != "--" + boundary).Skip(1).TakeWhile(x => x.Trim() != "--" + boundary).Skip(1);
+
+                        var (Value, Seqn) = BNetTools.Parse<T>(data);
+
+                        return new ClientResult<T>()
+                        {
+                            Payload = Value,
+                            Seqn = Seqn,
+                            Raw = result
+                        };
+                    }
+                    finally
+                    {
+                        client.Close();
+                        ms.Close();
+                    }
+                }
+
+                client.Close();
+                ms.Close();
+                return default;
+            }catch(Exception ex)
+            {
+                Console.Error.WriteLine($"Failed to call: {command} -> {ex}");
+                return default;
+            }
         }
 
         public async Task<string> Call(string command)
