@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
@@ -256,6 +257,27 @@ namespace BlizzTrack
                 Name = "User"
             };
             ctx.CreateAsync(user).Wait();
+        }
+
+        private void ConfigureApplicationParts(ApplicationPartManager apm)
+        {
+            var rootPath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+
+            var assemblyFiles = Directory.GetFiles(rootPath, "*.dll");
+            foreach (var assemblyFile in assemblyFiles)
+            {
+                try
+                {
+                    var assembly = Assembly.LoadFile(assemblyFile);
+                    if (assemblyFile.EndsWith(GetType().Namespace + ".Views.dll") || assemblyFile.EndsWith(GetType().Namespace + ".dll"))
+                        continue;
+                    else if (assemblyFile.EndsWith(".Views.dll"))
+                        apm.ApplicationParts.Add(new CompiledRazorAssemblyPart(assembly));
+                    else
+                        apm.ApplicationParts.Add(new AssemblyPart(assembly));
+                }
+                catch (Exception e) { }
+            }
         }
     }
 }

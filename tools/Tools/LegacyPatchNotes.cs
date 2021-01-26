@@ -3,6 +3,7 @@ using Core.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using ShellProgressBar;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -12,7 +13,7 @@ using Tooling.Attributes;
 
 namespace Tooling.Tools
 {
-    [Tool(Name = "Legacy Patch Notes", Disabled = true)]
+    [Tool(Name = "Legacy Patch Notes", Disabled = false)]
     public class LegacyPatchNotes : ITool
     {
         private readonly IGameParents gameParents;
@@ -37,33 +38,49 @@ namespace Tooling.Tools
 
             foreach (var parent in games)
             {
-                using (logger.BeginScope(parent.Name))
+                List<PatchNote> data = parent.PatchNoteTool switch
                 {
+                    "overwatch" => await OverwatchPatchNotes(parent),
+                    "legacy" => await OldPatchNotes(parent),
+                    _ => null
+                };
 
-                    List<PatchNote> data = parent.PatchNoteTool switch
-                    {
-                        "overwatch" => await OverwatchPatchNotes(parent),
-                        "legacy" => await OldPatchNotes(parent),
-                        _ => null
-                    };
-
-                    if (parent.PatchNoteTool == "overwatch")
-                    {
-                        dataItems.AddRange(await OldPatchNotes(parent));
-                    }
-
-                    dataItems.AddRange(data);
-
-                    logger.LogInformation($"{parent.Name} has size: {data.Count}");
+                if (parent.PatchNoteTool == "overwatch")
+                {
+                    dataItems.AddRange(await OldPatchNotes(parent));
                 }
+
+                dataItems.AddRange(data);
+
+                // logger.LogInformation($"{parent.Name} has size: {data.Count}");
             }
 
-            logger.LogInformation($"Total size has size: {dataItems.Count}");
+            // logger.LogInformation($"Total size has size: {dataItems.Count}");
 
             var hasChanges = false;
+            Console.Clear();
+
+            using var pbar = new ProgressBar(dataItems.Count(), "bar", new ProgressBarOptions
+            {
+                ForegroundColor = ConsoleColor.Yellow,
+                ForegroundColorDone = ConsoleColor.DarkGreen,
+                BackgroundColor = ConsoleColor.DarkGray,
+                BackgroundCharacter = '\u2593'
+            });
+
+            var childOptions = new ProgressBarOptions
+            {
+                ForegroundColor = ConsoleColor.Green,
+                BackgroundColor = ConsoleColor.DarkGreen,
+                CollapseWhenFinished = true,
+                BackgroundCharacter = '\u2593'
+            };
+
             foreach (var item in dataItems)
             {
-                logger.LogInformation($"Processing: {item.Code} {item.Type} {item.Created}");
+                pbar.Message = $"Processing: {item.Code} {item.Type}";
+
+                // logger.LogInformation($"Processing: {item.Code} {item.Type} {item.Created}");
 
                 var exist = await dbContext.PatchNotes.FirstOrDefaultAsync(x => x.Code == item.Code && x.Type == item.Type && x.Created == item.Created);
                 if (exist != null)
@@ -82,6 +99,8 @@ namespace Tooling.Tools
                     dbContext.Add(item);
                     hasChanges = true;
                 }
+
+                pbar.Tick();
             }
 
             if (hasChanges)
@@ -91,7 +110,7 @@ namespace Tooling.Tools
 
             TimeSpan ts = stopWatch.Elapsed;
             string elapsedTime = $"{ts.Hours:00}:{ts.Minutes:00}:{ts.Seconds:00}.{ts.Milliseconds / 10:00}";
-            logger.LogInformation($"Patch Notes took {elapsedTime}");
+            // logger.LogInformation($"Patch Notes took {elapsedTime}");
         }
 
         private static async Task<List<PatchNote>> OverwatchPatchNotes(Core.Models.GameParents parent)

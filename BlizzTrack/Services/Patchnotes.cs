@@ -1,5 +1,4 @@
 ﻿using BlizzTrack.Models;
-using BNetLib.Models.Patchnotes;
 using Core.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -73,11 +72,11 @@ namespace BlizzTrack.Services
             return items;
         }
 
-        private static Overwatch.Metadata ReadMetaData(System.Text.Json.JsonElement jsonElement)
+        private static BNetLib.Models.Patchnotes.Overwatch.Metadata ReadMetaData(System.Text.Json.JsonElement jsonElement)
         {
             if (jsonElement.ValueKind == System.Text.Json.JsonValueKind.Null) return null;
 
-            return new Overwatch.Metadata()
+            return new BNetLib.Models.Patchnotes.Overwatch.Metadata()
             {
                 IconGuid = jsonElement.GetProperty("icon_guid").GetString(),
                 AssetGuid = jsonElement.GetProperty("asset_guid").GetString()
@@ -124,9 +123,9 @@ namespace BlizzTrack.Services
                 {
                     if (genericUpdate.ValueKind != System.Text.Json.JsonValueKind.Null)
                     {
-                        if (note.GenericUpdates == null) note.GenericUpdates = new List<Overwatch.GenericUpdate>();
+                        if (note.GenericUpdates == null) note.GenericUpdates = new List<BNetLib.Models.Patchnotes.Overwatch.GenericUpdate>();
 
-                        var update = new Overwatch.GenericUpdate
+                        var update = new BNetLib.Models.Patchnotes.Overwatch.GenericUpdate
                         {
                             Title = genericUpdate.GetProperty("title").GetString(),
                             Description = genericUpdate.GetProperty("description").GetString(),
@@ -134,11 +133,11 @@ namespace BlizzTrack.Services
                         };
 
                         var updateItems = genericUpdate.GetProperty("updates").EnumerateArray();
-                        update.Updates = new List<Overwatch.Update>(updateItems.Count());
+                        update.Updates = new List<BNetLib.Models.Patchnotes.Overwatch.Update>(updateItems.Count());
 
                         foreach (var updateItem in updateItems.Select(x => x.GetProperty("update")))
                         {
-                            var u = new Overwatch.UpdateChanges
+                            var u = new BNetLib.Models.Patchnotes.Overwatch.UpdateChanges
                             {
                                 Title = updateItem.GetProperty("title").GetString(),
                                 Description = updateItem.GetProperty("description").GetString(),
@@ -146,7 +145,7 @@ namespace BlizzTrack.Services
                                 DisplayType = updateItem.GetProperty("display_type").GetString()
                             };
 
-                            update.Updates.Add(new Overwatch.Update() { UpdateChanges = u });
+                            update.Updates.Add(new BNetLib.Models.Patchnotes.Overwatch.Update() { UpdateChanges = u });
                         }
 
                         note.GenericUpdates.Add(update);
@@ -157,9 +156,9 @@ namespace BlizzTrack.Services
                 {
                     if (heroUpdate.ValueKind != System.Text.Json.JsonValueKind.Null)
                     {
-                        if (note.HeroUpdates == null) note.HeroUpdates = new List<Overwatch.HeroUpdate>();
+                        if (note.HeroUpdates == null) note.HeroUpdates = new List<BNetLib.Models.Patchnotes.Overwatch.HeroUpdate>();
 
-                        var update = new Overwatch.HeroUpdate
+                        var update = new BNetLib.Models.Patchnotes.Overwatch.HeroUpdate
                         {
                             Title = heroUpdate.GetProperty("title").GetString(),
                             Description = heroUpdate.GetProperty("description").GetString(),
@@ -167,11 +166,11 @@ namespace BlizzTrack.Services
                         };
 
                         var updateItems = heroUpdate.GetProperty("heroes").EnumerateArray();
-                        update.Heroes = new List<Overwatch.Hero>(updateItems.Count());
+                        update.Heroes = new List<BNetLib.Models.Patchnotes.Overwatch.Hero>(updateItems.Count());
 
                         foreach (var updateItem in updateItems.Select(x => x.GetProperty("hero")))
                         {
-                            var u = new Overwatch.HeroChanges
+                            var u = new BNetLib.Models.Patchnotes.Overwatch.HeroChanges
                             {
                                 HeroName = updateItem.GetProperty("hero_name").GetString(),
                                 ChangeDescription = updateItem.GetProperty("change_description").GetString(),
@@ -180,11 +179,11 @@ namespace BlizzTrack.Services
                             };
 
                             var abilities = updateItem.GetProperty("abilities").EnumerateArray();
-                            u.Abilities = new List<Overwatch.Ability>(abilities.Count());
+                            u.Abilities = new List<BNetLib.Models.Patchnotes.Overwatch.Ability>(abilities.Count());
 
                             foreach (var ability in abilities.Select(x => x.GetProperty("ability")))
                             {
-                                var a = new Overwatch.AbilityChanges
+                                var a = new BNetLib.Models.Patchnotes.Overwatch.AbilityChanges
                                 {
                                     AbilityName = ability.GetProperty("ability_name").GetString(),
                                     ChangeDescription = ability.GetProperty("change_description").GetString(),
@@ -192,10 +191,10 @@ namespace BlizzTrack.Services
                                     Metadata = ReadMetaData(ability.GetProperty("metadata"))
                                 };
 
-                                u.Abilities.Add(new Overwatch.Ability() { AbilityChanges = a });
+                                u.Abilities.Add(new BNetLib.Models.Patchnotes.Overwatch.Ability() { AbilityChanges = a });
                             }
 
-                            update.Heroes.Add(new Overwatch.Hero() { HeroChanges = u });
+                            update.Heroes.Add(new BNetLib.Models.Patchnotes.Overwatch.Hero() { HeroChanges = u });
                         }
 
                         note.HeroUpdates.Add(update);
