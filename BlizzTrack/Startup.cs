@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
@@ -21,7 +20,6 @@ using StackExchange.Redis.Extensions.Core.Configuration;
 using StackExchange.Redis.Extensions.Newtonsoft;
 using System;
 using System.IO;
-using System.Reflection;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
@@ -45,9 +43,13 @@ namespace BlizzTrack
                 options.DocInclusionPredicate((_, api) => !string.IsNullOrWhiteSpace(api.GroupName));
                 options.TagActionsBy(api => new[] { api.GroupName });
 
-                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
-                options.IncludeXmlComments(xmlPath);
+                var files = Directory.GetFiles(AppContext.BaseDirectory, "*.xml");
+                foreach (var file in files)
+                {
+                    // var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                    // var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+                    options.IncludeXmlComments(file);
+                }
             }).AddSwaggerGenNewtonsoftSupport();
 
             services.AddFeatureManagement(Configuration.GetSection("Features"));
@@ -210,12 +212,20 @@ namespace BlizzTrack
 
             app.UseSwagger();
 
+            /*
             app.UseSwaggerUI(c =>
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "BlizzTrack API V1");
                 c.RoutePrefix = "api";
             });
-
+            */
+            app.UseReDoc(c =>
+            {
+                c.SpecUrl("/swagger/v1/swagger.json");
+                c.RoutePrefix = "api";
+                c.DocumentTitle = "BlizzTrack API";
+                c.ConfigObject.ExpandResponses = "all";
+            });
 
             app.UseStatusCodePagesWithReExecute("/errors/{0}");
             app.UseRouting();
@@ -257,27 +267,6 @@ namespace BlizzTrack
                 Name = "User"
             };
             ctx.CreateAsync(user).Wait();
-        }
-
-        private void ConfigureApplicationParts(ApplicationPartManager apm)
-        {
-            var rootPath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
-
-            var assemblyFiles = Directory.GetFiles(rootPath, "*.dll");
-            foreach (var assemblyFile in assemblyFiles)
-            {
-                try
-                {
-                    var assembly = Assembly.LoadFile(assemblyFile);
-                    if (assemblyFile.EndsWith(GetType().Namespace + ".Views.dll") || assemblyFile.EndsWith(GetType().Namespace + ".dll"))
-                        continue;
-                    else if (assemblyFile.EndsWith(".Views.dll"))
-                        apm.ApplicationParts.Add(new CompiledRazorAssemblyPart(assembly));
-                    else
-                        apm.ApplicationParts.Add(new AssemblyPart(assembly));
-                }
-                catch (Exception e) { }
-            }
         }
     }
 }

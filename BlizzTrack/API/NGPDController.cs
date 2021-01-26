@@ -14,7 +14,6 @@ namespace BlizzTrack.API
 {
     [DataContract]
     [JsonConverter(typeof(StringEnumConverter))]
-    // [TypeConverter(typeof(CustomEnumConverter<FileType>))]
     public enum FileType
     {
         [EnumMember(Value = "help")]
@@ -35,7 +34,6 @@ namespace BlizzTrack.API
 
     [DataContract]
     [JsonConverter(typeof(StringEnumConverter))]
-    // [TypeConverter(typeof(CustomEnumConverter<Filter>))]
     public enum FileFilter
     {
         [EnumMember(Value = "versions")]
@@ -49,7 +47,6 @@ namespace BlizzTrack.API
     }
 
     [JsonConverter(typeof(StringEnumConverter))]
-    // [TypeConverter(typeof(CustomEnumConverter<Filter>))]
     public enum SummaryFilter
     {
         [EnumMember(Value = "seqn")]

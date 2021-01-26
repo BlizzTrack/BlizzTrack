@@ -33,7 +33,7 @@ kr|20745522b883e9616743d5092e479fae|fb5eb6011c94e9d32e5e7c4124e416f5||8408002|bo
             var res = BNetLib.Networking.BNetTools.Parse<BNetLib.Models.Versions>(data.Split("\n"));
 
             var first = res.Value.First();
-            Assert.IsTrue(first.Versionsname == "bo5_TU8_8512817_2_ship", $"Failed got {nameof(first.Versionsname)} got {first.Versionsname} wanted bo5_TU8_8512817_2_ship");
+            Assert.IsTrue(first.Versionsname == "bo5_TU8_8512817_2_ship", $"Failed {nameof(first.Versionsname)} got {first.Versionsname} wanted bo5_TU8_8512817_2_ship");
         }
     }
 }
