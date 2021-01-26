@@ -70,7 +70,10 @@
         </div>
     </div>
 </div>
-<div class="col-sm-12">
+
+@if (@Model.Last().Seqn != @Model.First().Seqn)
+{
+<div class="col-sm-12"> 
     <div class="card ">
         <div class="card-header">
             <div class="col-sm-12 text-left">
@@ -128,3 +131,4 @@
         </div>
     </div>
 </div>
+}

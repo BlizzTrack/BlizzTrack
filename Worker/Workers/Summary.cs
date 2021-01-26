@@ -197,7 +197,6 @@ namespace Worker.Workers
             _logger.LogInformation($"We didn't skip: {code}-{msg.Seqn}-{msg.Flags}");
 
             // Update the config for only games we detect changes for
-            await CheckifEncrypted(msg, db, _logger, cancellationToken);
 
             if (seqn == -1) return;
 
@@ -221,6 +220,12 @@ namespace Worker.Workers
                                 Hash = ver.Last().Productconfig,
                             });
                         }
+
+                        var config = ver.FirstOrDefault(x => x.Region == "us");
+                        if (msg.Product == "catalogs") config = ver.Last();
+                        if (msg.Product == "bts") config = ver.FirstOrDefault(x => x.Region == "launcher");
+
+                        await CheckifEncrypted(msg, config.Productconfig, db, _logger, cancellationToken);
 
                         var f = Manifest<BNetLib.Models.Versions[]>.Create(seqn, code, ver.ToArray());
                         f.Raw = raw;
@@ -298,27 +303,23 @@ namespace Worker.Workers
             return (data, seqn, raw);
         }
 
-        private async Task CheckifEncrypted(BNetLib.Models.Summary msg, DBContext dbContext, ILogger<Summary> _logger, CancellationToken cancellationToken)
+        private async Task CheckifEncrypted(BNetLib.Models.Summary msg, string productConfig, DBContext dbContext, ILogger<Summary> _logger, CancellationToken cancellationToken)
         {
             if (msg.Flags == "cdn" || msg.Flags == "bgdl") return;
-            var versionConfig = await dbContext.Versions.AsNoTracking().OrderByDescending(x => x.Seqn).FirstOrDefaultAsync(x => x.Code == msg.Product, cancellationToken: cancellationToken);
 
-            var config = versionConfig.Content.FirstOrDefault(x => x.Region == "us");
-            if (msg.Product == "catalogs") config = versionConfig.Content.Last();
-            if (msg.Product == "bts") config = versionConfig.Content.FirstOrDefault(x => x.Region == "launcher");
-            if (config == null) return;
+          
             var currentGameConfig = await dbContext.GameConfigs.FirstOrDefaultAsync(x => x.Code == msg.Product, cancellationToken: cancellationToken);
 
             string file = string.Empty;
 
-            if(string.IsNullOrWhiteSpace(config.Productconfig))
+            if(string.IsNullOrWhiteSpace(productConfig))
             {
                 return;
             }
 
             try
             {
-                file = await _productConfig.GetRaw(config.Productconfig);
+                file = await _productConfig.GetRaw(productConfig);
             }
             catch
             {

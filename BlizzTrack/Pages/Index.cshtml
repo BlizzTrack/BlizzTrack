@@ -388,6 +388,9 @@
                                         Name
                                     </th>
                                     <th>
+                                        Indexed
+                                    </th>
+                                    <th>
                                         Code
                                     </th>
                                     <th>
@@ -395,9 +398,6 @@
                                     </th>
                                     <th>
                                         Current Seqn
-                                    </th>
-                                    <th>
-                                        Previous Seqn
                                     </th>
                                     <th></th>
                                 </tr>
@@ -422,28 +422,32 @@
                                         };
                                     }
 
-                                    <tr>
-                                        <td>
-                                            <i class="fa fa-@(config.Config.Encrypted ? "lock" : "lock-open")"></i>
-                                        </td>
-                                        <td>@config.GetName()</td>
-                                        <td>@item.Product</td>
-                                        <td>@item.Flags</td>
-                                        <td>@item.Seqn</td>
-                                        <td>@(f == null ? "N/A" : f.Seqn.ToString())</td>
-                                        <td class="text-center">
-                                            @if (item.Flags == "cdn")
-                                            {
-                                                @("N/A")
-                                            }
-                                            else
-                                            {
-                                                <a asp-page="/ViewGame" asp-route-code="@item.Product" asp-route-file="@item.Flags" asp-route-latest-seqn="@item.Seqn">
-                                                    View Manifest
-                                                </a>
-                                            }
-                                        </td>
-                                    </tr>
+                                <tr>
+                                    <td>
+                                        <i class="fa fa-@(config.Config.Encrypted ? "lock" : "lock-open")"></i>
+                                    </td>
+                                    <td>@config.GetName()</td>
+                                    <td>
+                                        <time>
+                                            @Model.GameVersions.FirstOrDefault(x => x.Code == item.Product && x.Type == item.Flags)?.Updated.ToString("ddd, dd MMM yyyy hh:mm:ss ") GMT
+                                        </time>
+                                    </td>
+                                    <td>@item.Product</td>
+                                    <td>@item.Flags</td>
+                                    <td>@item.Seqn</td>
+                                    <td class="text-center">
+                                        @if (item.Flags == "cdn")
+                                        {
+                                            @("N/A")
+                                        }
+                                        else
+                                        {
+                                            <a asp-page="/ViewGame" asp-route-code="@item.Product" asp-route-file="@item.Flags" asp-route-latest-seqn="@item.Seqn">
+                                                View Manifest
+                                            </a>
+                                        }
+                                    </td>
+                                </tr>
 
                                 }
                             </tbody>
