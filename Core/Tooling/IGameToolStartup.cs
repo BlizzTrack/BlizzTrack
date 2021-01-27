@@ -5,7 +5,7 @@ namespace Core.Tooling
 {
     public interface IGameToolStartup
     {
-        public void ConfigureServices(IServiceCollection services);
+        public void ConfigureServices(ref IServiceCollection services);
         void MapEndpoints(IEndpointRouteBuilder endpoints);
     }
 }

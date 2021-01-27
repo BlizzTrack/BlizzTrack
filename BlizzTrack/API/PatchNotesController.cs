@@ -25,7 +25,6 @@ namespace BlizzTrack.API
             this.patchnotes = patchnotes;
         }
 
-
         /// <summary>
         ///     List all games with supported patch notes
         /// </summary>
@@ -49,7 +48,7 @@ namespace BlizzTrack.API
                     items[parent.PatchNoteAreas[i]] = Url.Action("view", "PatchNotes", new { game = parent.Slug, game_type = parent.PatchNoteAreas[i] }, HttpContext.Request.Scheme);
                 }
 
-                items["all"] = Url.Action("view", "PatchNotes", new { game = parent.Slug }, HttpContext.Request.Scheme);
+                items["all"] = Url.Action("List", "PatchNotes", new { game = parent.Slug }, HttpContext.Request.Scheme);
 
                 returnResults.Add(new PatchNoteResults.PatchNoteRef
                 {
@@ -104,7 +103,7 @@ namespace BlizzTrack.API
                     types[parent.PatchNoteAreas[i]] = Url.Action("view", "PatchNotes", new { game = parent.Slug, game_type = parent.PatchNoteAreas[i] }, HttpContext.Request.Scheme);
                 }
 
-                types["all"] = Url.Action("view", "PatchNotes", new { game = parent.Slug }, HttpContext.Request.Scheme);
+                types["all"] = Url.Action("List", "PatchNotes", new { game = parent.Slug }, HttpContext.Request.Scheme);
 
                 items[code] = new PatchNoteResults.PatchNoteBody
                 {
@@ -165,7 +164,7 @@ namespace BlizzTrack.API
                 types[parent.PatchNoteAreas[i]] = Url.Action("view", "PatchNotes", new { game = parent.Slug, game_type = parent.PatchNoteAreas[i] }, HttpContext.Request.Scheme);
             }
 
-            types["all"] = Url.Action("view", "PatchNotes", new { game = parent.Slug }, HttpContext.Request.Scheme);
+            types["all"] = Url.Action("List", "PatchNotes", new { game = parent.Slug }, HttpContext.Request.Scheme);
 
             var items = new PatchNoteResults.PatchNoteBody()
             {

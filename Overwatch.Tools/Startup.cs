@@ -6,7 +6,7 @@ namespace Overwatch.Tools
 {
     public class Startup : IGameToolStartup
     {
-        public void ConfigureServices(IServiceCollection services)
+        public void ConfigureServices(ref IServiceCollection services)
         {
             services.AddSingleton<Services.IOverwatchProfileService, Services.OverwatchProfileService>();
         }

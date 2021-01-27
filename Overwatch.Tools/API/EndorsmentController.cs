@@ -1,28 +1,22 @@
 ﻿using Core.Attributes;
+using Core.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
+using Overwatch.Tools.Models;
 using Overwatch.Tools.Services;
-using System.Runtime.Serialization;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Overwatch.Tools.API
 {
-    [DataContract]
-    [JsonConverter(typeof(StringEnumConverter))]
-    public enum Plateform
-    {
-        PC,
-        PSN,
-        XBL
-    }
-
     [GameToolRoute(typeof(EndorsmentController))]
     [ApiController]
     [ApiExplorerSettings(GroupName = "Overwatch Game Data")]
     [Produces("application/json")]
     public class EndorsmentController : ControllerBase
     {
-        private readonly Services.IOverwatchProfileService overwatchProfileService;
+        private readonly IOverwatchProfileService overwatchProfileService;
 
         public EndorsmentController(IOverwatchProfileService overwatchProfileService)
         {
@@ -36,12 +30,16 @@ namespace Overwatch.Tools.API
         /// <returns>Returns the given players endorsements levels</returns>
         /// <response code="200">Returns latest items for given seqn</response>
         /// <param name="player">User name of the person</param>
-        /// <param name="plateform">Selected game platform</param>
-        [HttpGet("[action]")]
-        [Produces(typeof(Models.Player))]
-        public IActionResult Endorsements(string player, Plateform plateform)
+        /// <param name="platform">Selected game platform</param>
+        [HttpGet("[action]/{platform}/{player}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Player<Endorsements>))]
+        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ReponseTypes.NotFound))]
+        public async Task<IActionResult> Endorsements(string player, Platform platform)
         {
-            return Ok("ok");
+            var data = await overwatchProfileService.GetEndorsments(player, platform);
+            if (data == null) return NotFound(new ReponseTypes.NotFound());
+
+            return Ok(data);
         }
     }
 }

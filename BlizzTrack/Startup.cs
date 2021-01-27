@@ -197,12 +197,19 @@ namespace BlizzTrack
             services.AddScoped<Core.Services.IGameParents, Core.Services.GameParents>();
 
             // Load external services
-            gameToolStartups.ForEach(x => x.ConfigureServices(services));
+            gameToolStartups.ForEach(x => x.ConfigureServices(ref services));
         }
 
         public List<Type> GetAllEntities()
         {
-            return AppDomain.CurrentDomain.GetAssemblies().SelectMany(x => x.GetTypes())
+            var a = new List<Assembly>();
+            var files = Directory.GetFiles(AppContext.BaseDirectory, "*.Tools.dll");
+            foreach (var file in files)
+            {
+                a.Add(Assembly.LoadFrom(file));
+            }
+
+            return a.SelectMany(x => x.GetTypes())
                  .Where(x => typeof(IGameToolStartup).IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract).ToList();
         }
 
