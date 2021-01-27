@@ -1,8 +1,11 @@
-﻿using BNetLib.Networking.Commands;
+﻿using BNetLib.Converters;
+using BNetLib.Networking.Commands;
+using Core.Models;
 using Core.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -34,6 +37,7 @@ namespace BlizzTrack.API
         /// <response code="200">Returns differences between two summaries</response>
         [HttpGet("summary/changes")]
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [Produces(typeof(SummaryResults.SummaryChanges))]
         public async Task<IActionResult> GetChanges()
         {
             var scheme = Request.Scheme;
@@ -47,7 +51,7 @@ namespace BlizzTrack.API
             var latest = Manifests.First();
             var previous = Manifests.Last();
 
-            var SummaryDiff = new List<object>();
+            var SummaryDiff = new List<SummaryResults.SummaryItem>();
             var configs = await _gameConfig.In(latest.Content.Select(x => x.Product).ToArray());
 
             foreach (var item in latest.Content)
@@ -55,15 +59,15 @@ namespace BlizzTrack.API
                 var x = previous.Content.FirstOrDefault(x => x.Product == item.Product && x.Flags == item.Flags);
                 if (x == null || x.Seqn != item.Seqn)
                 {
-                    SummaryDiff.Add(new
+                    SummaryDiff.Add(new SummaryResults.SummaryItem()
                     {
-                        name = x.GetName(),
-                        x.Product,
-                        x.Flags,
-                        x.Seqn,
-                        encrypted = configs.FirstOrDefault(f => f.Code == x.Product)?.Config.Encrypted,
-                        logos = configs.FirstOrDefault(f => f.Code == x.Product)?.Logos,
-                        relations = new
+                        Name = x.GetName(),
+                        Product = x.Product,
+                        Flags = x.Flags,
+                        Seqn = x.Seqn,
+                        Encrypted = configs.FirstOrDefault(f => f.Code == x.Product)?.Config.Encrypted,
+                        Logos = configs.FirstOrDefault(f => f.Code == x.Product)?.Logos,
+                        Relations = new
                         {
                             view = Url.Action("Get", "ngpd", new { code = x.Product, file_type = x.Flags, seqn = x.Seqn }, scheme),
                             seqn = Url.Action("Get", "ngpd", new { code = x.Product, file_type = "seqn", filter = x.Flags }, scheme),
@@ -72,45 +76,45 @@ namespace BlizzTrack.API
                 }
             }
 
-            return Ok(new
+            return Ok(new SummaryResults.SummaryChanges
             {
-                changes = SummaryDiff,
-                latest = new
-                {
-                    latest.Code,
-                    latest.Name,
-                    latest.Seqn,
-                    latest.Indexed,
-                    content = latest.Content.Select(x => new
+                Changes = SummaryDiff,
+                Latest = new SummaryResults.SummaryChange
+                { 
+                    Code = latest.Code,
+                    Name = latest.Name,
+                    Seqn = latest.Seqn,
+                    Indexed = latest.Indexed,
+                    Data = latest.Content.Select(x => new SummaryResults.SummaryItem
                     {
-                        name = x.GetName(),
-                        x.Product,
-                        x.Flags,
-                        x.Seqn,
-                        encrypted = configs.FirstOrDefault(f => f.Code == x.Product)?.Config.Encrypted,
-                        logos = configs.FirstOrDefault(f => f.Code == x.Product)?.Logos,
-                        relations = new
+                        Name = x.GetName(),
+                        Product = x.Product,
+                        Flags = x.Flags,
+                        Seqn = x.Seqn,
+                        Encrypted = configs.FirstOrDefault(f => f.Code == x.Product)?.Config.Encrypted,
+                        Logos = configs.FirstOrDefault(f => f.Code == x.Product)?.Logos,
+                        Relations = new
                         {
                             view = Url.Action("Get", "ngpd", new { code = x.Product, file_type = x.Flags, seqn = x.Seqn }, scheme),
                             seqn = Url.Action("Get", "ngpd", new { code = x.Product, file_type = "seqn", filter = x.Flags }, scheme),
                         }
                     }).ToList()
                 },
-                previous = new
+                Previous = new SummaryResults.SummaryChange
                 {
-                    previous.Code,
-                    previous.Name,
-                    previous.Seqn,
-                    previous.Indexed,
-                    content = previous.Content.Select(x => new
+                    Code = previous.Code,
+                    Name = previous.Name,
+                    Seqn = previous.Seqn,
+                    Indexed = previous.Indexed,
+                    Data = previous.Content.Select(x => new SummaryResults.SummaryItem
                     {
-                        name = x.GetName(),
-                        x.Product,
-                        x.Flags,
-                        x.Seqn,
-                        encrypted = configs.FirstOrDefault(f => f.Code == x.Product)?.Config.Encrypted,
-                        logos = configs.FirstOrDefault(f => f.Code == x.Product)?.Logos,
-                        relations = new
+                        Name = x.GetName(),
+                        Product = x.Product,
+                        Flags = x.Flags,
+                        Seqn = x.Seqn,
+                        Encrypted = configs.FirstOrDefault(f => f.Code == x.Product)?.Config.Encrypted,
+                        Logos = configs.FirstOrDefault(f => f.Code == x.Product)?.Logos,
+                        Relations = new
                         {
                             view = Url.Action("Get", "ngpd", new { code = x.Product, file_type = x.Flags, seqn = x.Seqn }, scheme),
                             seqn = Url.Action("Get", "ngpd", new { code = x.Product, file_type = "seqn", filter = x.Flags }, scheme),
@@ -119,76 +123,133 @@ namespace BlizzTrack.API
                 },
             });
         }
+
         /// <summary>
-        ///     Returns latest summary
+        ///     Returns list of seqn's in given summary
         /// </summary>
         /// <returns>Returns latest summary data</returns>
-        /// <response code="200">Returns latest summary data</response>
-        /// <param name="filter">Filter mode</param>
-        /// <param name="seqn">Selected Seqn</param>
-        /// <param name="game_filter">Game code filter (EX: pro)</param>
-        [HttpGet("{filter?}")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<IActionResult> Summary(SummaryFilter? filter = SummaryFilter.All, [FromQuery] int? seqn = null, [FromQuery] string game_filter = default)
+        /// <response code="200">Returns latest summary seqn list</response>
+        [HttpGet("seqn")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(SummaryResults.ResultBase<List<SummaryResults.SeqnItem>>))]
+        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ReponseTypes.NotFound))]
+        public async Task<IActionResult> SummarySeqn()
         {
-            object result = null;
+            var summary = await _summary.Seqn();
+            if (summary == null) return NotFound(new ReponseTypes.NotFound());
 
-            switch (filter)
+            var f = summary.Select(data => new SummaryResults.SeqnItem
             {
-                case SummaryFilter.Seqn:
-                    {
-                        var summary = await _summary.Seqn();
-                        if (summary == null) return NotFound(new { error = "Not found" });
+                Seqn = data.Seqn,
+                Indexed = data.Indexed,
+                View = Url.Action("Summary", "ngpd", new { file = SummaryFilter.All, seqn = data.Seqn }, HttpContext.Request.Scheme),
+            }).ToList();
 
-                        var f = summary.Select(data => new
-                        {
-                            data.Seqn,
-                            data.Indexed,
-                            view = Url.Action("Summary", "ngpd", new { file = SummaryFilter.All, seqn = data.Seqn }, HttpContext.Request.Scheme),
-                        }).ToList();
-
-                        result = new
-                        {
-                            name = "Summary",
-                            code = "Summary",
-                            latest = f.First(),
-                            data = f
-                        };
-                        break;
-                    }
-                case SummaryFilter.All:
-                default:
-                    {
-                        var data = await _summary.Single(seqn);
-                        if (data == null) return NotFound(new { error = "Not Found" });
-                        var configs = await _gameConfig.In(data.Content.Select(x => x.Product).ToArray());
-
-                        result = new
-                        {
-                            data.Seqn,
-                            command = new SummaryCommand().ToString(),
-                            name = "summary",
-                            code = "summary",
-                            data = data.Content.Select(x => new
-                            {
-                                name = x.GetName(),
-                                x.Product,
-                                x.Flags,
-                                x.Seqn,
-                                encrypted = configs.FirstOrDefault(f => f.Code == x.Product)?.Config.Encrypted,
-                                logos = configs.FirstOrDefault(f => f.Code == x.Product)?.Logos,
-                                relations = new
-                                {
-                                    view = Url.Action("Get", "ngpd", new { code = x.Product, file_type = x.Flags, seqn = x.Seqn }, HttpContext.Request.Scheme),
-                                    seqn = Url.Action("Get", "ngpd", new { code = x.Product, file_type = "seqn", filter = x.Flags }, HttpContext.Request.Scheme),
-                                }
-                            }).ToList().Where(x => game_filter == default || x.Product.Contains(game_filter?.ToString(), StringComparison.OrdinalIgnoreCase))
-                        };
-                        break;
-                    }
-            }
+            var result = new SummaryResults.ResultBase<List<SummaryResults.SeqnItem>>
+            {
+                Name = "Summary",
+                Code = "Summary",
+                Data = f
+            };
 
             return Ok(result);
+        }
+        /// <summary>
+        ///     Returns summary data for given seqn
+        /// </summary>
+        /// <returns>Returns summary data for given seqn (latest if empty)</returns>
+        /// <response code="200">Returns summary data</response>
+        /// <param name="seqn">Selected Seqn</param>
+        /// <param name="game_filter">Game code filter (EX: pro)</param>
+        [HttpGet("")]
+        [HttpGet("all")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(SummaryResults.ResultBase<List<SummaryResults.SummaryItem>>))]
+        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ReponseTypes.NotFound))]
+        public async Task<IActionResult> SummaryList([FromQuery] int? seqn, [FromQuery] string game_filter)
+        {
+            var data = await _summary.Single(seqn);
+            if (data == null) return NotFound(new ReponseTypes.NotFound());
+            var configs = await _gameConfig.In(data.Content.Select(x => x.Product).ToArray());
+
+            var result = new SummaryResults.ResultBase <List<SummaryResults.SummaryItem>>()
+            {
+                Seqn = data.Seqn,
+                Command = new SummaryCommand().ToString(),
+                Name = "summary",
+                Code = "summary",
+                Data = data.Content.Select(x => new SummaryResults.SummaryItem
+                {
+                    Name = x.GetName(),
+                    Product = x.Product,
+                    Flags = x.Flags,
+                    Seqn = x.Seqn,
+                    Encrypted = configs.FirstOrDefault(f => f.Code == x.Product)?.Config.Encrypted,
+                    Logos = configs.FirstOrDefault(f => f.Code == x.Product)?.Logos,
+                    Relations = new
+                    {
+                        view = Url.Action("Get", "ngpd", new { code = x.Product, file_type = x.Flags, seqn = x.Seqn }, HttpContext.Request.Scheme),
+                        seqn = Url.Action("Get", "ngpd", new { code = x.Product, file_type = "seqn", filter = x.Flags }, HttpContext.Request.Scheme),
+                    }
+                }).Where(x => game_filter == default || x.Product.Contains(game_filter?.ToString(), StringComparison.OrdinalIgnoreCase)).ToList()
+            };
+
+            return Ok(result);
+        }
+    }
+
+    public class SummaryResults
+    {
+        public class ResultBase<T>
+        {
+            public int? Seqn { get; set; } = null;
+
+            public string Command { get; set; } = null;
+
+            public string Name { get; set; }
+
+            public string Code { get; set; }
+
+            public T Data { get; set; }
+        }
+
+        public class SummaryChanges
+        {
+            public List<SummaryItem> Changes { get; set; }
+
+            public SummaryChange Latest { get; set; }
+
+            public SummaryChange Previous { get; set; }
+        }
+
+
+        public class SummaryChange : ResultBase<List<SummaryItem>>
+        {
+            public DateTime Indexed { get; set; }
+        }
+
+        public class SummaryItem
+        {
+            public string Product { get; set; }
+
+            public string Flags { get; set; }
+
+            public int Seqn { get; set; }
+
+            public bool? Encrypted { get; set; }
+
+            public List<Icons> Logos { get; set; }
+
+            public object Relations { get; set; }
+
+            public string Name { get; set; }
+        }
+
+        public class SeqnItem
+        {
+            public int Seqn { get; set; }
+
+            public DateTime Indexed { get; set; }
+
+            public string View { get; set; }
         }
     }
 }

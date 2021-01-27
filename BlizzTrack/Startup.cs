@@ -1,5 +1,6 @@
 using BlizzTrack.Constraint;
 using Core.Models;
+using Core.Tooling;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Builder;
@@ -19,7 +20,10 @@ using Newtonsoft.Json.Converters;
 using StackExchange.Redis.Extensions.Core.Configuration;
 using StackExchange.Redis.Extensions.Newtonsoft;
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Reflection;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
@@ -30,9 +34,19 @@ namespace BlizzTrack
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+
+            var results = GetAllEntities();
+
+            foreach (var result in results)
+            {
+                var ins = (IGameToolStartup)Activator.CreateInstance(result);
+                gameToolStartups.Add(ins);
+            }
         }
 
         public IConfiguration Configuration { get; }
+
+        private List<IGameToolStartup> gameToolStartups = new List<IGameToolStartup>();
 
         public void ConfigureServices(IServiceCollection services)
         {
@@ -181,6 +195,15 @@ namespace BlizzTrack
             services.AddScoped<Core.Services.IBGDL, Core.Services.BGDL>();
             services.AddScoped<Core.Services.IGameConfig, Core.Services.GameConfig>();
             services.AddScoped<Core.Services.IGameParents, Core.Services.GameParents>();
+
+            // Load external services
+            gameToolStartups.ForEach(x => x.ConfigureServices(services));
+        }
+
+        public List<Type> GetAllEntities()
+        {
+            return AppDomain.CurrentDomain.GetAssemblies().SelectMany(x => x.GetTypes())
+                 .Where(x => typeof(IGameToolStartup).IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract).ToList();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -212,13 +235,6 @@ namespace BlizzTrack
 
             app.UseSwagger();
 
-            /*
-            app.UseSwaggerUI(c =>
-            {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "BlizzTrack API V1");
-                c.RoutePrefix = "api";
-            });
-            */
             app.UseReDoc(c =>
             {
                 c.SpecUrl("/swagger/v1/swagger.json");
@@ -238,6 +254,8 @@ namespace BlizzTrack
             {
                 endpoints.MapControllers();
                 endpoints.MapRazorPages();
+
+                gameToolStartups.ForEach(x => x.MapEndpoints(endpoints));
             });
         }
 

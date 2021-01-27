@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using Overwatch.Tools.Services;
 using System.Runtime.Serialization;
 
 namespace Overwatch.Tools.API
@@ -21,6 +22,14 @@ namespace Overwatch.Tools.API
     [Produces("application/json")]
     public class EndorsmentController : ControllerBase
     {
+        private readonly Services.IOverwatchProfileService overwatchProfileService;
+
+        public EndorsmentController(IOverwatchProfileService overwatchProfileService)
+        {
+            this.overwatchProfileService = overwatchProfileService;
+        }
+
+
         /// <summary>
         ///     Get players endormesment levels
         /// </summary>
@@ -29,6 +38,7 @@ namespace Overwatch.Tools.API
         /// <param name="player">User name of the person</param>
         /// <param name="plateform">Selected game platform</param>
         [HttpGet("[action]")]
+        [Produces(typeof(Models.Player))]
         public IActionResult Endorsements(string player, Plateform plateform)
         {
             return Ok("ok");
