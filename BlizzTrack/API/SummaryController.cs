@@ -200,12 +200,24 @@ namespace BlizzTrack.API
     {
         public class ResultBase<T>
         {
+            /// <summary>
+            ///     File Seqn
+            /// </summary>
             public int? Seqn { get; set; } = null;
 
+            /// <summary>
+            ///     NGPD Command Sent
+            /// </summary>
             public string Command { get; set; } = null;
 
+            /// <summary>
+            ///     Game Name
+            /// </summary>
             public string Name { get; set; }
 
+            /// <summary>
+            ///     Game Code
+            /// </summary>
             public string Code { get; set; }
 
             public T Data { get; set; }
@@ -228,27 +240,57 @@ namespace BlizzTrack.API
 
         public class SummaryItem
         {
+            /// <summary>
+            ///     Game Code
+            /// </summary>
             public string Product { get; set; }
 
+            /// <summary>
+            ///     File Type
+            /// </summary>
             public string Flags { get; set; }
 
+            /// <summary>
+            ///     File Seqn
+            /// </summary>
             public int Seqn { get; set; }
 
+            /// <summary>
+            ///     If this game is encrypted
+            /// </summary>
             public bool? Encrypted { get; set; }
 
+            /// <summary>
+            ///     Game logos/assets
+            /// </summary>
             public List<Icons> Logos { get; set; }
 
+            /// <summary>
+            ///     Relations to other pages
+            /// </summary>
             public object Relations { get; set; }
 
+            /// <summary>
+            ///     Game Name
+            /// </summary>
             public string Name { get; set; }
         }
 
         public class SeqnItem
         {
+            /// <summary>
+            ///     Summary Seqn
+            /// </summary>
             public int Seqn { get; set; }
 
+            /// <summary>
+            ///     Date indexed
+            /// </summary>
             public DateTime Indexed { get; set; }
 
+            /// <summary>
+            ///     Link to view seqn
+            /// </summary>
             public string View { get; set; }
         }
     }

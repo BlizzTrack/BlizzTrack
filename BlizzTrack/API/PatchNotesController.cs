@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Threading.Tasks;
 
 namespace BlizzTrack.API
@@ -213,6 +214,7 @@ namespace BlizzTrack.API
             public T Results { get; set; } = default;
         }
 
+        [DataContract]
         public class PatchNoteRef
         {
             /// <summary>
@@ -236,9 +238,11 @@ namespace BlizzTrack.API
             ///     Other types of patch notes for this game (EX: retail, ptr, beta)
             /// </summary>
             [Required]
+            [DataMember]
             public IDictionary<string, string> Types { get; set; }
         }
 
+        [DataContract]
         public class PatchNoteBody
         {
             /// <summary>
@@ -262,6 +266,7 @@ namespace BlizzTrack.API
             ///     Other types of patch notes for this game (EX: retail, ptr, beta)
             /// </summary>
             [Required]
+            [DataMember]
             public IDictionary<string, string> Types { get; set; }
 
             /// <summary>

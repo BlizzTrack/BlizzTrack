@@ -247,7 +247,9 @@ namespace BlizzTrack
                 c.SpecUrl("/swagger/v1/swagger.json");
                 c.RoutePrefix = "api";
                 c.DocumentTitle = "BlizzTrack API";
-                c.ConfigObject.ExpandResponses = "all";
+                c.RequiredPropsFirst();
+                c.NativeScrollbars();
+                c.ExpandResponses("all");
             });
 
             app.UseStatusCodePagesWithReExecute("/errors/{0}");
