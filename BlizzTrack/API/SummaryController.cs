@@ -216,25 +216,40 @@ namespace BlizzTrack.API
             public string Name { get; set; }
 
             /// <summary>
-            ///     Game Code
+            ///     Game Code   
             /// </summary>
             public string Code { get; set; }
 
+            /// <summary>
+            ///     Request Payload
+            /// </summary>
             public T Data { get; set; }
         }
 
         public class SummaryChanges
         {
+            /// <summary>
+            ///     Difference between latest and previous
+            /// </summary>
             public List<SummaryItem> Changes { get; set; }
 
+            /// <summary>
+            ///     Current Seqn
+            /// </summary>
             public SummaryChange Latest { get; set; }
 
+            /// <summary>
+            ///     Previous Seqn
+            /// </summary>
             public SummaryChange Previous { get; set; }
         }
 
 
         public class SummaryChange : ResultBase<List<SummaryItem>>
         {
+            /// <summary>
+            ///     Date indexed
+            /// </summary>
             public DateTime Indexed { get; set; }
         }
 
