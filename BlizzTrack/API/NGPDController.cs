@@ -61,7 +61,7 @@ namespace BlizzTrack.API
 
     [Route("api/ngpd")]
     [ApiController]
-    // [ApiExplorerSettings(GroupName = "Game Versions")]
+    [ApiExplorerSettings(GroupName = "Game Versions (Deprecated)")]
     [Produces("application/json")]
     [Obsolete]
     public class NGPDController : ControllerBase
