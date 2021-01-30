@@ -112,6 +112,9 @@ namespace BlizzTrack
             {
                 options.Cookie.Name = "BT.Auth";
                 options.Cookie.IsEssential = true;
+                options.ExpireTimeSpan = TimeSpan.FromDays(7);
+                options.SlidingExpiration = true;
+
                 options.LoginPath = "/Auth/Login";
                 options.LogoutPath = "/Auth/Logout";
                 options.AccessDeniedPath = "/"; // We don't really care

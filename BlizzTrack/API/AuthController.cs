@@ -115,7 +115,10 @@ namespace BlizzTrack.API
 
             var f = new ClaimsPrincipal(identity);
 
-            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, f);
+            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, f, new AuthenticationProperties
+            {
+                IsPersistent = true
+            });
 
             return Redirect("/");
         }
