@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 
 namespace BlizzTrack.API
 {
+    [Obsolete]
     [DataContract]
     [JsonConverter(typeof(StringEnumConverter))]
     public enum FileType
@@ -32,6 +33,7 @@ namespace BlizzTrack.API
         Seqn,
     }
 
+    [Obsolete]
     [DataContract]
     [JsonConverter(typeof(StringEnumConverter))]
     public enum FileFilter
@@ -46,6 +48,7 @@ namespace BlizzTrack.API
         CDN
     }
 
+    [Obsolete]
     [JsonConverter(typeof(StringEnumConverter))]
     public enum SummaryFilter
     {
@@ -58,8 +61,9 @@ namespace BlizzTrack.API
 
     [Route("api/ngpd")]
     [ApiController]
-    [ApiExplorerSettings(GroupName = "Game Versions")]
+    // [ApiExplorerSettings(GroupName = "Game Versions")]
     [Produces("application/json")]
+    [Obsolete]
     public class NGPDController : ControllerBase
     {
         private readonly IVersions _versions;

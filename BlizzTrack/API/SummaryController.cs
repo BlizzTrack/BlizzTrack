@@ -1,4 +1,5 @@
-﻿using BNetLib.Converters;
+﻿using BlizzTrack.Models;
+using BNetLib.Converters;
 using BNetLib.Networking.Commands;
 using Core.Models;
 using Core.Services;
@@ -130,21 +131,21 @@ namespace BlizzTrack.API
         /// <returns>Returns latest summary data</returns>
         /// <response code="200">Returns latest summary seqn list</response>
         [HttpGet("seqn")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(SummaryResults.ResultBase<List<SummaryResults.SeqnItem>>))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(SummaryResults.ResultBase<List<SharedResults.SeqnItem>>))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ReponseTypes.NotFound))]
         public async Task<IActionResult> SummarySeqn()
         {
             var summary = await _summary.Seqn();
             if (summary == null) return NotFound(new ReponseTypes.NotFound());
 
-            var f = summary.Select(data => new SummaryResults.SeqnItem
+            var f = summary.Select(data => new SharedResults.SeqnItem
             {
                 Seqn = data.Seqn,
                 Indexed = data.Indexed,
                 View = Url.Action("Summary", "ngpd", new { file = SummaryFilter.All, seqn = data.Seqn }, HttpContext.Request.Scheme),
             }).ToList();
 
-            var result = new SummaryResults.ResultBase<List<SummaryResults.SeqnItem>>
+            var result = new SummaryResults.ResultBase<List<SharedResults.SeqnItem>>
             {
                 Name = "Summary",
                 Code = "Summary",
@@ -289,24 +290,6 @@ namespace BlizzTrack.API
             ///     Game Name
             /// </summary>
             public string Name { get; set; }
-        }
-
-        public class SeqnItem
-        {
-            /// <summary>
-            ///     Summary Seqn
-            /// </summary>
-            public int Seqn { get; set; }
-
-            /// <summary>
-            ///     Date indexed
-            /// </summary>
-            public DateTime Indexed { get; set; }
-
-            /// <summary>
-            ///     Link to view seqn
-            /// </summary>
-            public string View { get; set; }
         }
     }
 }

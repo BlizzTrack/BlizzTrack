@@ -34,7 +34,7 @@ namespace Tooling.Tools
 
         public async Task Start()
         {
-            await Catalogs();
+            // await Catalogs();
             await ProductConfig();
         }
 
