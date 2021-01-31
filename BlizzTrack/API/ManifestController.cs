@@ -55,9 +55,12 @@ namespace BlizzTrack.API
 
             var res = gameTypes.GroupBy(x => x.Product).Select(x => x.First()).Select(x => new Results.Help()
             {
-                Versions = Url.Action("Versions", "Manifest", new { code = x.Product }, HttpContext.Request.Scheme),
-                CDNs = Url.Action("CDNs", "Manifest", new { code = x.Product }, HttpContext.Request.Scheme),
-                BGDL = Url.Action("BGDL", "Manifest", new { code = x.Product }, HttpContext.Request.Scheme),
+                Name = x.GetName(),
+                Code = x.Product,
+                File = x.Flags,
+                Versions = Url.Action("Versions", "Manifest", new { code = x.Product }, Scheme()),
+                CDNs = Url.Action("CDNs", "Manifest", new { code = x.Product }, Scheme()),
+                BGDL = Url.Action("BGDL", "Manifest", new { code = x.Product }, Scheme()),
                 Seqn = new Dictionary<Results.SeqnType, string>()
                 {
                     { 
@@ -65,21 +68,21 @@ namespace BlizzTrack.API
                         Url.Action("Seqn", "Manifest", new {
                             code = x.Product, 
                             filter = Results.SeqnType.Versions
-                        }, HttpContext.Request.Scheme)  
+                        }, Scheme())  
                     },
                     {
                         Results.SeqnType.CDNs,
                         Url.Action("Seqn", "Manifest", new {
                             code = x.Product, 
                             filter = Results.SeqnType.CDNs
-                        }, HttpContext.Request.Scheme)
+                        }, Scheme())
                     },
                     {
                         Results.SeqnType.BGDL,
                         Url.Action("Seqn", "Manifest", new {
                             code = x.Product, 
                             filter = Results.SeqnType.BGDL
-                        }, HttpContext.Request.Scheme)
+                        }, Scheme())
                     }
                 }
             }).ToList();
@@ -124,7 +127,7 @@ namespace BlizzTrack.API
                             {
                                 code = x.Code,
                                 seqn = x.Seqn
-                            }, HttpContext.Request.Scheme)
+                            }, Scheme())
                         }).ToList();
                     }
                     break;
@@ -139,7 +142,7 @@ namespace BlizzTrack.API
                             {
                                 code = x.Code,
                                 seqn = x.Seqn
-                            }, HttpContext.Request.Scheme)
+                            }, Scheme())
                         }).ToList();
                     }
                     break;
@@ -154,7 +157,7 @@ namespace BlizzTrack.API
                             {
                                 code = x.Code,
                                 seqn = x.Seqn
-                            }, HttpContext.Request.Scheme)
+                            }, Scheme())
                         }).ToList();
                     }
                     break;
@@ -210,7 +213,7 @@ namespace BlizzTrack.API
             {
                 relations[SharedResults.RelationTypes.PatchNotes] = Url.Action("List", "PatchNotes",
                     new { game = parent.Slug },
-                    HttpContext.Request.Scheme
+                    Scheme()
                 );
             }
 
@@ -269,7 +272,7 @@ namespace BlizzTrack.API
             {
                 relations[SharedResults.RelationTypes.PatchNotes] = Url.Action("List", "PatchNotes",
                     new { game = parent.Slug },
-                    HttpContext.Request.Scheme
+                    Scheme()
                 );
             }
 
@@ -326,7 +329,7 @@ namespace BlizzTrack.API
             {
                 relations[SharedResults.RelationTypes.PatchNotes] = Url.Action("List", "PatchNotes",
                     new { game = parent.Slug },
-                    HttpContext.Request.Scheme
+                    Scheme()
                 );
             }
 
@@ -336,6 +339,14 @@ namespace BlizzTrack.API
             }
 
             return Ok(res);
+        }
+
+        private string Scheme()
+        {
+            if (HttpContext.Request.Host.Host.Contains("blizztrack", StringComparison.OrdinalIgnoreCase))
+                return "https";
+
+            return "http";
         }
 
         public class Results
@@ -401,6 +412,12 @@ namespace BlizzTrack.API
 
             public class Help
             {
+                public string Name { get; set; }
+
+                public string Code { get; set; }
+
+                public string File { get; set; }
+
                 public string Versions { get; set; }
 
                 [JsonProperty("cdns")]

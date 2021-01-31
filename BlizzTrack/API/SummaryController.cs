@@ -6,7 +6,6 @@ using Core.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -72,11 +71,11 @@ namespace BlizzTrack.API
                         {
                             {
                                 SharedResults.RelationTypes.View,
-                                Url.Action(x.Flags == "cdn" ? "cdns" : x.Flags, "Manifest", new { code = x.Product, seqn = x.Seqn }, HttpContext.Request.Scheme)
+                                Url.Action(x.Flags == "cdn" ? "cdns" : x.Flags, "Manifest", new { code = x.Product, seqn = x.Seqn }, Scheme())
                             },
                             {
                                 SharedResults.RelationTypes.Seqn,
-                                Url.Action("Seqn", "Manifest", new { code = x.Product, filter = x.Flags == "cdn" ? "cdns" : x.Flags }, HttpContext.Request.Scheme)
+                                Url.Action("Seqn", "Manifest", new { code = x.Product, filter = x.Flags == "cdn" ? "cdns" : x.Flags }, Scheme())
                             }
                         }
                     });
@@ -104,11 +103,11 @@ namespace BlizzTrack.API
                         {
                             {
                                 SharedResults.RelationTypes.View,
-                                Url.Action(x.Flags == "cdn" ? "cdns" : x.Flags, "Manifest", new { code = x.Product, seqn = x.Seqn }, HttpContext.Request.Scheme)
+                                Url.Action(x.Flags == "cdn" ? "cdns" : x.Flags, "Manifest", new { code = x.Product, seqn = x.Seqn }, Scheme())
                             },
                             {
                                 SharedResults.RelationTypes.Seqn,
-                                Url.Action("Seqn", "Manifest", new { code = x.Product, filter = x.Flags == "cdn" ? "cdns" : x.Flags }, HttpContext.Request.Scheme)
+                                Url.Action("Seqn", "Manifest", new { code = x.Product, filter = x.Flags == "cdn" ? "cdns" : x.Flags }, Scheme())
                             }
                         }
                     }).ToList()
@@ -131,11 +130,11 @@ namespace BlizzTrack.API
                         {
                             {
                                 SharedResults.RelationTypes.View,
-                                Url.Action(x.Flags == "cdn" ? "cdns" : x.Flags, "Manifest", new { code = x.Product, seqn = x.Seqn }, HttpContext.Request.Scheme)
+                                Url.Action(x.Flags == "cdn" ? "cdns" : x.Flags, "Manifest", new { code = x.Product, seqn = x.Seqn }, Scheme())
                             },
                             {
                                 SharedResults.RelationTypes.Seqn,
-                                Url.Action("Seqn", "Manifest", new { code = x.Product, filter = x.Flags == "cdn" ? "cdns" : x.Flags }, HttpContext.Request.Scheme)
+                                Url.Action("Seqn", "Manifest", new { code = x.Product, filter = x.Flags == "cdn" ? "cdns" : x.Flags }, Scheme())
                             }
                         }
                     }).ToList()
@@ -160,7 +159,7 @@ namespace BlizzTrack.API
             {
                 Seqn = data.Seqn,
                 Indexed = data.Indexed,
-                View = Url.Action("Summary", "ngpd", new { file = SummaryFilter.All, seqn = data.Seqn }, HttpContext.Request.Scheme),
+                View = Url.Action("Summary", "ngpd", new { file = SummaryFilter.All, seqn = data.Seqn }, Scheme()),
             }).ToList();
 
             var result = new SummaryResults.ResultBase<List<SharedResults.SeqnItem>>
@@ -207,17 +206,25 @@ namespace BlizzTrack.API
                     {
                         {
                             SharedResults.RelationTypes.View,
-                            Url.Action(x.Flags == "cdn" ? "cdns" : x.Flags, "Manifest", new { code = x.Product, seqn = x.Seqn }, HttpContext.Request.Scheme)
+                            Url.Action(x.Flags == "cdn" ? "cdns" : x.Flags, "Manifest", new { code = x.Product, seqn = x.Seqn }, Scheme())
                         },
                         {
                             SharedResults.RelationTypes.Seqn,
-                            Url.Action("Seqn", "Manifest", new { code = x.Product, filter = x.Flags == "cdn" ? "cdns" : x.Flags }, HttpContext.Request.Scheme)
+                            Url.Action("Seqn", "Manifest", new { code = x.Product, filter = x.Flags == "cdn" ? "cdns" : x.Flags }, Scheme())
                         }
                     }
                 }).Where(x => game_filter == default || x.Product.Contains(game_filter?.ToString(), StringComparison.OrdinalIgnoreCase)).ToList()
             };
 
             return Ok(result);
+        }
+
+        private string Scheme()
+        {
+            if (HttpContext.Request.Host.Host.Contains("blizztrack", StringComparison.OrdinalIgnoreCase))
+                return "https";
+
+            return "http";
         }
     }
 

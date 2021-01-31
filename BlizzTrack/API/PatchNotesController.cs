@@ -46,10 +46,10 @@ namespace BlizzTrack.API
 
                 for(var i = 0; i < parent.PatchNoteAreas.Count; i++)
                 {
-                    items[parent.PatchNoteAreas[i]] = Url.Action("view", "PatchNotes", new { game = parent.Slug, game_type = parent.PatchNoteAreas[i] }, HttpContext.Request.Scheme);
+                    items[parent.PatchNoteAreas[i]] = Url.Action("view", "PatchNotes", new { game = parent.Slug, game_type = parent.PatchNoteAreas[i] }, Scheme());
                 }
 
-                items["all"] = Url.Action("List", "PatchNotes", new { game = parent.Slug }, HttpContext.Request.Scheme);
+                items["all"] = Url.Action("List", "PatchNotes", new { game = parent.Slug }, Scheme());
 
                 returnResults.Add(new PatchNoteResults.PatchNoteRef
                 {
@@ -101,10 +101,10 @@ namespace BlizzTrack.API
 
                 for (var i = 0; i < parent.PatchNoteAreas.Count; i++)
                 {
-                    types[parent.PatchNoteAreas[i]] = Url.Action("view", "PatchNotes", new { game = parent.Slug, game_type = parent.PatchNoteAreas[i] }, HttpContext.Request.Scheme);
+                    types[parent.PatchNoteAreas[i]] = Url.Action("view", "PatchNotes", new { game = parent.Slug, game_type = parent.PatchNoteAreas[i] }, Scheme());
                 }
 
-                types["all"] = Url.Action("List", "PatchNotes", new { game = parent.Slug }, HttpContext.Request.Scheme);
+                types["all"] = Url.Action("List", "PatchNotes", new { game = parent.Slug }, Scheme());
 
                 items[code] = new PatchNoteResults.PatchNoteBody
                 {
@@ -162,10 +162,10 @@ namespace BlizzTrack.API
 
             for (var i = 0; i < parent.PatchNoteAreas.Count; i++)
             {
-                types[parent.PatchNoteAreas[i]] = Url.Action("view", "PatchNotes", new { game = parent.Slug, game_type = parent.PatchNoteAreas[i] }, HttpContext.Request.Scheme);
+                types[parent.PatchNoteAreas[i]] = Url.Action("view", "PatchNotes", new { game = parent.Slug, game_type = parent.PatchNoteAreas[i] }, Scheme());
             }
 
-            types["all"] = Url.Action("List", "PatchNotes", new { game = parent.Slug }, HttpContext.Request.Scheme);
+            types["all"] = Url.Action("List", "PatchNotes", new { game = parent.Slug }, Scheme());
 
             var items = new PatchNoteResults.PatchNoteBody()
             {
@@ -186,6 +186,14 @@ namespace BlizzTrack.API
                         { game_type.ToLower(), items }
                     },
             });
+        }
+
+        private string Scheme()
+        {
+            if (HttpContext.Request.Host.Host.Contains("blizztrack", StringComparison.OrdinalIgnoreCase))
+                return "https";
+
+            return "http";
         }
     }
 

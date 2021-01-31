@@ -52,14 +52,16 @@ namespace BlizzTrack.API
             var items = new List<SyndicationItem>();
             foreach (var item in notes)
             {
+                // TODO: See if Url.Action supports pages
                 var postUrl = $"https://blizztrack.com/patch-notes/{parent.Slug}/{type}?build_time={item.Created.Ticks}";
                 var title = $"Posted: {item.Created}";
                 var description = $"New patch notes discovered on {item.Created}";
-                var f = new SyndicationItem(title, description, new Uri(postUrl), postUrl, item.Created);
-
-                f.PublishDate = item.Created;
-                f.LastUpdatedTime = item.Updated;
-                f.Id = item.Created.Ticks.ToString();
+                var f = new SyndicationItem(title, description, new Uri(postUrl), postUrl, item.Created)
+                {
+                    PublishDate = item.Created,
+                    LastUpdatedTime = item.Updated,
+                    Id = item.Created.Ticks.ToString()
+                };
 
                 f.Categories.Add(new SyndicationCategory(type));
                 items.Add(f);

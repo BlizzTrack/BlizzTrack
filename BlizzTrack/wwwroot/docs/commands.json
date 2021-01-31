@@ -1,0 +1,66 @@
+{
+  "prefix": "bt!",
+
+  "commands": [
+    {
+      "command": "help",
+      "description": "List all commands.",
+      "usage": "{prefix}help [Command]",
+      "aliases": [
+        "h"
+      ]
+    },
+    {
+      "command": "search",
+      "description": "Search for games that have been indexed by BlizzTrack.",
+      "usage": "{prefix}search [Query]"
+    },
+    {
+      "command": "subscribe",
+      "description": "Subscribe to one or multiple games. Subscribing to a game will post a message whenever a new version is found.",
+      "usage": "{prefix}subscribe [Game]",
+      "aliases": [
+        "sub"
+      ],
+      "permissions": [
+        "Manage Webhooks"
+      ]
+    },
+    {
+      "command": "unsubscribe",
+      "description": "Unsubscribe from a game. Unsubscribing from a game will stop posting messages whenever a new version is found.",
+      "usage": "{prefix}unsubscribe [Game]",
+      "aliases": [
+        "unsub"
+      ],
+      "permissions": [
+        "Manage Webhooks"
+      ]
+    },
+    {
+      "command": "listsubscriptions",
+      "description": "List all games you're currently subscribed to.",
+      "usage": "{prefix}listsubscriptions",
+      "aliases": [
+        "listsubs",
+        "listsub",
+        "list"
+      ],
+      "permissions": [
+        "Manage Webhooks"
+      ]
+    },
+    {
+      "command": "clearsubscriptions",
+      "description": "Completely remove all subscriptions from this channel. You will no longer receive messages when new versions are available.",
+      "usage": "{prefix}clearsubscriptions",
+      "aliases": [
+        "clearsubs",
+        "clearsub"
+      ],
+      "permissions": [
+        "Manage Webhooks"
+      ]
+    }
+  ]
+}

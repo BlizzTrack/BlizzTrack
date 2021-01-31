@@ -1,0 +1,83 @@
+BlizzTrack Discord Bot
+(remove existing subtitle, how to use are discord bot)
+
+Want instant game update notifications and links to patch notes right in your Discord server? BlizzTrack maintains a *verified*, *lightweight*, and *ad-free* Discord bot that will send your server notifications, fully customizable. All notifications are disabled by default to avoid spam, and setting it up takes less than 5 minutes!
+
+-- put in pic of a notification getting sent
+
+h1 - Bot Setup
+
+h2 (or h3, whichever looks better) - Step 1: Invite 
+
+This part's easy, just click the invite button below, and select Discord server where you have the *Manage Server* permission. 
+
+--button goes here, make sure it targets new window. When I tested it just now, it opened in frame and I had to hit back a few times
+
+You'll be asked to grant some basic permissions for the bot to function, and then it should show up in your server list! Verified Discord bots automatically create their own role on your server, and you can customize access from there.
+
+
+h2 - Step 2: Subscribe to Games
+
+The BlizzTrack bot works by "subscribing" a channel to a game. Commands all start with this prefix: --formatted bt!
+
+In each channel you want to receive updates, use the **bt!subscribe** command to tell the bot which games you want to see. If you're not sure how the game title should be formatted, find it on the list of available games with **bt!search**. 
+
+**Tip:** Live and PTR versions are tracked separately! 
+
+For help using these commands and a list of others, check out the Command Syntax section below.
+
+-- subscribe image
+
+h2 - Step 3: ???? 
+
+h2 - Step 4: Profit!!!
+
+That's it, it's really that simple. We'll do all the work in the background to make sure that the second a new version goes live, you get notified. If for some strange reason you want to remove the BlizzTrack bot from your Discord server, just kick it and be done. It won't mind, it's a robot. 
+
+Check out the list of commands below, and let us know in our <Discord server link> if you need help!
+
+
+h1 - Command Syntax
+
+All commands are prefixed with: -- formatted bt!
+This unique prefix ensures no other bots accidentally listen to the same commands.
+The bot listens to all channels it can read, but does not respond to DMs.
+
+h2 - help
+
+-- code format the beginning example block, don't need the "Syntax" header
+bt!help
+bt!help <command>
+
+Shows an up-to-date list of all commands currently available on the bot.
+Alternately, shows detailed information about a specific command.
+
+-- demo image, keep it small if possible? may want to add something at the bottom of each image to break up each command entry better, could be done with css on the h2 I guess
+
+h2 - subscribe
+
+bt!subscribe <game name>
+
+Subscribes the current channel for game updates.
+The bot will post a message block in this channel each time BlizzTrack detects a new version.
+
+-- demo image
+
+h2 - unsubscribe
+
+bt!unsubscribe <game name>
+//bt!unsubscribe all
+
+Unsubscribes the current channel from game updates.
+The bot immediately stops posting notifications for the selected game in THIS CHANNEL only.
+//Alternately, use "bt!unsubscribe all" to kill all updates for the current channel
+
+-- demo image
+
+h2 - search
+
+bt!search <text>
+
+Searches the list of games for the text you entered.
+
+-- search PTR image, good idea to show this use case

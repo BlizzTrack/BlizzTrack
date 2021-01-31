@@ -22,20 +22,96 @@
     </div>
 
     <div class="col-12">
-        <div class="card ">
+        <div class="card">
             <div class="card-header">
                 <div class="col-sm-12 text-left">
-                    <h2 class="card-title">Discord bot Docs</h2>
-                    <h5 class="card-category">How to use are discord bot!</h5>
+                    <h2 class="card-title">Discord Bot Information</h2>
                 </div>
             </div>
             <div class="card-body">
-                <div class="mb-3">
+                <p>
+                    Want instant game update notifications and links to patch notes right in your Discord server? BlizzTrack maintains a <i>verified</i>, <i>lightweight</i>, and <i>ad-free</i> Discord bot that will send your server notifications, fully customizable.
+                    All notifications are disabled by default to avoid spam, and setting it up takes less than 5 minutes!
+                </p>
+                <p>
+                    <storng>Bot Prefix: </storng>: <code>@Model.Docs.prefix</code>
+                </p>
+            </div>
+        </div>
+
+        <div class="card" id="setup">
+            <div class="card-header">
+                <div class="card-header border-0 pt-0 pb-1 d-flex align-items-center">
+                    <div>
+                        <h2 class="card-title mb-0">How to setup <small style="font-size: x-small"><a href="#setup" aria-label="setup"><i class="fas fa-anchor"></i></a></small></h2>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <p>
+                    This part's easy, just click the invite button below, and select Discord server where you have the <i>Manage Server</i> permission.
+                </p>
+                <div class="my-3">
                     <a href="https://discord.com/api/oauth2/authorize?client_id=272526395337342977&permissions=536954880&scope=bot" class="btn btn-outline-light text-white"><i class="fa fa-robot mr-2"></i>Invite me to your server!</a>
                 </div>
-                <div class="markdown">
-                    @Html.Raw(BlizzTrack.Helpers.Markdown.Parse(Model.BotDoc))
+                <p>
+                    You'll be asked to grant some basic permissions for the bot to function, and then it should show up in your server list! Verified Discord bots automatically create their own role on your server, and you can customize access from there.
+                </p>
+            </div>
+        </div>
+
+        <div class="card" id="commands">
+            <div class="card-header">
+                <div class="card-header border-0 pt-0 pb-1 d-flex align-items-center">
+                    <div>
+                        <h2 class="card-title mb-0">Common Commands <small style="font-size: x-small"><a href="#commands" aria-label="setup"><i class="fas fa-anchor"></i></a></small></h2>
+                    </div>
                 </div>
+            </div>
+            <div class="card-body">
+                <table class="table tablesorter table-hover" id="">
+                    <thead class="text-primary">
+                        <tr>
+                            <th>
+                                Command
+                            </th>
+                            <th>
+                                Aliases
+                            </th>
+                            <th>
+                                Usage
+                            </th>
+                            <th>
+                                Description
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach(var command in Model.Docs.commands)
+                        {
+                        <tr>
+                            <td>
+                                @command.command
+                            </td>
+                            <td>
+                                @if (command.aliases?.Length > 0)
+                                {
+                                    @string.Join(", ", command.aliases)
+                                } else
+                                {
+                                    @("N/A")
+                                }
+                            </td>
+                            <td>
+                                @command.usage.Replace("{prefix}", Model.Docs.prefix)
+                            </td>
+                            <td>
+                                @command.description
+                            </td>
+                        </tr>
+                        }
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
