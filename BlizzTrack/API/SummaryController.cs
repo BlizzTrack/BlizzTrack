@@ -68,10 +68,16 @@ namespace BlizzTrack.API
                         Seqn = x.Seqn,
                         Encrypted = configs.FirstOrDefault(f => f.Code == x.Product)?.Config.Encrypted,
                         Logos = configs.FirstOrDefault(f => f.Code == x.Product)?.Logos,
-                        Relations = new
+                        Relations = new Dictionary<SharedResults.RelationTypes, string>()
                         {
-                            view = Url.Action("Get", "ngpd", new { code = x.Product, file_type = x.Flags, seqn = x.Seqn }, scheme),
-                            seqn = Url.Action("Get", "ngpd", new { code = x.Product, file_type = "seqn", filter = x.Flags }, scheme),
+                            {
+                                SharedResults.RelationTypes.View,
+                                Url.Action(x.Flags == "cdn" ? "cdns" : x.Flags, "Manifest", new { code = x.Product, seqn = x.Seqn }, HttpContext.Request.Scheme)
+                            },
+                            {
+                                SharedResults.RelationTypes.Seqn,
+                                Url.Action("Seqn", "Manifest", new { code = x.Product, filter = x.Flags == "cdn" ? "cdns" : x.Flags }, HttpContext.Request.Scheme)
+                            }
                         }
                     });
                 }
@@ -81,7 +87,7 @@ namespace BlizzTrack.API
             {
                 Changes = SummaryDiff,
                 Latest = new SummaryResults.SummaryChange
-                { 
+                {
                     Code = latest.Code,
                     Name = latest.Name,
                     Seqn = latest.Seqn,
@@ -94,10 +100,16 @@ namespace BlizzTrack.API
                         Seqn = x.Seqn,
                         Encrypted = configs.FirstOrDefault(f => f.Code == x.Product)?.Config.Encrypted,
                         Logos = configs.FirstOrDefault(f => f.Code == x.Product)?.Logos,
-                        Relations = new
+                        Relations = new Dictionary<SharedResults.RelationTypes, string>()
                         {
-                            view = Url.Action("Get", "ngpd", new { code = x.Product, file_type = x.Flags, seqn = x.Seqn }, scheme),
-                            seqn = Url.Action("Get", "ngpd", new { code = x.Product, file_type = "seqn", filter = x.Flags }, scheme),
+                            {
+                                SharedResults.RelationTypes.View,
+                                Url.Action(x.Flags == "cdn" ? "cdns" : x.Flags, "Manifest", new { code = x.Product, seqn = x.Seqn }, HttpContext.Request.Scheme)
+                            },
+                            {
+                                SharedResults.RelationTypes.Seqn,
+                                Url.Action("Seqn", "Manifest", new { code = x.Product, filter = x.Flags == "cdn" ? "cdns" : x.Flags }, HttpContext.Request.Scheme)
+                            }
                         }
                     }).ToList()
                 },
@@ -115,10 +127,16 @@ namespace BlizzTrack.API
                         Seqn = x.Seqn,
                         Encrypted = configs.FirstOrDefault(f => f.Code == x.Product)?.Config.Encrypted,
                         Logos = configs.FirstOrDefault(f => f.Code == x.Product)?.Logos,
-                        Relations = new
+                        Relations = new Dictionary<SharedResults.RelationTypes, string>()
                         {
-                            view = Url.Action("Get", "ngpd", new { code = x.Product, file_type = x.Flags, seqn = x.Seqn }, scheme),
-                            seqn = Url.Action("Get", "ngpd", new { code = x.Product, file_type = "seqn", filter = x.Flags }, scheme),
+                            {
+                                SharedResults.RelationTypes.View,
+                                Url.Action(x.Flags == "cdn" ? "cdns" : x.Flags, "Manifest", new { code = x.Product, seqn = x.Seqn }, HttpContext.Request.Scheme)
+                            },
+                            {
+                                SharedResults.RelationTypes.Seqn,
+                                Url.Action("Seqn", "Manifest", new { code = x.Product, filter = x.Flags == "cdn" ? "cdns" : x.Flags }, HttpContext.Request.Scheme)
+                            }
                         }
                     }).ToList()
                 },
@@ -185,10 +203,16 @@ namespace BlizzTrack.API
                     Seqn = x.Seqn,
                     Encrypted = configs.FirstOrDefault(f => f.Code == x.Product)?.Config.Encrypted,
                     Logos = configs.FirstOrDefault(f => f.Code == x.Product)?.Logos,
-                    Relations = new
+                    Relations = new Dictionary<SharedResults.RelationTypes, string>()
                     {
-                        view = Url.Action("Get", "ngpd", new { code = x.Product, file_type = x.Flags, seqn = x.Seqn }, HttpContext.Request.Scheme),
-                        seqn = Url.Action("Get", "ngpd", new { code = x.Product, file_type = "seqn", filter = x.Flags }, HttpContext.Request.Scheme),
+                        {
+                            SharedResults.RelationTypes.View,
+                            Url.Action(x.Flags == "cdn" ? "cdns" : x.Flags, "Manifest", new { code = x.Product, seqn = x.Seqn }, HttpContext.Request.Scheme)
+                        },
+                        {
+                            SharedResults.RelationTypes.Seqn,
+                            Url.Action("Seqn", "Manifest", new { code = x.Product, filter = x.Flags == "cdn" ? "cdns" : x.Flags }, HttpContext.Request.Scheme)
+                        }
                     }
                 }).Where(x => game_filter == default || x.Product.Contains(game_filter?.ToString(), StringComparison.OrdinalIgnoreCase)).ToList()
             };
@@ -284,7 +308,7 @@ namespace BlizzTrack.API
             /// <summary>
             ///     Relations to other pages
             /// </summary>
-            public object Relations { get; set; }
+            public Dictionary<SharedResults.RelationTypes, string> Relations { get; set; }
 
             /// <summary>
             ///     Game Name

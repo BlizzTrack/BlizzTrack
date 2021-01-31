@@ -205,10 +205,10 @@ namespace BlizzTrack.API
             res.File = "verisons";
             res.Indexed = versions.Indexed;
 
-            var relations = new Dictionary<Results.RelationTypes, string>();
+            var relations = new Dictionary<SharedResults.RelationTypes, string>();
             if (parent.PatchNoteAreas != null && parent.PatchNoteAreas.Count > 0)
             {
-                relations[Results.RelationTypes.PatchNotes] = Url.Action("List", "PatchNotes",
+                relations[SharedResults.RelationTypes.PatchNotes] = Url.Action("List", "PatchNotes",
                     new { game = parent.Slug },
                     HttpContext.Request.Scheme
                 );
@@ -264,10 +264,10 @@ namespace BlizzTrack.API
             res.File = "bgdl";
             res.Indexed = versions.Indexed;
 
-            var relations = new Dictionary<Results.RelationTypes, string>();
+            var relations = new Dictionary<SharedResults.RelationTypes, string>();
             if (parent.PatchNoteAreas != null && parent.PatchNoteAreas.Count > 0)
             {
-                relations[Results.RelationTypes.PatchNotes] = Url.Action("List", "PatchNotes",
+                relations[SharedResults.RelationTypes.PatchNotes] = Url.Action("List", "PatchNotes",
                     new { game = parent.Slug },
                     HttpContext.Request.Scheme
                 );
@@ -321,10 +321,10 @@ namespace BlizzTrack.API
             res.File = "cdn";
             res.Indexed = versions.Indexed;
 
-            var relations = new Dictionary<Results.RelationTypes, string>();
+            var relations = new Dictionary<SharedResults.RelationTypes, string>();
             if(parent.PatchNoteAreas != null && parent.PatchNoteAreas.Count > 0)
             {
-                relations[Results.RelationTypes.PatchNotes] = Url.Action("List", "PatchNotes",
+                relations[SharedResults.RelationTypes.PatchNotes] = Url.Action("List", "PatchNotes",
                     new { game = parent.Slug },
                     HttpContext.Request.Scheme
                 );
@@ -347,13 +347,6 @@ namespace BlizzTrack.API
                 Versions,
                 CDNs,
                 BGDL
-            }
-
-            [DataContract]
-            [JsonConverter(typeof(StringEnumConverter))]
-            public enum RelationTypes
-            {
-                PatchNotes
             }
 
             public class Result<T>
@@ -396,7 +389,7 @@ namespace BlizzTrack.API
                 /// <summary>
                 ///     Relations to other pages
                 /// </summary>
-                public Dictionary<RelationTypes, string> Relations { get; set; } = null;
+                public Dictionary<SharedResults.RelationTypes, string> Relations { get; set; } = null;
   
                 /// <summary>
                 ///     Game Name
