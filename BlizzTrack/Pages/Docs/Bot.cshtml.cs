@@ -26,7 +26,16 @@ namespace BlizzTrack.Pages.Docs
         }
     }
 
-    public record BotDocs(string prefix, List<BotCommand> commands);
+    public record BotDocs(
+        string prefix, 
+        List<BotCommand> commands
+    );
 
-    public record BotCommand(string command, string description, string usage, string[] aliases);
+    public record BotCommand(
+        string command, 
+        string description, 
+        string usage, 
+        string[] aliases,
+        string[] permissions
+    );
 }

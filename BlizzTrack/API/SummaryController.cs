@@ -159,7 +159,7 @@ namespace BlizzTrack.API
             {
                 Seqn = data.Seqn,
                 Indexed = data.Indexed,
-                View = Url.Action("Summary", "ngpd", new { file = SummaryFilter.All, seqn = data.Seqn }, Scheme()),
+                View = Url.Action("SummaryList", "Summary", new { seqn = data.Seqn }, Scheme()),
             }).ToList();
 
             var result = new SummaryResults.ResultBase<List<SharedResults.SeqnItem>>
@@ -188,7 +188,7 @@ namespace BlizzTrack.API
             if (data == null) return NotFound(new ReponseTypes.NotFound());
             var configs = await _gameConfig.In(data.Content.Select(x => x.Product).ToArray());
 
-            var result = new SummaryResults.ResultBase <List<SummaryResults.SummaryItem>>()
+            var result = new SummaryResults.ResultBase<List<SummaryResults.SummaryItem>>()
             {
                 Seqn = data.Seqn,
                 Command = new SummaryCommand().ToString(),
