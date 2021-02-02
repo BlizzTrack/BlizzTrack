@@ -2,10 +2,8 @@
 using Core.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 using Overwatch.Tools.Models;
 using Overwatch.Tools.Services;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Overwatch.Tools.API

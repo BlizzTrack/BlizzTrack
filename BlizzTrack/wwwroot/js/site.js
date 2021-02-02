@@ -52,7 +52,7 @@ $(document).ready(function () {
     scrollElement.scroll(function () {
         scroll_start = $(this).scrollTop();
 
-        if (scroll_start > 50) {
+        if (scroll_start > 10) {
             $(".navbar-minimize-fixed").css('opacity', '1');
         } else {
             $(".navbar-minimize-fixed").css('opacity', '0');
@@ -61,7 +61,7 @@ $(document).ready(function () {
 
     $(document).scroll(function () {
         scroll_start = $(this).scrollTop();
-        if (scroll_start > offset.top) {
+        if (scroll_start > 10) {
             $(".navbar-minimize-fixed").css('opacity', '1');
         } else {
             $(".navbar-minimize-fixed").css('opacity', '0');
