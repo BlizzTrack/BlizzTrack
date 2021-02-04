@@ -35,7 +35,7 @@ namespace BlizzTrack.API
         /// </summary>
         /// <returns>Changes between current and last summary</returns>
         /// <response code="200">Returns differences between two summaries</response>
-        [HttpGet("summary/changes")]
+        [HttpGet("changes")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [Produces(typeof(SummaryResults.SummaryChanges))]
         public async Task<IActionResult> GetChanges()
@@ -56,17 +56,19 @@ namespace BlizzTrack.API
 
             foreach (var item in latest.Content)
             {
+                var config = configs.FirstOrDefault(f => f.Code == item.Product);
+
                 var x = previous.Content.FirstOrDefault(x => x.Product == item.Product && x.Flags == item.Flags);
                 if (x == null || x.Seqn != item.Seqn)
                 {
                     SummaryDiff.Add(new SummaryResults.SummaryItem()
                     {
-                        Name = x.GetName(),
+                        Name = config?.Name ?? item.GetName(),
                         Product = x.Product,
                         Flags = x.Flags,
                         Seqn = x.Seqn,
-                        Encrypted = configs.FirstOrDefault(f => f.Code == x.Product)?.Config.Encrypted,
-                        Logos = configs.FirstOrDefault(f => f.Code == x.Product)?.Logos,
+                        Encrypted = config?.Config.Encrypted,
+                        Logos = config?.Logos,
                         Relations = new Dictionary<SharedResults.RelationTypes, string>()
                         {
                             {
@@ -91,15 +93,17 @@ namespace BlizzTrack.API
                     Name = latest.Name,
                     Seqn = latest.Seqn,
                     Indexed = latest.Indexed,
-                    Data = latest.Content.Select(x => new SummaryResults.SummaryItem
-                    {
-                        Name = x.GetName(),
-                        Product = x.Product,
-                        Flags = x.Flags,
-                        Seqn = x.Seqn,
-                        Encrypted = configs.FirstOrDefault(f => f.Code == x.Product)?.Config.Encrypted,
-                        Logos = configs.FirstOrDefault(f => f.Code == x.Product)?.Logos,
-                        Relations = new Dictionary<SharedResults.RelationTypes, string>()
+                    Data = latest.Content.Select(x => {
+                        var config = configs.FirstOrDefault(f => f.Code == x.Product);
+                        return new SummaryResults.SummaryItem
+                        {
+                            Name = config?.Name ?? x.GetName(),
+                            Product = x.Product,
+                            Flags = x.Flags,
+                            Seqn = x.Seqn,
+                            Encrypted = config?.Config.Encrypted,
+                            Logos = config?.Logos,
+                            Relations = new Dictionary<SharedResults.RelationTypes, string>()
                         {
                             {
                                 SharedResults.RelationTypes.View,
@@ -110,6 +114,7 @@ namespace BlizzTrack.API
                                 Url.Action("Seqn", "Manifest", new { code = x.Product, filter = x.Flags == "cdn" ? "cdns" : x.Flags }, Scheme())
                             }
                         }
+                        };
                     }).ToList()
                 },
                 Previous = new SummaryResults.SummaryChange
@@ -118,15 +123,17 @@ namespace BlizzTrack.API
                     Name = previous.Name,
                     Seqn = previous.Seqn,
                     Indexed = previous.Indexed,
-                    Data = previous.Content.Select(x => new SummaryResults.SummaryItem
-                    {
-                        Name = x.GetName(),
-                        Product = x.Product,
-                        Flags = x.Flags,
-                        Seqn = x.Seqn,
-                        Encrypted = configs.FirstOrDefault(f => f.Code == x.Product)?.Config.Encrypted,
-                        Logos = configs.FirstOrDefault(f => f.Code == x.Product)?.Logos,
-                        Relations = new Dictionary<SharedResults.RelationTypes, string>()
+                    Data = previous.Content.Select(x => {
+                        var config = configs.FirstOrDefault(f => f.Code == x.Product);
+                        return new SummaryResults.SummaryItem
+                        {
+                            Name = config?.Name ?? x.GetName(),
+                            Product = x.Product,
+                            Flags = x.Flags,
+                            Seqn = x.Seqn,
+                            Encrypted = config?.Config.Encrypted,
+                            Logos = config?.Logos,
+                            Relations = new Dictionary<SharedResults.RelationTypes, string>()
                         {
                             {
                                 SharedResults.RelationTypes.View,
@@ -137,6 +144,7 @@ namespace BlizzTrack.API
                                 Url.Action("Seqn", "Manifest", new { code = x.Product, filter = x.Flags == "cdn" ? "cdns" : x.Flags }, Scheme())
                             }
                         }
+                        };
                     }).ToList()
                 },
             });
@@ -194,25 +202,28 @@ namespace BlizzTrack.API
                 Command = new SummaryCommand().ToString(),
                 Name = "summary",
                 Code = "summary",
-                Data = data.Content.Select(x => new SummaryResults.SummaryItem
-                {
-                    Name = x.GetName(),
-                    Product = x.Product,
-                    Flags = x.Flags,
-                    Seqn = x.Seqn,
-                    Encrypted = configs.FirstOrDefault(f => f.Code == x.Product)?.Config.Encrypted,
-                    Logos = configs.FirstOrDefault(f => f.Code == x.Product)?.Logos,
-                    Relations = new Dictionary<SharedResults.RelationTypes, string>()
+                Data = data.Content.Select(x => {
+                    var config = configs.FirstOrDefault(f => f.Code == x.Product);
+                    return new SummaryResults.SummaryItem
                     {
+                        Name = config?.Name ?? x.GetName(),
+                        Product = x.Product,
+                        Flags = x.Flags,
+                        Seqn = x.Seqn,
+                        Encrypted = config?.Config.Encrypted,
+                        Logos = config?.Logos,
+                        Relations = new Dictionary<SharedResults.RelationTypes, string>()
                         {
-                            SharedResults.RelationTypes.View,
-                            Url.Action(x.Flags == "cdn" ? "cdns" : x.Flags, "Manifest", new { code = x.Product, seqn = x.Seqn }, Scheme())
-                        },
-                        {
-                            SharedResults.RelationTypes.Seqn,
-                            Url.Action("Seqn", "Manifest", new { code = x.Product, filter = x.Flags == "cdn" ? "cdns" : x.Flags }, Scheme())
+                            {
+                                SharedResults.RelationTypes.View,
+                                Url.Action(x.Flags == "cdn" ? "cdns" : x.Flags, "Manifest", new { code = x.Product, seqn = x.Seqn }, Scheme())
+                            },
+                            {
+                                SharedResults.RelationTypes.Seqn,
+                                Url.Action("Seqn", "Manifest", new { code = x.Product, filter = x.Flags == "cdn" ? "cdns" : x.Flags }, Scheme())
+                            }
                         }
-                    }
+                    };
                 }).Where(x => game_filter == default || x.Product.Contains(game_filter?.ToString(), StringComparison.OrdinalIgnoreCase)).ToList()
             };
 

@@ -100,7 +100,7 @@ namespace BlizzTrack.Pages.Admin.Parents
                 Visible = true
             };
 
-            ManifestIDs = await _dbContext.Catalogs.GroupBy(x => x.Name).Select(x => x.Key).ToListAsync();
+            ManifestIDs = await _dbContext.Catalogs.Where(x => x.Type == Core.Models.CatalogType.Fragment).GroupBy(x => x.Name).Select(x => x.Key).ToListAsync();
         }
 
         public async Task<IActionResult> OnPostNewAsync()
@@ -109,12 +109,14 @@ namespace BlizzTrack.Pages.Admin.Parents
 
             if (!ModelState.IsValid)
             {
+                ManifestIDs = await _dbContext.Catalogs.Where(x => x.Type == Core.Models.CatalogType.Fragment).GroupBy(x => x.Name).Select(x => x.Key).ToListAsync();
                 return Page();
             }
 
             var exist = await _gameParents.Get(GameInfoModel.GameCode);
             if (exist?.Code == GameInfoModel.GameCode.ToLower())
             {
+                ManifestIDs = await _dbContext.Catalogs.Where(x => x.Type == Core.Models.CatalogType.Fragment).GroupBy(x => x.Name).Select(x => x.Key).ToListAsync();
                 return Page();
             }
 
@@ -166,7 +168,7 @@ namespace BlizzTrack.Pages.Admin.Parents
 
             if (string.IsNullOrEmpty(GameInfoModel.GameSlug))
             {
-                parent.Slug = GameInfo.Name.Slugify();
+                parent.Slug = GameInfoModel.GameName.Slugify();
             }
             else
             {
@@ -181,7 +183,7 @@ namespace BlizzTrack.Pages.Admin.Parents
 
         public async Task OnGetEditAsync()
         {
-            GameInfo = await _gameParents.Get(ParentCode);
+            GameInfo = await _dbContext.GameParents.AsNoTracking().FirstOrDefaultAsync(x => x.Code == ParentCode); //_gameParents.Get(ParentCode);
             if (GameInfo == null)
             {
                 NotFound();
@@ -210,7 +212,7 @@ namespace BlizzTrack.Pages.Admin.Parents
 
         public async Task<IActionResult> OnPostEditAsync()
         {
-            GameInfo = await _gameParents.Get(ParentCode);
+            GameInfo = await _dbContext.GameParents.AsNoTracking().FirstOrDefaultAsync(x => x.Code == ParentCode); //_gameParents.Get(ParentCode);
             if (GameInfo == null)
             {
                 return NotFound();

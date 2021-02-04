@@ -92,7 +92,7 @@
                                         }
                                         else
                                         {
-                                            <a asp-page="/ViewGame" asp-route-code="@item.Product" asp-route-file="@(string.IsNullOrEmpty(item.Flags) ? "versions" : item.Flags)" asp-route-latest-seqn="@item.Seqn">
+                                            <a asp-page="/ViewGameManifest" asp-route-code="@item.Product" asp-route-file="@(string.IsNullOrEmpty(item.Flags) ? "versions" : item.Flags)" asp-route-latest-seqn="@item.Seqn">
                                                 View Manifest
                                             </a>
                                         }
@@ -178,7 +178,7 @@
                                         }
                                         else
                                         {
-                                            <a asp-page="/ViewGame" asp-route-code="@item.newest.Product" asp-route-file="@(string.IsNullOrEmpty(item.newest.Flags) ? "versions" : item.newest.Flags)" asp-route-previous-seqn="@item.previous?.Seqn" asp-route-latest-seqn="@item.newest.Seqn">
+                                            <a asp-page="/ViewGameManifest" asp-route-code="@item.newest.Product" asp-route-file="@(string.IsNullOrEmpty(item.newest.Flags) ? "versions" : item.newest.Flags)" asp-route-previous-seqn="@item.previous?.Seqn" asp-route-latest-seqn="@item.newest.Seqn">
                                                 View Manifest
                                             </a>
                                         }
@@ -352,7 +352,7 @@
                                                 }
                                                 else
                                                 {
-                                                    <a asp-page="/ViewGame" asp-route-code="@item.Product" asp-route-file="@(string.IsNullOrEmpty(item.Flags) ? "versions" : item.Flags)" asp-route-latest-seqn="@item.Seqn">
+                                                    <a asp-page="/ViewGameManifest" asp-route-code="@item.Product" asp-route-file="@(string.IsNullOrEmpty(item.Flags) ? "versions" : item.Flags)" asp-route-latest-seqn="@item.Seqn">
                                                         View Manifest
                                                     </a>
                                                 }
@@ -442,7 +442,7 @@
                                         }
                                         else
                                         {
-                                            <a asp-page="/ViewGame" asp-route-code="@item.Product" asp-route-file="@item.Flags" asp-route-latest-seqn="@item.Seqn">
+                                            <a asp-page="/ViewGameManifest" asp-route-code="@item.Product" asp-route-file="@item.Flags" asp-route-latest-seqn="@item.Seqn">
                                                 View Manifest
                                             </a>
                                         }
