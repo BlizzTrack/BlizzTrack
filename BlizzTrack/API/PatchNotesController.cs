@@ -116,13 +116,15 @@ namespace BlizzTrack.API
                 };
             }
 
-            return Ok(new PatchNoteResults.Result<Dictionary<string, PatchNoteResults.PatchNoteBody>>
+            var r = new PatchNoteResults.Result<Dictionary<string, PatchNoteResults.PatchNoteBody>>
             {
                 Name = parent.Name,
                 Code = parent.Code,
                 Logos = parent.Logos,
                 Results = items
-            });
+            };
+
+            return Ok(r);
         }
 
         /// <summary>
@@ -204,13 +206,13 @@ namespace BlizzTrack.API
             /// <summary>
             ///     Game Name
             /// </summary>
-            [Required]
+
             public string Name { get; set; }
 
             /// <summary>
             ///     Game Code/Slug
             /// </summary>
-            [Required]
+
             public string Code { get; set; }
 
             /// <summary>
@@ -218,23 +220,22 @@ namespace BlizzTrack.API
             /// </summary>
             public List<Icons> Logos { get; set; }
 
-            [Required]
-            public T Results { get; set; } = default;
+
+            public T Results { get; set; }
         }
 
-        [DataContract]
         public class PatchNoteRef
         {
             /// <summary>
             ///     Game Name
             /// </summary>
-            [Required]
+
             public string Name { get; set; }
 
             /// <summary>
             ///     Game Code/Slug
             /// </summary>
-            [Required]
+
             public string Code { get; set; }
 
             /// <summary>
@@ -245,18 +246,16 @@ namespace BlizzTrack.API
             /// <summary>
             ///     Other types of patch notes for this game (EX: retail, ptr, beta)
             /// </summary>
-            [Required]
-            [DataMember]
-            public IDictionary<string, string> Types { get; set; }
+
+            public Dictionary<string, string> Types { get; set; }
         }
 
-        [DataContract]
         public class PatchNoteBody
         {
             /// <summary>
             ///     Time published
             /// </summary>
-            [Required]
+
             public DateTime Created { get; set; }
 
             /// <summary>
@@ -267,20 +266,19 @@ namespace BlizzTrack.API
             /// <summary>
             ///     Name of the patch note type
             /// </summary>
-            [Required]
+
             public string Mode { get; set; }
 
             /// <summary>
             ///     Other types of patch notes for this game (EX: retail, ptr, beta)
             /// </summary>
-            [Required]
-            [DataMember]
-            public IDictionary<string, string> Types { get; set; }
+
+            public Dictionary<string, string> Types { get; set; }
 
             /// <summary>
             ///     Patch notes content
             /// </summary>
-            [Required]
+
             public PatchNoteBodyPayload Payload { get; set; }
         }
 

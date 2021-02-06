@@ -52,7 +52,16 @@
                                         @item.Cdnconfig
                                     </td>
                                     <td class="@(item.Productconfig != Model.Last().Content.FirstOrDefault(x => x.Region == item.Region)?.Productconfig ? "has-changed-data" : "")">
-                                        @(item.Productconfig == "versions" ? "N/A" : item.Productconfig)
+                                        @if (item.Productconfig == "versions" || string.IsNullOrEmpty(item.Productconfig))
+                                        {
+                                            @("N/A")
+                                        }
+                                        else
+                                        {
+                                            <a asp-page="/ViewGameConfigs" asp-route-hash="@item.Productconfig">
+                                                @item.Productconfig
+                                            </a>
+                                        }
                                     </td>
                                 </tr>
                             }
@@ -121,7 +130,16 @@
                                     @item.Cdnconfig
                                 </td>
                                 <td class="@(item.Productconfig != Model.First().Content.FirstOrDefault(x => x.Region == item.Region)?.Productconfig ? "has-changed-data" : "")">
-                                    @(item.Productconfig == "versions" ? "N/A" : item.Productconfig)
+                                    @if (item.Productconfig == "versions" || string.IsNullOrEmpty(item.Productconfig))
+                                    {
+                                        @("N/A")
+                                    }
+                                    else
+                                    {
+                                        <a asp-page="/ViewGameConfigs" asp-route-hash="@item.Productconfig">
+                                            @item.Productconfig
+                                        </a>
+                                    }
                                 </td>
                             </tr>
                         }

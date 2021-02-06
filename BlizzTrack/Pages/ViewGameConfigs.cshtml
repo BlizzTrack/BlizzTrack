@@ -1,0 +1,22 @@
+﻿@page "/v/configs/{hash}"
+
+@using Newtonsoft.Json;
+
+@model BlizzTrack.Pages.ViewGameManifestRawModel
+@{
+    ViewData["Title"] = $"Viewing Config {Model.Hash}";
+
+    var hash = Model.Catalog.Hash;
+}
+
+<div class="row">
+    <div class="col-12">
+        <div class="alert alert-info" role="alert">
+            <i class="fa fa-bullhorn pr-3"></i>Hey, you can view @hash by <a class="font-weight-bold" href="@($"http://level3.blizzard.com/tpr/configs/data/{string.Join("", hash.Take(2))}/{string.Join("", hash.Skip(2).Take(2))}/{hash}")" target="_top" rel="nofollow">Click here</a>
+        </div>
+    </div>
+
+    <div class="col-12">
+        <pre style="background: #27293d; box-shadow: 0 1px 20px 0px rgb(0 0 0 / 10%);     border-radius: 0.2857rem;" class="p-2">@Helpers.JsonHelpers.PrettyJson(Model.Catalog.Payload.RootElement.ToString())</pre>
+    </div>
+</div>

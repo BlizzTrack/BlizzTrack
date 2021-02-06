@@ -25,7 +25,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{B7912BBB
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BNetLib.test", "BNetLib.test\BNetLib.test.csproj", "{677667C6-E932-4036-B0EC-0D62974C2EB4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Overwatch.Tools", "Overwatch.Tools\Overwatch.Tools.csproj", "{C592F1D3-3D55-4BB5-B0E6-AED65F157951}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Overwatch.Tools", "Overwatch.Tools\Overwatch.Tools.csproj", "{C592F1D3-3D55-4BB5-B0E6-AED65F157951}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "GameTools", "GameTools", "{8A93C000-3E73-400E-8E69-332B239B065B}"
 EndProject

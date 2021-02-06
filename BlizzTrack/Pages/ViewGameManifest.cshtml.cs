@@ -70,7 +70,8 @@ namespace BlizzTrack.Pages
                     {
                         Encrypted = true,
                     },
-                    Code = Code.ToLower()
+                    Code = Code.ToLower(),
+                    Name = exist.GetName()
                 };
             }
             if (!string.IsNullOrEmpty(GameConfig.ServiceURL))

@@ -3,6 +3,10 @@ using System.Collections.Generic;
 
 namespace BNetLib.Helpers
 {
+    /*
+     * TODO: Remove all this logic and store it in the database
+     *       This should be dynamically set in a database w/o having to recompile the damn website
+    */
     public static class GameName
     {
         public static readonly Dictionary<string, string> Suffix = new Dictionary<string, string>()
@@ -105,7 +109,8 @@ namespace BNetLib.Helpers
             {"orbis", "Orbis (Unknown)"},
             {"auks", "Auks (Unknown)"},
             {"fore", "Fore (Unknown)"},
-            {"unknown", "Unknown Game"}
+            {"unknown", "Unknown"},
+            { "wlby", "Wlby" }
         };
 
         public static string Get(string code)

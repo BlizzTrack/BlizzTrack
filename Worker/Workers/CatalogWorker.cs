@@ -98,7 +98,7 @@ namespace Worker.Workers
             {
                 var json = await GetRaw(_productConfig, config.Hash);
 
-                _dbContext.Add(new Catalog()
+                _dbContext.Add(new Core.Models.Catalog()
                 {
                     Payload = json,
                     Hash = config.Hash,
@@ -137,7 +137,7 @@ namespace Worker.Workers
                     }
                 }
 
-                _dbContext.Add(new Catalog()
+                _dbContext.Add(new Core.Models.Catalog()
                 {
                     Payload = json,
                     Hash = hash,
