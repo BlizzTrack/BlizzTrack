@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -10,7 +11,8 @@ namespace Core.Models
     {
         Config,
         Fragment,
-        ProductConfig
+        ProductConfig,
+        BuildConfig
     }
 
     public class Catalog
@@ -30,6 +32,9 @@ namespace Core.Models
 
         public JsonDocument Payload { get; set; }
 
+        public string Raw { get; set; }
+
+
         [Column(TypeName = "jsonb")]
         public List<CatalogInstall> Installs { get; set; }
 
@@ -42,5 +47,21 @@ namespace Core.Models
         public string Name { get; set; }
 
         public string Code { get; set; }
+    }
+
+    public class BuildConfigItem
+    {
+        public string Content { get; set; }
+
+        public string URL { get; set; }
+
+        public bool Encrypted { get; set; }
+
+        public Dictionary<string, string> Meta { get; set; }
+
+        public override string ToString()
+        {
+            return JsonConvert.SerializeObject(this);
+        }
     }
 }

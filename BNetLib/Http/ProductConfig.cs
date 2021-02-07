@@ -16,6 +16,15 @@ namespace BNetLib.Http
             return await wc.DownloadStringTaskAsync(url);
         }
 
+        public async Task<byte[]> GetBytes(string config, string path = "level3.blizzard.com/tpr/configs/data")
+        {
+            using var wc = new WebClient();
+
+            var url = $"http://{path}/{string.Join("", config.Take(2))}/{string.Join("", config.Skip(2).Take(2))}/{config}";
+
+            return await wc.DownloadDataTaskAsync(url);
+        }
+
         public async Task<Dictionary<string, string>> GetDictionary(string config, string path = "level3.blizzard.com/tpr/configs/data")
         {
             var data = await GetRaw(config, path);

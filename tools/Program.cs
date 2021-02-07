@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Minio.AspNetCore;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -88,8 +89,20 @@ namespace tools
                     services.AddScoped<Core.Services.ICDNs, Core.Services.CDNs>();
                     services.AddScoped<Core.Services.IBGDL, Core.Services.BGDL>();
                     services.AddScoped<Core.Services.IGameParents, Core.Services.GameParents>();
+                    services.AddScoped<Core.Services.IGameConfig, Core.Services.GameConfig>();
 
                     services.AddScoped<Core.Services.IVersions, Core.Services.Versions>();
+
+                    services.AddMinio(options =>
+                    {
+                        options.Endpoint = hostContext.Configuration.GetValue("AWS:Endpoint", "");
+                        options.SecretKey = hostContext.Configuration.GetValue("AWS:SecretKey", "");
+                        options.AccessKey = hostContext.Configuration.GetValue("AWS:AccessKey", "");
+                        options.OnClientConfiguration = client =>
+                        {
+                            client.WithSSL();
+                        };
+                    });
                 })
                 .ConfigureLogging((hostingContext, logging) =>
                 {

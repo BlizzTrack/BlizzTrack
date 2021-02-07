@@ -12,18 +12,16 @@ namespace BlizzTrack.Pages
     public class ViewGameModel : PageModel
     {
         private readonly IVersions _versions;
-        private readonly ICDNs _cdns;
         private readonly IBGDL _bgdl;
         private readonly ISummary _summary;
         private readonly IGameConfig _gameConfig;
         private readonly IBlizzardAlerts _blizzardAlerts;
         private readonly IGameParents _gameParents;
 
-        public ViewGameModel(ISummary summary, IBGDL bgdl, ICDNs cdns, IVersions versions, IGameConfig gameConfig, IBlizzardAlerts blizzardAlerts, IGameParents gameParents)
+        public ViewGameModel(ISummary summary, IBGDL bgdl, IVersions versions, IGameConfig gameConfig, IBlizzardAlerts blizzardAlerts, IGameParents gameParents)
         {
             _summary = summary;
             _bgdl = bgdl;
-            _cdns = cdns;
             _versions = versions;
             _gameConfig = gameConfig;
             _blizzardAlerts = blizzardAlerts;

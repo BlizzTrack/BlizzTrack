@@ -46,7 +46,7 @@ namespace BlizzTrack
 
         public IConfiguration Configuration { get; }
 
-        private List<IGameToolStartup> gameToolStartups = new List<IGameToolStartup>();
+        private readonly List<IGameToolStartup> gameToolStartups = new List<IGameToolStartup>();
 
         public void ConfigureServices(IServiceCollection services)
         {

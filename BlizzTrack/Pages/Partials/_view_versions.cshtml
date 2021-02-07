@@ -1,5 +1,12 @@
 ﻿@model List<Core.Models.Manifest<BNetLib.Models.Versions[]>>
+@inject Core.Services.ICDNs cdns
+
 @{
+    var cdnConfig = await cdns.Latest(Model.First().Code);
+
+    var cdn = cdnConfig.Content.FirstOrDefault(x => x.Name == "us");
+
+    var server = cdn?.Hosts.Split(" ").First();
 }
 
 <div class="col-sm-12">
@@ -46,10 +53,30 @@
                                         @item.Versionsname
                                     </td>
                                     <td class="@(item.Buildconfig != Model.Last().Content.FirstOrDefault(x => x.Region == item.Region)?.Buildconfig ? "has-changed-data" : "")">
-                                        @item.Buildconfig
+                                        @if (string.IsNullOrEmpty(server))
+                                        {
+                                            @item.Buildconfig
+                                        }  else {
+                                            var dest = $"{cdn.Path}/config/{string.Join("", item.Buildconfig.Take(2))}/{string.Join("", item.Buildconfig.Skip(2).Take(2))}/{item.Buildconfig}";
+
+                                            <a href="@($"http://{server}/{dest}")" target="_blank" rel="nofollow">
+                                                @item.Buildconfig
+                                            </a>
+                                        }
                                     </td>
                                     <td class="@(item.Cdnconfig != Model.Last().Content.FirstOrDefault(x => x.Region == item.Region)?.Cdnconfig ? "has-changed-data" : "")">
-                                        @item.Cdnconfig
+                                        @if (string.IsNullOrEmpty(server))
+                                        {
+                                            @item.Cdnconfig
+                                        }
+                                        else
+                                        {
+                                            var dest = $"{cdn.Path}/config/{string.Join("", item.Cdnconfig.Take(2))}/{string.Join("", item.Cdnconfig.Skip(2).Take(2))}/{item.Buildconfig}";
+
+                                            <a href="@($"http://{server}/{dest}")" target="_blank" rel="nofollow">
+                                                @item.Cdnconfig
+                                            </a>
+                                        }
                                     </td>
                                     <td class="@(item.Productconfig != Model.Last().Content.FirstOrDefault(x => x.Region == item.Region)?.Productconfig ? "has-changed-data" : "")">
                                         @if (item.Productconfig == "versions" || string.IsNullOrEmpty(item.Productconfig))
@@ -124,10 +151,32 @@
                                     @item.Versionsname
                                 </td>
                                 <td class="@(item.Buildconfig != Model.First().Content.FirstOrDefault(x => x.Region == item.Region)?.Buildconfig ? "has-changed-data" : "")">
-                                    @item.Buildconfig
+                                    @if (string.IsNullOrEmpty(server))
+                                    {
+                                        @item.Buildconfig
+                                    }
+                                    else
+                                    {
+                                        var dest = $"{cdn.Path}/config/{string.Join("", item.Buildconfig.Take(2))}/{string.Join("", item.Buildconfig.Skip(2).Take(2))}/{item.Buildconfig}";
+
+                                        <a href="@($"http://{server}/{dest}")" target="_blank" rel="nofollow">
+                                            @item.Buildconfig
+                                        </a>
+                                    }
                                 </td>
                                 <td class="@(item.Cdnconfig != Model.First().Content.FirstOrDefault(x => x.Region == item.Region)?.Cdnconfig ? "has-changed-data" : "")">
-                                    @item.Cdnconfig
+                                    @if (string.IsNullOrEmpty(server))
+                                    {
+                                        @item.Cdnconfig
+                                    }
+                                    else
+                                    {
+                                        var dest = $"{cdn.Path}/config/{string.Join("", item.Cdnconfig.Take(2))}/{string.Join("", item.Cdnconfig.Skip(2).Take(2))}/{item.Buildconfig}";
+
+                                        <a href="@($"http://{server}/{dest}")" target="_blank" rel="nofollow">
+                                            @item.Cdnconfig
+                                        </a>
+                                    }
                                 </td>
                                 <td class="@(item.Productconfig != Model.First().Content.FirstOrDefault(x => x.Region == item.Region)?.Productconfig ? "has-changed-data" : "")">
                                     @if (item.Productconfig == "versions" || string.IsNullOrEmpty(item.Productconfig))

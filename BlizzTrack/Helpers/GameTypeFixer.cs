@@ -8,7 +8,7 @@ namespace BlizzTrack.Helpers
 {
     public static class GameTypeFixer
     {
-        private static Dictionary<string, string> Names = new Dictionary<string, string>
+        private readonly static Dictionary<string, string> Names = new Dictionary<string, string>
         {
             { "version", "Version" },
             { "versions", "Versions" },

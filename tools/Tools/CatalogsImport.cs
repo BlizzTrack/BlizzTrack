@@ -3,10 +3,15 @@ using BNetLib.Http;
 using Core.Models;
 using Core.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Minio;
+using Minio.Exceptions;
+using ShellProgressBar;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -14,61 +19,239 @@ using Tooling.Attributes;
 
 namespace Tooling.Tools
 {
-    [Tool(Name = "Catalogs Import", Disabled = true)]
+    [Tool(Name = "Catalogs Import", Disabled = false)]
     public class CatalogsImport : ITool
     {
         private readonly IVersions _versions;
         private readonly ICDNs _cdns;
+        private readonly Core.Services.IGameConfig _gameConfig;
         private readonly ProductConfig _productConfig;
         private readonly DBContext _dbContext;
         private readonly ILogger<CatalogsImport> _logger;
+        private readonly MinioClient _minioClient;
+        private readonly string _bucket;
 
-        public CatalogsImport(IVersions versions, ICDNs cdns, ProductConfig productConfig, ILogger<CatalogsImport> logger, DBContext dbContext)
+        public CatalogsImport(IVersions versions, ICDNs cdns, ProductConfig productConfig, ILogger<CatalogsImport> logger, DBContext dbContext, IGameConfig gameConfig, MinioClient minioClient, IConfiguration config)
         {
             _versions = versions;
             _cdns = cdns;
             _productConfig = productConfig;
             _logger = logger;
             _dbContext = dbContext;
+            _gameConfig = gameConfig;
+            _minioClient = minioClient;
+            _bucket = config.GetValue("AWS:BucketName", "");
         }
 
         public async Task Start()
         {
             // await Catalogs();
-            await ProductConfig();
+            // await ProductConfig();
+
+            await BuildConfig();
+        }
+
+        public Stream GenerateStreamFromString(string s)
+        {
+            var stream = new MemoryStream();
+            var writer = new StreamWriter(stream);
+            writer.Write(s);
+            writer.Flush();
+            stream.Position = 0;
+            return stream;
+        }
+
+        public async Task BuildConfig()
+        {
+            Console.Clear();
+
+            var options = new ProgressBarOptions
+            {
+                ForegroundColor = ConsoleColor.Yellow,
+                ForegroundColorDone = ConsoleColor.DarkGreen,
+                BackgroundColor = ConsoleColor.DarkGray,
+                BackgroundCharacter = '\u2593',
+                CollapseWhenFinished = true,
+                ShowEstimatedDuration = true
+            };
+            var childOptions = new ProgressBarOptions
+            {
+                ForegroundColor = ConsoleColor.Green,
+                BackgroundColor = ConsoleColor.DarkGreen,
+                CollapseWhenFinished = true,
+                BackgroundCharacter = '\u2593',
+            };
+
+            var versions = await _dbContext.Versions.OrderByDescending(x => x.Seqn).ToListAsync();
+            var cdns = await _dbContext.CDN.OrderByDescending(x => x.Seqn).ToListAsync();
+
+            var used = new List<string>();
+
+            var configs = await _dbContext.GameConfigs.ToListAsync();
+
+            int i = 1;
+            foreach (var version in versions)
+            {
+                var cdn = cdns.FirstOrDefault(x => x.Code == version.Code);
+                if (cdn == null) continue;
+
+                // _logger.LogInformation($"Testing: {version.Code} {version.Seqn}");
+
+                var cdnRegion = cdn.Content.FirstOrDefault(x => x.Name == "us");
+                var gConfig = configs.FirstOrDefault(x => x.Code == version.Code);
+
+                var server = cdnRegion.Hosts.Split(" ").First();
+
+                foreach (var region in version.Content)
+                {
+                    var config = region.Buildconfig;
+                    var p = $"{server}/{cdnRegion.Path}/config";
+                    var dest = $"{cdnRegion.Path}/config/{string.Join("", config.Take(2))}/{string.Join("", config.Skip(2).Take(2))}/{config}";
+                    if (used.Contains(dest)) continue;
+                    if (await ManifestExist(dest)) continue;
+
+                    try
+                    {
+                        var rootConfig = await _productConfig.GetBytes(region.Buildconfig, p);
+
+                        /*
+                        using var ms = GenerateStreamFromString(rootConfig);
+
+                        await _minioClient.PutObjectAsync(_bucket, dest, ms, ms.Length, gConfig.Config.Encrypted ? "application/octet-stream" : "text/plain", new Dictionary<string, string> {
+                            { "x-amz-acl", "public-read" },
+                            { "hash", region.Buildconfig },
+                            { "code", version.Code },
+                            { "region", region.Region },
+                            { "server", server },
+                            { "remote", $"http://{server}/{dest}" }
+                        });
+                        */
+
+                        var data = new BuildConfigItem
+                        {
+                            Content = gConfig.Config.Encrypted ? Convert.ToBase64String(rootConfig) : System.Text.Encoding.Default.GetString(rootConfig),
+                            URL = $"{server}/{dest}",
+                            Encrypted = gConfig.Config.Encrypted,
+                            Meta = new Dictionary<string, string> {
+                                { "hash", region.Buildconfig },
+                                { "code", version.Code },
+                                { "region", region.Region },
+                            }
+                        };
+
+                        var d = JsonDocument.Parse(data.ToString());
+                        _dbContext.Add(new Core.Models.Catalog()
+                        {
+                            Payload = d,
+                            Hash = dest,
+                            Name = $"build_config_{version.Code}",
+                            Type = CatalogType.BuildConfig,
+                        });
+
+
+                        _logger.LogInformation($"Saved {version.Code} config {dest}");
+
+                        used.Add(dest);
+
+                        i++;
+                    }
+                    catch (MinioException m)
+                    {
+                        Debugger.Break();
+                    }
+                    catch (Exception ex)
+                    {
+                        used.Add(dest);
+
+                        _logger.LogError($"URL: {server}/{dest}");
+                        _logger.LogError(ex.ToString());
+                    }
+                }
+
+                if (i >= 10)
+                {
+                    i = 1;
+                    _logger.LogInformation("Triggering Saving... Please wait");
+                    await _dbContext.SaveChangesAsync();
+                }
+            }
+
+            await _dbContext.SaveChangesAsync();
         }
 
         public async Task ProductConfig()
         {
-            var versions = await _dbContext.Versions.OrderByDescending(x => x.Seqn).ToListAsync();
-            versions = versions.GroupBy(x => x.Code).Select(x => x.OrderByDescending(s => s.Seqn).First()).ToList();
+            Console.Clear();
 
+            var options = new ProgressBarOptions
+            {
+                ForegroundColor = ConsoleColor.Yellow,
+                ForegroundColorDone = ConsoleColor.DarkGreen,
+                BackgroundColor = ConsoleColor.DarkGray,
+                BackgroundCharacter = '\u2593',
+                CollapseWhenFinished = true
+            };
+            var childOptions = new ProgressBarOptions
+            {
+                ForegroundColor = ConsoleColor.Green,
+                BackgroundColor = ConsoleColor.DarkGreen,
+                CollapseWhenFinished = true,
+                BackgroundCharacter = '\u2593',
+            };
+
+            var versions = await _dbContext.Versions.Where(x => x.Code != "catalogs").OrderBy(x => x.Seqn).ToListAsync();
+            // versions = versions.GroupBy(x => x.Code).Select(x => x.OrderByDescending(s => s.Seqn).First()).ToList();
+
+            var used = new List<string>();
+
+            using var pbar = new ProgressBar(versions.Count, "main progressbar", options);
+
+            int i = 1;
             foreach(var version in  versions)
             {
-                var hash = version.Content.FirstOrDefault(x => x.Region.Equals("us", StringComparison.OrdinalIgnoreCase));
-                if (hash == null) continue;
+                pbar.Message = $"Importing code: {version.Code} {version.Seqn}";
 
-                try
+               // var d = pbar.Spawn(version.Content.Length, "Regions");
+                foreach (var region in version.Content)
                 {
-                    var rootConfig = await _productConfig.GetRaw(hash.Productconfig);
-                    var json = JsonDocument.Parse(rootConfig);
+                    // d.Message = $"Importing: {version.Code} {region.Region} {region.Productconfig}";
 
-                    if (!await ManifestExist(hash.Productconfig))
+                    try
                     {
-                        _dbContext.Add(new Catalog()
+                        if (!await ManifestExist(region.Productconfig))
                         {
-                            Payload = json,
-                            Hash = hash.Productconfig,
-                            Name = $"product_config_{version.Code}",
-                            Type = CatalogType.ProductConfig,
-                        });
+                            var rootConfig = await _productConfig.GetRaw(region.Productconfig);
+                            var json = JsonDocument.Parse(rootConfig);
 
+                            if (used.Contains(region.Productconfig)) continue;
+                                
+                            _dbContext.Add(new Core.Models.Catalog()
+                            {
+                                Payload = json,
+                                Hash = region.Productconfig,
+                                Name = $"product_config_{version.Code}",
+                                Type = CatalogType.ProductConfig,
+                            });
+
+                            used.Add(region.Productconfig);
+                            i++;
+                        }
                     }
-                }catch
-                {
-                    _logger.LogError($"Failed to download product config for: {version.Code} -> {hash.Productconfig}");
-                    continue;
+                    catch
+                    {
+                        // _logger.LogError($"Failed to download product config for: {version.Code} -> {region.Productconfig}");
+                    }
+
+                    // d.Tick();
                 }
+
+                if (i == 10)
+                {
+                    await _dbContext.SaveChangesAsync();
+                    i = 1;
+                }
+
+                pbar.Tick();
             }
 
             await _dbContext.SaveChangesAsync();
@@ -107,7 +290,7 @@ namespace Tooling.Tools
                     }
                 }
 
-                _dbContext.Add(new Catalog()
+                _dbContext.Add(new Core.Models.Catalog()
                 {
                     Payload = json,
                     Hash = hash,
@@ -199,7 +382,7 @@ namespace Tooling.Tools
                         }
                     }
 
-                    _dbContext.Add(new Catalog()
+                    _dbContext.Add(new Core.Models.Catalog()
                     {
                         Payload = gameJson,
                         Hash = item.hash,

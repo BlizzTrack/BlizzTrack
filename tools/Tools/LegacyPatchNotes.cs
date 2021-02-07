@@ -13,7 +13,7 @@ using Tooling.Attributes;
 
 namespace Tooling.Tools
 {
-    [Tool(Name = "Legacy Patch Notes", Disabled = false)]
+    [Tool(Name = "Legacy Patch Notes", Disabled = true)]
     public class LegacyPatchNotes : ITool
     {
         private readonly IGameParents gameParents;
@@ -60,7 +60,7 @@ namespace Tooling.Tools
             var hasChanges = false;
             Console.Clear();
 
-            using var pbar = new ProgressBar(dataItems.Count(), "bar", new ProgressBarOptions
+            using var pbar = new ProgressBar(dataItems.Count, "bar", new ProgressBarOptions
             {
                 ForegroundColor = ConsoleColor.Yellow,
                 ForegroundColorDone = ConsoleColor.DarkGreen,
