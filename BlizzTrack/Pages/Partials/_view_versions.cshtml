@@ -71,7 +71,7 @@
                                         }
                                         else
                                         {
-                                            var dest = $"{cdn.Path}/config/{string.Join("", item.Cdnconfig.Take(2))}/{string.Join("", item.Cdnconfig.Skip(2).Take(2))}/{item.Buildconfig}";
+                                            var dest = $"{cdn.Path}/config/{string.Join("", item.Cdnconfig.Take(2))}/{string.Join("", item.Cdnconfig.Skip(2).Take(2))}/{item.Cdnconfig}";
 
                                             <a href="@($"http://{server}/{dest}")" target="_blank" rel="nofollow">
                                                 @item.Cdnconfig
@@ -171,7 +171,7 @@
                                     }
                                     else
                                     {
-                                        var dest = $"{cdn.Path}/config/{string.Join("", item.Cdnconfig.Take(2))}/{string.Join("", item.Cdnconfig.Skip(2).Take(2))}/{item.Buildconfig}";
+                                        var dest = $"{cdn.Path}/config/{string.Join("", item.Cdnconfig.Take(2))}/{string.Join("", item.Cdnconfig.Skip(2).Take(2))}/{item.Cdnconfig}";
 
                                         <a href="@($"http://{server}/{dest}")" target="_blank" rel="nofollow">
                                             @item.Cdnconfig
