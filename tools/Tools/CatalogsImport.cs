@@ -157,6 +157,7 @@ namespace Tooling.Tools
                     }
                     catch (MinioException m)
                     {
+                        _logger.LogError(m.ToString());
                         Debugger.Break();
                     }
                     catch (Exception ex)
