@@ -59,7 +59,7 @@ namespace BNetLib.Networking
                 var item = key.Split("!");
                 var itemType = item.Last().Split(":").First();
 
-                keys.Add(new KeyType((KeyTypeEnum)Enum.Parse(typeof(KeyTypeEnum), itemType, true), item.First()));
+                keys.Add(new KeyType(Enum.Parse<KeyTypeEnum>(itemType, true), item.First()));
             }
 
             foreach (var line in enumerable.Skip(2))
