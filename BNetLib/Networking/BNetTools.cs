@@ -58,7 +58,7 @@ namespace BNetLib.Networking
             {
                 var item = key.Split("!");
                 var itemType = item.Last().Split(":").First();
-
+                    
                 keys.Add(new KeyType(Enum.Parse<KeyTypeEnum>(itemType, true), item.First()));
             }
 
@@ -67,8 +67,7 @@ namespace BNetLib.Networking
                 if (line.StartsWith("## seqn ="))
                 {
                     var f = line.Replace("## seqn =", "").Trim();
-                    _ = int.TryParse(f, out var seqn1);
-                    seqn = seqn1;
+                    _ = int.TryParse(f, out seqn);
                     continue;
                 }
 

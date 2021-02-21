@@ -110,7 +110,9 @@ namespace BNetLib.Helpers
             {"auks", "Auks (Unknown)"},
             {"fore", "Fore (Unknown)"},
             {"unknown", "Unknown"},
-            { "wlby", "Wlby" }
+            { "wlby", "Crash Bandicoot 4: It's About Time" },
+            { "rtro", "Blizzard Arcade Collection" },
+            { "osi", "Diablo II: Resurrected" }
         };
 
         public static string Get(string code)
