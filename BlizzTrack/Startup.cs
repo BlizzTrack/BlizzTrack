@@ -210,6 +210,8 @@ namespace BlizzTrack
             var files = Directory.GetFiles(AppContext.BaseDirectory, "*.Tools.dll");
             foreach (var file in files)
             {
+                Console.WriteLine($"Loaded: {file}");
+
                 a.Add(Assembly.LoadFrom(file));
             }
 

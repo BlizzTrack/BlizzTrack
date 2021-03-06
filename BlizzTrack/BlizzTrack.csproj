@@ -50,6 +50,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\BattleNet.Tools\BattleNet.Tools.csproj" />
     <ProjectReference Include="..\BNetLib\BNetLib.csproj" />
     <ProjectReference Include="..\Core\Core.csproj" />
     <ProjectReference Include="..\Overwatch.Tools\Overwatch.Tools.csproj" />

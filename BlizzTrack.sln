@@ -29,6 +29,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Overwatch.Tools", "Overwatc
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "GameTools", "GameTools", "{8A93C000-3E73-400E-8E69-332B239B065B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BattleNet.Tools", "BattleNet.Tools\BattleNet.Tools.csproj", "{06EAEC98-58F4-4704-9738-D42A466C6EC1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -63,6 +65,10 @@ Global
 		{C592F1D3-3D55-4BB5-B0E6-AED65F157951}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C592F1D3-3D55-4BB5-B0E6-AED65F157951}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C592F1D3-3D55-4BB5-B0E6-AED65F157951}.Release|Any CPU.Build.0 = Release|Any CPU
+		{06EAEC98-58F4-4704-9738-D42A466C6EC1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{06EAEC98-58F4-4704-9738-D42A466C6EC1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{06EAEC98-58F4-4704-9738-D42A466C6EC1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{06EAEC98-58F4-4704-9738-D42A466C6EC1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -72,6 +78,7 @@ Global
 		{F6FA7F33-221B-4A13-A258-10DD3281F577} = {AF2D36E3-1003-4914-942B-493D951A5895}
 		{677667C6-E932-4036-B0EC-0D62974C2EB4} = {B7912BBB-740B-4C88-B3B4-05A6EFE3AB2B}
 		{C592F1D3-3D55-4BB5-B0E6-AED65F157951} = {8A93C000-3E73-400E-8E69-332B239B065B}
+		{06EAEC98-58F4-4704-9738-D42A466C6EC1} = {8A93C000-3E73-400E-8E69-332B239B065B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {FA95A9CB-034F-4D57-8E86-AA9AAF7BAE8C}

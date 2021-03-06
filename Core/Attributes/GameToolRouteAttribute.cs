@@ -10,9 +10,9 @@ namespace Core.Attributes
 {
     public class GameToolRouteAttribute : Attribute, IRouteTemplateProvider
     {
-        public GameToolRouteAttribute(Type assembly)
+        public GameToolRouteAttribute(Type assembly, string controller = "")
         {
-            Template = $"api/tools/{assembly.Assembly.GetName().Name.Split('.').First().ToLower()}";
+            Template = $"api/tools/{assembly.Assembly.GetName().Name.Split('.').First().ToLower()}{(!string.IsNullOrEmpty(controller) ? "/" + controller : "")}";
         }
 
         public string Template { get; set; }

@@ -8,15 +8,15 @@ using System.Threading.Tasks;
 
 namespace Overwatch.Tools.API
 {
-    [GameToolRoute(typeof(EndorsmentController))]
+    [GameToolRoute(typeof(EndorsmentsController), "[Controller]")]
     [ApiController]
     [ApiExplorerSettings(GroupName = "Overwatch Game Data")]
     [Produces("application/json")]
-    public class EndorsmentController : ControllerBase
+    public class EndorsmentsController : ControllerBase
     {
         private readonly IOverwatchProfileService overwatchProfileService;
 
-        public EndorsmentController(IOverwatchProfileService overwatchProfileService)
+        public EndorsmentsController(IOverwatchProfileService overwatchProfileService)
         {
             this.overwatchProfileService = overwatchProfileService;
         }
@@ -29,7 +29,7 @@ namespace Overwatch.Tools.API
         /// <response code="200">Returns latest items for given seqn</response>
         /// <param name="player">User name of the person</param>
         /// <param name="platform">Selected game platform</param>
-        [HttpGet("[action]/{platform}/{player}")]
+        [HttpGet("{platform}/{player}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Player<Endorsements>))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ReponseTypes.NotFound))]
         public async Task<IActionResult> Endorsements(string player, Platform platform)
