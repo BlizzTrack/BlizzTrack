@@ -202,28 +202,30 @@ namespace Worker.Workers
             {
                 case List<BNetLib.Models.Versions> ver:
                     {
-                        if (msg.Product == "catalogs")
-                        {
-                            _channelWriter.Enqueue(new ConfigUpdate()
+                        if(ver.Count > 0) {
+                            if (msg.Product == "catalogs")
                             {
-                                Code = msg.Product,
-                                Hash = ver.Last().Buildconfig,
-                            });
-                        } 
-                        else
-                        {
-                            _channelWriter.Enqueue(new ConfigUpdate()
+                                _channelWriter.Enqueue(new ConfigUpdate()
+                                {
+                                    Code = msg.Product,
+                                    Hash = ver.Last().Buildconfig,
+                                });
+                            }
+                            else
                             {
-                                Code = msg.Product,
-                                Hash = ver.Last().Productconfig,
-                            });
+                                _channelWriter.Enqueue(new ConfigUpdate()
+                                {
+                                    Code = msg.Product,
+                                    Hash = ver.Last().Productconfig,
+                                });
+                            }
+
+                            var config = ver.FirstOrDefault(x => x.Region == "us");
+                            if (msg.Product == "catalogs") config = ver.Last();
+                            if (msg.Product == "bts") config = ver.FirstOrDefault(x => x.Region == "launcher");
+
+                            await CheckifEncrypted(msg, config.Productconfig, db, _logger, cancellationToken);
                         }
-
-                        var config = ver.FirstOrDefault(x => x.Region == "us");
-                        if (msg.Product == "catalogs") config = ver.Last();
-                        if (msg.Product == "bts") config = ver.FirstOrDefault(x => x.Region == "launcher");
-
-                        await CheckifEncrypted(msg, config.Productconfig, db, _logger, cancellationToken);
 
                         var f = Manifest<BNetLib.Models.Versions[]>.Create(seqn, code, ver.ToArray());
                         f.Raw = raw;
@@ -258,6 +260,7 @@ namespace Worker.Workers
             IList<T> data;
             int seqn;
             string raw;
+
 
             switch (typeof(T))
             {
