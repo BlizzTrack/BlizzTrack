@@ -29,16 +29,18 @@ namespace BlizzTrack.Pages
         private readonly ISummary _summary;
         private readonly IGameConfig _gameConfig;
         private readonly IVersions _versions;
+        private readonly IBGDL _bgdl;
         private readonly IGameParents _gameParents;
         private readonly DBContext _dbContext;
 
-        public IndexModel(ISummary summary, IGameConfig gameConfig, IVersions versions, IGameParents gameParents, DBContext dbContext)
+        public IndexModel(ISummary summary, IGameConfig gameConfig, IVersions versions, IGameParents gameParents, DBContext dbContext, IBGDL bgdl)
         {
             _summary = summary;
             _gameConfig = gameConfig;
             _versions = versions;
             _gameParents = gameParents;
             _dbContext = dbContext;
+            _bgdl = bgdl;
         }
 
         public List<Manifest<BNetLib.Models.Summary[]>> Manifests = null;
@@ -50,6 +52,10 @@ namespace BlizzTrack.Pages
         public List<Core.Models.GameConfig> Configs;
 
         public List<Core.Models.GameParents> Parents;
+
+        public List<Manifest<BNetLib.Models.Versions[]>> Versions;
+
+        public List<Manifest<BNetLib.Models.BGDL[]>> BGDLs;
 
         public List<UpdateTimes> GameVersions { get; set; } = new List<UpdateTimes>();
 
@@ -94,6 +100,9 @@ namespace BlizzTrack.Pages
 
             GameVersions.AddRange(vers);
             GameVersions.AddRange(bgdl);
+
+            Versions = await _versions.MultiBySeqn(latest.Where(x => x.Flags == "versions").Select(x => x.Seqn).ToList());
+            BGDLs = await _bgdl.MultiBySeqn(latest.Where(x => x.Flags == "bgdl").Select(x => x.Seqn).ToList());
 
             foreach (var item in latest)
             {

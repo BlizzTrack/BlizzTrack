@@ -261,7 +261,6 @@ namespace Worker.Workers
             int seqn;
             string raw;
 
-
             switch (typeof(T))
             {
                 case Type versionType when versionType == typeof(BNetLib.Models.Versions):

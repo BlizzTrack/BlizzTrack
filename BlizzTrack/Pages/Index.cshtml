@@ -41,6 +41,9 @@
                                         Name
                                     </th>
                                     <th>
+                                        Version
+                                    </th>
+                                    <th>
                                        Indexed
                                     </th>
                                     <th>
@@ -77,6 +80,58 @@
                                         <i class="fa fa-@(config.Config.Encrypted ? "lock" : "lock-open")"></i>
                                     </td>
                                     <td>@config.GetName()</td>
+                                    <td>
+                                        @if (item.Flags == "versions")
+                                        {
+                                            var ver = Model.Versions.FirstOrDefault(x => x.Code == item.Product);
+
+                                            if (item.Product == "catalogs")
+                                            {
+                                                @(ver.Content.Last().Versionsname)
+                                            }
+                                            else if (item.Product == "bts")
+                                            {
+                                                @("N/A")
+                                            }
+                                            else
+                                            {
+                                                var verF = ver.Content.FirstOrDefault(x => x.Region == "us");
+                                                if (verF == null)
+                                                {
+                                                    @("N/A")
+                                                }
+                                                else
+                                                {
+                                                    @(verF.Versionsname)
+                                                }
+                                            }
+                                        }
+                                        else if (item.Flags == "bgdl")
+                                        {
+                                            var ver = Model.BGDLs.FirstOrDefault(x => x.Code == item.Product);
+
+                                            if (item.Product == "catalogs")
+                                            {
+                                                @(ver.Content.Last().Versionsname)
+                                            }
+                                            else if (item.Product == "bts")
+                                            {
+                                                @("N/A")
+                                            }
+                                            else
+                                            {
+                                                var verF = ver.Content.FirstOrDefault(x => x.Region == "us");
+                                                if (verF == null)
+                                                {
+                                                    @("N/A")
+                                                }
+                                                else
+                                                {
+                                                    @(verF.Versionsname)
+                                                }
+                                            }
+                                        }
+                                    </td>
                                     <td>
                                         <time>
                                             @Model.GameVersions.FirstOrDefault(x => x.Code == item.Product && x.Type == item.Flags)?.Updated.ToString("ddd, dd MMM yyyy hh:mm:ss ") GMT
@@ -129,6 +184,9 @@
                                         Name
                                     </th>
                                     <th>
+                                        Version
+                                    </th>
+                                    <th>
                                         Indexed
                                     </th>
                                     <th>
@@ -163,6 +221,58 @@
                                         <i class="fa fa-@(config.Config.Encrypted ? "lock" : "lock-open")"></i>
                                     </td>
                                     <td>@config.GetName()</td>
+                                    <td>
+                                        @if (item.newest.Flags == "versions")
+                                        {
+                                            var ver = Model.Versions.FirstOrDefault(x => x.Code == item.newest.Product);
+
+                                            if (item.newest.Product == "catalogs")
+                                            {
+                                                @(ver.Content.Last().Versionsname)
+                                            }
+                                            else if (item.newest.Product == "bts")
+                                            {
+                                                @("N/A")
+                                            }
+                                            else
+                                            {
+                                                var verF = ver.Content.FirstOrDefault(x => x.Region == "us");
+                                                if (verF == null)
+                                                {
+                                                    @("N/A")
+                                                }
+                                                else
+                                                {
+                                                    @(verF.Versionsname)
+                                                }
+                                            }
+                                        }
+                                        else if (item.newest.Flags == "bgdl")
+                                        {
+                                            var ver = Model.BGDLs.FirstOrDefault(x => x.Code == item.newest.Product);
+
+                                            if (item.newest.Product == "catalogs")
+                                            {
+                                                @(ver.Content.Last().Versionsname)
+                                            }
+                                            else if (item.newest.Product == "bts")
+                                            {
+                                                @("N/A")
+                                            }
+                                            else
+                                            {
+                                                var verF = ver.Content.FirstOrDefault(x => x.Region == "us");
+                                                if (verF == null)
+                                                {
+                                                    @("N/A")
+                                                }
+                                                else
+                                                {
+                                                    @(verF.Versionsname)
+                                                }
+                                            }
+                                        }
+                                    </td>
                                     <td>
                                         <time>
                                             @Model.GameVersions.FirstOrDefault(x => x.Code == item.newest.Product && x.Type == item.newest.Flags)?.Updated.ToString("ddd, dd MMM yyyy hh:mm:ss ") GMT
@@ -295,6 +405,9 @@
                                             Name
                                         </th>
                                         <th>
+                                            Version
+                                        </th>
+                                        <th>
                                             Indexed
                                         </th>
                                         <th>
@@ -337,6 +450,58 @@
                                                 <i class="fa fa-@(config.Config.Encrypted ? "lock" : "lock-open")"></i>
                                             </td>
                                             <td>@config.GetName()</td>
+                                            <td>
+                                                @if (item.Flags == "versions")
+                                                {
+                                                    var ver = Model.Versions.FirstOrDefault(x => x.Code == item.Product);
+
+                                                    if (item.Product == "catalogs")
+                                                    {
+                                                        @(ver.Content.Last().Versionsname)
+                                                    }
+                                                    else if (item.Product == "bts")
+                                                    {
+                                                        @("N/A")
+                                                    }
+                                                    else
+                                                    {
+                                                        var verF = ver.Content.FirstOrDefault(x => x.Region == "us");
+                                                        if (verF == null)
+                                                        {
+                                                            @("N/A")
+                                                        }
+                                                        else
+                                                        {
+                                                            @(verF.Versionsname)
+                                                        }
+                                                    }
+                                                }
+                                                else if (item.Flags == "bgdl")
+                                                {
+                                                    var ver = Model.BGDLs.FirstOrDefault(x => x.Code == item.Product);
+
+                                                    if (item.Product == "catalogs")
+                                                    {
+                                                        @(ver.Content.Last().Versionsname)
+                                                    }
+                                                    else if (item.Product == "bts")
+                                                    {
+                                                        @("N/A")
+                                                    }
+                                                    else
+                                                    {
+                                                        var verF = ver.Content.FirstOrDefault(x => x.Region == "us");
+                                                        if (verF == null)
+                                                        {
+                                                            @("N/A")
+                                                        }
+                                                        else
+                                                        {
+                                                            @(verF.Versionsname)
+                                                        }
+                                                    }
+                                                }
+                                            </td>
                                             <td>
                                                 <time>
                                                     @Model.GameVersions.FirstOrDefault(x => x.Code == item.Product && x.Type == item.Flags)?.Updated.ToString("ddd, dd MMM yyyy hh:mm:ss ") GMT
