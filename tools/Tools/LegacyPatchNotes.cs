@@ -36,7 +36,7 @@ namespace Tooling.Tools
 
             var dataItems = new List<PatchNote>();
 
-            foreach (var langauge in new[] { "en-us", "fr-fr", "ko-kr" })
+            foreach (var langauge in new[] { "en-us", "fr-fr", "ko-kr", "es-es" })
             {
                 foreach (var parent in games)
                 {
