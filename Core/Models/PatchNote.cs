@@ -18,6 +18,8 @@ namespace Core.Models
 
         public string Type { get; set; }
 
+        public string Language { get; set; }
+
         public System.Text.Json.JsonDocument Body { get; set; }
 
         public static PatchNote Create(string body)

@@ -31,6 +31,9 @@ namespace BlizzTrack.Pages
         [BindProperty(SupportsGet = true, Name = "game_type")]
         public string GameType { get; set; }
 
+        [BindProperty(SupportsGet = true, Name = "language")]
+        public string Langauge { get; set; } = "en-us";
+
         public Core.Models.GameParents GameParent;
 
         public Models.PatchNoteData PatchNotes;
@@ -44,10 +47,10 @@ namespace BlizzTrack.Pages
             GameParent = await _gameParents.Get(Slug);
             if(GameParent == null || !GameParent.PatchNoteAreas.Contains(GameType.ToLower())) return NotFound();
 
-            PatchNotes = await _patchNotes.Get(GameParent.Code, GameType, buildTime != null ? new DateTime(buildTime.Value) : null);
+            PatchNotes = await _patchNotes.Get(GameParent.Code, GameType, buildTime != null ? new DateTime(buildTime.Value) : null, Langauge);
             if (PatchNotes == null) return NotFound();
 
-            BuildList = await _patchNotes.GetBuildDates(GameParent.Code, GameType);
+            BuildList = await _patchNotes.GetBuildDates(GameParent.Code, GameType, Langauge);
 
             if(GameParent.Slug == "overwatch" && GameType.Equals("experimental"))
             {

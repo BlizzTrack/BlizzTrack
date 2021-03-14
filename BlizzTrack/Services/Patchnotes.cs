@@ -11,13 +11,13 @@ namespace BlizzTrack.Services
 {
     public interface IPatchnotes
     {
-        Task<PatchNoteData> Get(string code, string type, DateTime? buildTime = null);
+        Task<PatchNoteData> Get(string code, string type, DateTime? buildTime = null, string langauge = "en-us");
 
         Task<List<PatchNoteData>> All(string code, string type);
 
-        Task<List<PatchNoteData>> GetByTypes(string code, params string[] type);
+        Task<List<PatchNoteData>> GetByTypes(string code, string language, params string[] type);
 
-        Task<List<PatchNoteBuild>> GetBuildDates(string code, string type);
+        Task<List<PatchNoteBuild>> GetBuildDates(string code, string type, string langauge);
     }
 
     public class Patchnotes : IPatchnotes
@@ -29,10 +29,11 @@ namespace BlizzTrack.Services
             _dbContext = dbContext;
         }
 
-        public async Task<List<PatchNoteBuild>> GetBuildDates(string code, string type)
+        public async Task<List<PatchNoteBuild>> GetBuildDates(string code, string type, string language = "en-us")
         {
             var data = await _dbContext.PatchNotes
                 .Where(x => code.ToLower().StartsWith(x.Code) && type.ToLower().Equals(x.Type))
+                .Where(x => x.Language == language)
                 .OrderByDescending(x => x.Created).Select(x => new
                 {
                     x.Updated,
@@ -47,23 +48,24 @@ namespace BlizzTrack.Services
             }).ToList();
         }
 
-        public async Task<PatchNoteData> Get(string code, string type, DateTime? buildTime = null)
+        public async Task<PatchNoteData> Get(string code, string type, DateTime? buildTime = null, string language = "en-us")
         {
             var data = await _dbContext.PatchNotes
                 .Where(x => code.ToLower().StartsWith(x.Code) && type.ToLower().Equals(x.Type) && buildTime == null ? true : buildTime == x.Created)
+                .Where(x => x.Language == language)
                 .OrderByDescending(x => x.Created).ThenByDescending(x => x.Updated).FirstOrDefaultAsync();
             if (data == null) return null;
 
             return Parse(data);
         }
 
-        public async Task<List<PatchNoteData>> GetByTypes(string code, params string[] types)
+        public async Task<List<PatchNoteData>> GetByTypes(string code, string language, params string[] types)
         {
             var items = new List<PatchNoteData>();
 
             foreach(var type in types)
             {
-                var data = await Get(code, type);
+                var data = await Get(code, type, language: language);
                 if (data == null) continue;
 
                 items.Add(data);

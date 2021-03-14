@@ -1,6 +1,7 @@
 using BlizzTrack.Constraint;
 using Core.Models;
 using Core.Tooling;
+using Metalface.AspNetCore.ServerTiming;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Builder;
@@ -51,6 +52,7 @@ namespace BlizzTrack
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddResponseCompression();
+            services.AddServerTiming();
 
             services.AddSwaggerGen(options =>
             {
@@ -241,6 +243,7 @@ namespace BlizzTrack
                 app.UseExceptionHandler("/Error");
             }
 
+            app.UseServerTiming();
             app.UseResponseCompression();
 
             app.UseStaticFiles(new StaticFileOptions

@@ -13,7 +13,7 @@ using Tooling.Attributes;
 
 namespace Tooling.Tools
 {
-    [Tool(Name = "Legacy Patch Notes", Disabled = true)]
+    [Tool(Name = "Legacy Patch Notes", Disabled = false)]
     public class LegacyPatchNotes : ITool
     {
         private readonly IGameParents gameParents;
@@ -36,26 +36,25 @@ namespace Tooling.Tools
 
             var dataItems = new List<PatchNote>();
 
-            foreach (var parent in games)
+            foreach (var langauge in new[] { "en-us", "fr-fr", "ko-kr" })
             {
-                List<PatchNote> data = parent.PatchNoteTool switch
+                foreach (var parent in games)
                 {
-                    "overwatch" => await OverwatchPatchNotes(parent),
-                    "legacy" => await OldPatchNotes(parent),
-                    _ => null
-                };
+                    List<PatchNote> data = parent.PatchNoteTool switch
+                    {
+                        "overwatch" => await OverwatchPatchNotes(parent, langauge),
+                        "legacy" => await OldPatchNotes(parent, langauge),
+                        _ => null
+                    };
 
-                if (parent.PatchNoteTool == "overwatch")
-                {
-                    dataItems.AddRange(await OldPatchNotes(parent));
+                    if (parent.PatchNoteTool == "overwatch")
+                    {
+                        dataItems.AddRange(await OldPatchNotes(parent, langauge));
+                    }
+
+                    dataItems.AddRange(data);
                 }
-
-                dataItems.AddRange(data);
-
-                // logger.LogInformation($"{parent.Name} has size: {data.Count}");
             }
-
-            // logger.LogInformation($"Total size has size: {dataItems.Count}");
 
             var hasChanges = false;
             Console.Clear();
@@ -78,18 +77,18 @@ namespace Tooling.Tools
 
             foreach (var item in dataItems)
             {
-                pbar.Message = $"Processing: {item.Code} {item.Type}";
+                pbar.Message = $"Processing: {item.Code} {item.Type} {item.Language}";
 
                 // logger.LogInformation($"Processing: {item.Code} {item.Type} {item.Created}");
 
-                var exist = await dbContext.PatchNotes.FirstOrDefaultAsync(x => x.Code == item.Code && x.Type == item.Type && x.Created == item.Created);
+                var exist = await dbContext.PatchNotes.FirstOrDefaultAsync(x => x.Code == item.Code && x.Type == item.Type && x.Created == item.Created && x.Language == item.Language);
                 if (exist != null)
                 {
                     if (exist.Updated != item.Updated)
                     {
                         exist.Updated = item.Updated;
                         exist.Body = item.Body;
-
+                        exist.Language = item.Language;
                         dbContext.Update(exist);
                         hasChanges = true;
                     }
@@ -110,16 +109,16 @@ namespace Tooling.Tools
 
             TimeSpan ts = stopWatch.Elapsed;
             string elapsedTime = $"{ts.Hours:00}:{ts.Minutes:00}:{ts.Seconds:00}.{ts.Milliseconds / 10:00}";
-            // logger.LogInformation($"Patch Notes took {elapsedTime}");
+            logger.LogInformation($"Patch Notes took {elapsedTime}");
         }
 
-        private static async Task<List<PatchNote>> OverwatchPatchNotes(Core.Models.GameParents parent)
+        private static async Task<List<PatchNote>> OverwatchPatchNotes(Core.Models.GameParents parent, string locale)
         {
             var res = new List<PatchNote>();
 
             foreach (var code in parent.PatchNoteAreas)
             {
-                var url = $"https://cdn.blz-contentstack.com/v3/content_types/game_update/entries?desc=post_date&environment=prod&query={{\"type\":\"{code}\", \"expired\":false}}&limit=200&locale=en-us";
+                var url = $"https://cdn.blz-contentstack.com/v3/content_types/game_update/entries?desc=post_date&environment=prod&query={{\"type\":\"{code}\", \"expired\":false}}&limit=200&locale={locale}";
 
                 var headers = new Dictionary<string, string>()
                 {
@@ -138,6 +137,7 @@ namespace Tooling.Tools
 
                         note.Type = code;
                         note.Code = parent.Code;
+                        note.Language = locale;
 
                         res.Add(note);
                     }
@@ -147,7 +147,7 @@ namespace Tooling.Tools
             return res;
         }
 
-        private static async Task<List<PatchNote>> OldPatchNotes(Core.Models.GameParents parent)
+        private static async Task<List<PatchNote>> OldPatchNotes(Core.Models.GameParents parent, string locale)
         {
             var res = new List<PatchNote>();
 
@@ -160,11 +160,18 @@ namespace Tooling.Tools
                     if (c == "experimental") continue;
                 }
 
-                var url = $"https://cache-cms-ext-us.battle.net/system/cms/oauth/api/patchnote/list?program={(parent.PatchNoteCode ?? parent.Code)}&region=us&locale=enUS&type={c}&page=1&pageSize=200&orderBy=buildNumber";
+                var url = $"https://cache-cms-ext-us.battle.net/system/cms/oauth/api/patchnote/list?program={(parent.PatchNoteCode ?? parent.Code)}&region=us&locale={locale}&type={c}&page=1&pageSize=200&orderBy=buildNumber";
 
+                Console.WriteLine(url);
+                
                 var data = await BNetLib.Http.RemoteJson.Get<BNetLib.Models.Patchnotes.Legacy.Root>(url);
-    
-                foreach (var item in data.Item1.PatchNotes) {
+            
+                if(data.Item1.PatchNotes == null || data.Item2 == null)
+                {
+                    continue;
+                }
+
+                foreach (var item in data.Item1?.PatchNotes) {
                     var f = item;
 
                     var note = PatchNote.Create(JsonConvert.SerializeObject(f));
@@ -176,6 +183,7 @@ namespace Tooling.Tools
 
                     note.Type = code;
                     note.Code = parent.Code;
+                    note.Language = locale;
 
                     res.Add(note);
                 }

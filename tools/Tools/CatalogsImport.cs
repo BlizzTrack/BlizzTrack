@@ -19,7 +19,7 @@ using Tooling.Attributes;
 
 namespace Tooling.Tools
 {
-    [Tool(Name = "Catalogs Import", Disabled = false)]
+    [Tool(Name = "Catalogs Import", Disabled = true)]
     public class CatalogsImport : ITool
     {
         private readonly IVersions _versions;

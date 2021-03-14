@@ -63,22 +63,31 @@ namespace Worker.Workers
                 var parents = await _gameParents.All();
 
                 var dataItems = new List<PatchNote>();
-                foreach (var parent in parents.Where(x => x.PatchNoteAreas?.Count > 0))
+                foreach (var langauge in new[] { "en-us", "fr-fr", "ko-kr" })
                 {
-                    List<PatchNote> data = parent.PatchNoteTool switch
+                    foreach (var parent in parents.Where(x => x.PatchNoteAreas?.Count > 0))
                     {
-                        "overwatch" => await OverwatchPatchNotes(parent),
-                        "legacy" => await LegacyPatchNotes(parent),
-                        _ => null
-                    };
+                        List<PatchNote> data = parent.PatchNoteTool switch
+                        {
+                            "overwatch" => await OverwatchPatchNotes(parent, langauge),
+                            "legacy" => await LegacyPatchNotes(parent, langauge),
+                            _ => null
+                        };
 
-                    dataItems.AddRange(data);
+                        dataItems.AddRange(data);
+                    }
                 }
 
                 var hasChanges = false;
                 foreach (var item in dataItems)
                 {
-                    var exist = await _dbContext.PatchNotes.FirstOrDefaultAsync(x => x.Code == item.Code && x.Type == item.Type && x.Created == item.Created, cancellationToken: cancellationToken);
+                    var exist = await _dbContext.PatchNotes.FirstOrDefaultAsync(x => 
+                        x.Code == item.Code && 
+                        x.Type == item.Type && 
+                        x.Created == item.Created && 
+                        item.Language == x.Language,
+                    cancellationToken: cancellationToken);
+
                     if (exist != null)
                     {
                         if (exist.Updated != item.Updated)
@@ -110,13 +119,13 @@ namespace Worker.Workers
             }
         }
 
-        private static async Task<List<PatchNote>> OverwatchPatchNotes(GameParents parent)
+        private static async Task<List<PatchNote>> OverwatchPatchNotes(GameParents parent, string locale = "en-us")
         {
             var res = new List<PatchNote>();
 
             foreach (var code in parent.PatchNoteAreas)
             {
-                var url = $"https://cdn.blz-contentstack.com/v3/content_types/game_update/entries?desc=post_date&environment=prod&query={{\"type\":\"{code}\", \"expired\":false}}&limit=1&locale=en-us";
+                var url = $"https://cdn.blz-contentstack.com/v3/content_types/game_update/entries?desc=post_date&environment=prod&query={{\"type\":\"{code}\", \"expired\":false}}&limit=1&locale={locale}";
 
                 var headers = new Dictionary<string, string>()
                 {
@@ -136,6 +145,7 @@ namespace Worker.Workers
 
                     note.Type = code;
                     note.Code = parent.Code;
+                    note.Language = locale;
 
                     res.Add(note);
                 }
@@ -144,15 +154,17 @@ namespace Worker.Workers
             return res;
         }
 
-        private static async Task<List<PatchNote>> LegacyPatchNotes(GameParents parent)
+        private static async Task<List<PatchNote>> LegacyPatchNotes(GameParents parent, string locale = "en-us")
         {
             var res = new List<PatchNote>();
 
             foreach (var code in parent.PatchNoteAreas)
             {
-                var url = $"https://cache-cms-ext-us.battle.net/system/cms/oauth/api/patchnote/list?program={(parent.PatchNoteCode ?? parent.Code)}&region=us&locale=enUS&type={code}&page=1&pageSize=1&orderBy=buildNumber";
+                var url = $"https://cache-cms-ext-us.battle.net/system/cms/oauth/api/patchnote/list?program={(parent.PatchNoteCode ?? parent.Code)}&region=us&locale={locale}&type={code}&page=1&pageSize=1&orderBy=buildNumber";
 
                 var data = await BNetLib.Http.RemoteJson.Get<BNetLib.Models.Patchnotes.Legacy.Root>(url);
+
+                if (data.Item1.PatchNotes == null) continue;
 
                 var f = data.Item1.PatchNotes.First();
 
@@ -165,6 +177,7 @@ namespace Worker.Workers
 
                 note.Type = code;
                 note.Code = parent.Code;
+                note.Language = locale;
 
                 res.Add(note);
             }
