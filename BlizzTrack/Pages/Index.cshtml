@@ -134,7 +134,7 @@
                                     </td>
                                     <td>
                                         <time>
-                                            @Model.GameVersions.FirstOrDefault(x => x.Code == item.Product && x.Type == item.Flags)?.Updated.ToString("ddd, dd MMM yyyy hh:mm:ss ") GMT
+                                            @Model.GameVersions.FirstOrDefault(x => x.Code == item.Product && x.Type == item.Flags)?.Updated.ToString("MMMM dd, yyyy hh:mm tt")
                                         </time>
                                     </td>
                                     <td>@item.Product</td>
@@ -275,7 +275,7 @@
                                     </td>
                                     <td>
                                         <time>
-                                            @Model.GameVersions.FirstOrDefault(x => x.Code == item.newest.Product && x.Type == item.newest.Flags)?.Updated.ToString("ddd, dd MMM yyyy hh:mm:ss ") GMT
+                                            @Model.GameVersions.FirstOrDefault(x => x.Code == item.newest.Product && x.Type == item.newest.Flags)?.Updated.ToString("MMMM dd, yyyy hh:mm tt")
                                         </time>
                                     </td>
                                     <td>@item.newest.Product</td>
@@ -521,7 +521,7 @@
                                             </td>
                                             <td>
                                                 <time>
-                                                    @Model.GameVersions.FirstOrDefault(x => x.Code == item.Product && x.Type == item.Flags)?.Updated.ToString("ddd, dd MMM yyyy hh:mm:ss ") GMT
+                                                    @Model.GameVersions.FirstOrDefault(x => x.Code == item.Product && x.Type == item.Flags)?.Updated.ToString("MMMM dd, yyyy hh:mm tt")
                                                 </time>
                                             </td>
                                             <td>@item.Product</td>
@@ -611,7 +611,7 @@
                                     <td>@config.GetName()</td>
                                     <td>
                                         <time>
-                                            @Model.GameVersions.FirstOrDefault(x => x.Code == item.Product && x.Type == item.Flags)?.Updated.ToString("ddd, dd MMM yyyy hh:mm:ss ") GMT
+                                            @Model.GameVersions.FirstOrDefault(x => x.Code == item.Product && x.Type == item.Flags)?.Updated.ToString("MMMM dd, yyyy hh:mm tt")
                                         </time>
                                     </td>
                                     <td>@item.Product</td>
