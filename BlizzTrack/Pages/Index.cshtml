@@ -29,7 +29,7 @@
                         <div class="card-category">Search Results in latest manifest</div>
                     </div>
                 </div>
-                <div class="card-body pt-1 px-0 pb-0">
+                <div class="card-body pt-0 px-0 pb-0">
                     @foreach (var item in Model.Manifests.First().Content.Where(x => x.GetName().Contains(Model.Search, StringComparison.OrdinalIgnoreCase) || x.Product.Contains(Model.Search, StringComparison.OrdinalIgnoreCase)))
                     {
                         if (item.Flags == "cdn") continue;
@@ -141,7 +141,7 @@
                         <div class="card-category">Recent Updates @Model.Manifests.First().Seqn &#x2B05; @Model.Manifests.Last().Seqn</div>
                     </div>
                 </div>
-                <div class="card-body pt-1 px-0 pb-0">
+                <div class="card-body pt-0 px-0 pb-0">
                     @foreach (var item in Model.SummaryDiff.OrderByAlphaNumeric(x => x.newest.Product))
                     {
                         if (item.newest.Flags == "cdn") continue;
@@ -321,7 +321,7 @@
                     <feature name="@nameof(Helpers.FeatureFlags.PatchNotes)">
                         @if (parent.PatchNoteAreas?.Count > 0)
                         {
-                            <div class="card-body pt-0 pb-1 px-0">
+                            <div class="card-body pt-0 pb-0 px-0">
                                 <div class="d-none d-lg-block">
                                     <div class="btn-group special no-radius w-100" role="group" aria-label="...">
                                         @foreach (var item in parent.PatchNoteAreas)
@@ -350,7 +350,7 @@
                             </div>
                         }
                     </feature>
-                    <div class="card-body pt-1 px-0 pb-0">
+                    <div class="card-body pt-0 px-0 pb-0">
                         @foreach (var item in gamesList.OrderByAlphaNumeric(x => x.Product))
                         {
                             latestCodes.Remove(item);
@@ -465,7 +465,7 @@
                         <h2 class="card-title mb-0">Unknown Games</h2>
                     </div>
                 </div>
-                <div class="card-body pt-1 px-0 pb-0">
+                <div class="card-body pt-0 px-0 pb-0">
                     @foreach (var item in latestCodes.OrderByAlphaNumeric(x => x.Product))
                     {
                         if (item.Flags == "cdn") continue;
