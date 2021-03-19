@@ -174,3 +174,57 @@ code {
 .btn.btn-primary {
     color: white !important;
 }
+
+.game-item-link {
+    -moz-transition: all 250ms;
+    -webkit-transition: all 250ms;
+    transition: all 250ms;
+    background: rgba(0,0,0,0);
+}
+
+.game-item-link h3 {
+    font-size: large;
+    -moz-transition: all 250ms;
+    -webkit-transition: all 250ms;
+    transition: all 250ms;
+}
+
+    .game-item-link:hover {
+        box-shadow: 2px 2px 6px rgb(0 0 0 / 40%);
+        transform: translateY(-1px);
+        -webkit-transform: translateY(-1px);
+        background: rgba(0,0,0,.1);
+    }
+
+
+    .game-item-link:hover .arrow {
+        opacity: 1;
+    }
+
+        .game-item-link:hover h3 {
+            color: rgb(255,255,255);
+        }
+
+.card-body .game-item-link:not(:last-of-type) {
+    margin-bottom: 5px !important;
+}
+
+.arrow {
+    font-size: 2.5em;
+    opacity: 0.2;
+    -moz-transition: all 250ms;
+    -webkit-transition: all 250ms;
+    transition: all 250ms;
+}
+
+.card-title {
+    margin-bottom: 5px !important;
+}
+
+.card-header {
+        background: rgba(0,0,0, 0.2) !important;
+}
+
+.section-title .card-header {
+    background: transparent !important;
+}

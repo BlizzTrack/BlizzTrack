@@ -74,7 +74,8 @@ namespace Worker.Workers
                             _ => null
                         };
 
-                        dataItems.AddRange(data);
+                        if(data != null)
+                            dataItems.AddRange(data);
                     }
                 }
 
