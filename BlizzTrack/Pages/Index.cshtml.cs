@@ -64,6 +64,7 @@ namespace BlizzTrack.Pages
         public async Task OnGetAsync()
         {
             Parents = await _gameParents.All();
+            Parents = Parents.Where(x => x.Visible == true).ToList();
 
             CatalogEntries  = await _dbContext.Catalogs
                 .OrderByDescending(x => x.Indexed)
