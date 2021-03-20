@@ -59,17 +59,17 @@ namespace BNetLib.Networking
                     {
                         var result = await reader.ReadToEndAsync();
 
-                        /// From TactLib -> https://github.com/overtools/TACTLib/blob/7d2ecbc98b83a315ea599fd519403fa0d8b24dce/TACTLib/Protocol/Ribbit/RibbitClient.cs
+                        // From TactLib -> https://github.com/overtools/TACTLib/blob/7d2ecbc98b83a315ea599fd519403fa0d8b24dce/TACTLib/Protocol/Ribbit/RibbitClient.cs
                         var text = result.Split("\n");
                         var boundary = text.FirstOrDefault(x => x.Trim().StartsWith("Content-Type:"))?.Split(';').FirstOrDefault(x => x.Trim().StartsWith("boundary="))?.Split('"')[1].Trim();
                         var data = text.SkipWhile(x => x.Trim() != "--" + boundary).Skip(1).TakeWhile(x => x.Trim() != "--" + boundary).Skip(1);
 
-                        var (Value, Seqn) = BNetTools.Parse<T>(data);
+                        var (value, seqn) = BNetTools.Parse<T>(data);
 
                         return new ClientResult<T>()
                         {
-                            Payload = Value,
-                            Seqn = Seqn,
+                            Payload = value,
+                            Seqn = seqn,
                             Raw = result
                         };
                     }

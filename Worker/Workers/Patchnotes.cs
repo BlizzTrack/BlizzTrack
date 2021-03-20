@@ -15,18 +15,18 @@ namespace Worker.Workers
 {
     internal class PatchnotesHosted : IHostedService
     {
-        private readonly IServiceProvider serviceProvider;
+        private readonly IServiceProvider _serviceProvider;
 
         public PatchnotesHosted(IServiceProvider serviceProvider)
         {
-            this.serviceProvider = serviceProvider;
+            _serviceProvider = serviceProvider;
         }
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
             Task.Run(() =>
             {
-                var c = ActivatorUtilities.CreateInstance<Patchnotes>(serviceProvider);
+                var c = ActivatorUtilities.CreateInstance<Patchnotes>(_serviceProvider);
                 c.Run(cancellationToken);
             }, cancellationToken);
 
@@ -57,20 +57,20 @@ namespace Worker.Workers
                 var stopWatch = Stopwatch.StartNew();
 
                 using var sc = _serviceScope.CreateScope();
-                var _gameParents = sc.ServiceProvider.GetRequiredService<Core.Services.IGameParents>();
-                var _dbContext = sc.ServiceProvider.GetRequiredService<DBContext>();
+                var gameParents = sc.ServiceProvider.GetRequiredService<Core.Services.IGameParents>();
+                var dbContext = sc.ServiceProvider.GetRequiredService<DBContext>();
 
-                var parents = await _gameParents.All();
+                var parents = await gameParents.All();
 
                 var dataItems = new List<PatchNote>();
-                foreach (var langauge in new[] { "en-us", "fr-fr", "ko-kr", "es-es" })
+                foreach (var language in new[] { "en-us", "fr-fr", "ko-kr", "es-es" })
                 {
                     foreach (var parent in parents.Where(x => x.PatchNoteAreas?.Count > 0))
                     {
-                        List<PatchNote> data = parent.PatchNoteTool switch
+                        var data = parent.PatchNoteTool switch
                         {
-                            "overwatch" => await OverwatchPatchNotes(parent, langauge),
-                            "legacy" => await LegacyPatchNotes(parent, langauge),
+                            "overwatch" => await OverwatchPatchNotes(parent, language),
+                            "legacy" => await LegacyPatchNotes(parent, language),
                             _ => null
                         };
 
@@ -82,7 +82,7 @@ namespace Worker.Workers
                 var hasChanges = false;
                 foreach (var item in dataItems)
                 {
-                    var exist = await _dbContext.PatchNotes.FirstOrDefaultAsync(x => 
+                    var exist = await dbContext.PatchNotes.FirstOrDefaultAsync(x => 
                         x.Code == item.Code && 
                         x.Type == item.Type && 
                         x.Created == item.Created && 
@@ -96,25 +96,24 @@ namespace Worker.Workers
                             exist.Updated = item.Updated;
                             exist.Body = item.Body;
 
-                            _dbContext.Update(exist);
+                            dbContext.Update(exist);
                             hasChanges = true;
                         }
                     }
                     else
                     {
-                        _dbContext.Add(item);
+                        dbContext.Add(item);
                         hasChanges = true;
                     }
                 }
 
                 if (hasChanges)
                 {
-                    await _dbContext.SaveChangesAsync(cancellationToken);
+                    await dbContext.SaveChangesAsync(cancellationToken);
                 }
 
-                TimeSpan ts = stopWatch.Elapsed;
-                string elapsedTime = $"{ts.Hours:00}:{ts.Minutes:00}:{ts.Seconds:00}.{ts.Milliseconds / 10:00}";
-                _logger.LogDebug($"Patch Notes took {elapsedTime}");
+                var ts = stopWatch.Elapsed;
+                _logger.LogDebug($"Patch Notes took {ts.Hours:00}:{ts.Minutes:00}:{ts.Seconds:00}.{ts.Milliseconds / 10:00}");
 
                 await Task.Delay(TimeSpan.FromSeconds(30), cancellationToken);
             }

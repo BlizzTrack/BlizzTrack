@@ -59,8 +59,8 @@ namespace BlizzTrack.API
                 Code = x.Product,
                 File = x.Flags,
                 Versions = Url.Action("Versions", "Manifest", new { code = x.Product }, Scheme()),
-                CDNs = Url.Action("CDNs", "Manifest", new { code = x.Product }, Scheme()),
-                BGDL = Url.Action("BGDL", "Manifest", new { code = x.Product }, Scheme()),
+                CDNs = Url.Action("CdNs", "Manifest", new { code = x.Product }, Scheme()),
+                BGDL = Url.Action("Bgdl", "Manifest", new { code = x.Product }, Scheme()),
                 Seqn = new Dictionary<Results.SeqnType, string>()
                 {
                     { 
@@ -138,7 +138,7 @@ namespace BlizzTrack.API
                         {
                             Seqn = x.Seqn,
                             Indexed = x.Indexed,
-                            View = Url.Action("BGDL", "Manifest", new
+                            View = Url.Action("Bgdl", "Manifest", new
                             {
                                 code = x.Code,
                                 seqn = x.Seqn
@@ -153,7 +153,7 @@ namespace BlizzTrack.API
                         {
                             Seqn = x.Seqn,
                             Indexed = x.Indexed,
-                            View = Url.Action("CDNs", "Manifest", new
+                            View = Url.Action("CdNs", "Manifest", new
                             {
                                 code = x.Code,
                                 seqn = x.Seqn
@@ -235,7 +235,7 @@ namespace BlizzTrack.API
         [HttpGet("bgdl/{code}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Results.Result<List<Results.Versions>>))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ReponseTypes.NotFound))]
-        public async Task<IActionResult> BGDL(string code, int? seqn)
+        public async Task<IActionResult> Bgdl(string code, int? seqn)
         {
             var res = new Results.Result<List<Results.Versions>>();
 
@@ -294,7 +294,7 @@ namespace BlizzTrack.API
         [HttpGet("cdns/{code}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Results.Result<List<Results.CDNs>>))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ReponseTypes.NotFound))]
-        public async Task<IActionResult> CDNs(string code, int? seqn)
+        public async Task<IActionResult> CdNs(string code, int? seqn)
         {
             var res = new Results.Result<List<Results.CDNs>>();
 

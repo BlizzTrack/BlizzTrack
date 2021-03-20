@@ -19,18 +19,18 @@ namespace Worker.Workers
 {
     internal class SummaryHosted : IHostedService
     {
-        private readonly IServiceProvider serviceProvider;
+        private readonly IServiceProvider _serviceProvider;
 
         public SummaryHosted(IServiceProvider serviceProvider)
         {
-            this.serviceProvider = serviceProvider;
+            _serviceProvider = serviceProvider;
         }
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
             Task.Run(() =>
             {
-                var c = ActivatorUtilities.CreateInstance<Summary>(serviceProvider);
+                var c = ActivatorUtilities.CreateInstance<Summary>(_serviceProvider);
                 c.Run(cancellationToken);
             }, cancellationToken);
 
@@ -46,15 +46,13 @@ namespace Worker.Workers
     internal class Summary
     {
         private readonly BNetClient _bNetClient;
-        private readonly ProductConfig _productConfig;
         private readonly ILogger<Summary> _logger;
         private readonly IServiceScopeFactory _serviceScope;
         private readonly ConcurrentQueue<ConfigUpdate> _channelWriter;
 
-        public Summary(BNetClient bNetClient, ProductConfig productConfig, ILogger<Summary> logger, IServiceScopeFactory scopeFactory, ConcurrentQueue<ConfigUpdate> channelWriter)
+        public Summary(BNetClient bNetClient, ILogger<Summary> logger, IServiceScopeFactory scopeFactory, ConcurrentQueue<ConfigUpdate> channelWriter)
         {
             _bNetClient = bNetClient;
-            _productConfig = productConfig;
             _logger = logger;
             _serviceScope = scopeFactory;
             _channelWriter = channelWriter;
@@ -62,24 +60,24 @@ namespace Worker.Workers
 
         public async void Run(CancellationToken cancellationToken)
         {
-            bool firstRun = true;
+            var firstRun = true;
             while (!cancellationToken.IsCancellationRequested)
             {
                 var stopWatch = Stopwatch.StartNew();
 
                 using var sc = _serviceScope.CreateScope();
-                var _summary = sc.ServiceProvider.GetRequiredService<Core.Services.ISummary>();
-                var _dbContext = sc.ServiceProvider.GetRequiredService<DBContext>();
+                var summary = sc.ServiceProvider.GetRequiredService<Core.Services.ISummary>();
+                var dbContext = sc.ServiceProvider.GetRequiredService<DBContext>();
 
-                var latest = await _summary.Latest();
+                var latest = await summary.Latest();
                 if (firstRun)
                 {
                     foreach (var item in latest.Content)
                     {
-                        await AddItemToData(item, latest.Seqn, _dbContext, cancellationToken);
+                        await AddItemToData(item, latest.Seqn, dbContext, cancellationToken);
                     }
 
-                    _dbContext.SaveChanges();
+                    await dbContext.SaveChangesAsync(cancellationToken);
 
                     firstRun = false;
                 }
@@ -91,21 +89,21 @@ namespace Worker.Workers
                     try
                     {
                         latest.Raw = res.Raw;
-                        _dbContext.Summary.Add(latest);
-                        _dbContext.SaveChanges();
+                        await dbContext.Summary.AddAsync(latest, cancellationToken);
+                        await dbContext.SaveChangesAsync(cancellationToken);
                     }
                     catch (Exception ex)
                     {
                         _logger.LogCritical($"Failed to write summary: {ex}");
                     }
 
-                    var latestItems = latest?.Content.ToList() ?? new List<BNetLib.Models.Summary>();
                     foreach (var item in res.Payload)
                     {
                         try
                         {
-                            await AddItemToData(item, latest.Seqn, _dbContext, cancellationToken);
-                            _dbContext.SaveChanges();
+                            if (latest is not null)
+                                await AddItemToData(item, latest.Seqn, dbContext, cancellationToken);
+                            await dbContext.SaveChangesAsync(cancellationToken);
                         }
                         catch (Exception ex)
                         {
@@ -129,7 +127,7 @@ namespace Worker.Workers
             var code = msg.Product;
 
             object data;
-            int seqn = -1;
+            int seqn;
             string raw;
 
             switch (msg.Flags)
@@ -144,11 +142,11 @@ namespace Worker.Workers
                             return;
                         }
 
-                        var (Value, Seqn, Raw) = await GetMetaData<BNetLib.Models.Versions>(msg);
+                        var (value, s, r) = await GetMetaData<BNetLib.Models.Versions>(msg);
 
-                        data = Value;
-                        seqn = Seqn;
-                        raw = Raw;
+                        data = value;
+                        seqn = s;
+                        raw = r;
 
                         break;
                     }
@@ -162,11 +160,11 @@ namespace Worker.Workers
                             return;
                         }
 
-                        var (Value, Seqn, Raw) = await GetMetaData<BNetLib.Models.CDN>(msg);
+                        var (value, s, r) = await GetMetaData<BNetLib.Models.CDN>(msg);
 
-                        data = Value;
-                        seqn = Seqn;
-                        raw = Raw;
+                        data = value;
+                        seqn = s;
+                        raw = r;
                         break;
                     }
                 case "bgdl":
@@ -180,11 +178,11 @@ namespace Worker.Workers
                         }
 
 
-                        var (Value, Seqn, Raw) = await GetMetaData<BNetLib.Models.BGDL>(msg);
+                        var (value, s, r) = await GetMetaData<BNetLib.Models.BGDL>(msg);
 
-                        data = Value;
-                        seqn = Seqn;
-                        raw = Raw;
+                        data = value;
+                        seqn = s;
+                        raw = r;
                         break;
                     }
                 default:
@@ -224,7 +222,8 @@ namespace Worker.Workers
                             if (msg.Product == "catalogs") config = ver.Last();
                             if (msg.Product == "bts") config = ver.FirstOrDefault(x => x.Region == "launcher");
 
-                            await CheckifEncrypted(msg, config.Productconfig, db, _logger, cancellationToken);
+                            if (config is not null)
+                                await CheckifEncrypted(msg, config.Productconfig, db, _logger, cancellationToken);
                         }
 
                         var f = Manifest<BNetLib.Models.Versions[]>.Create(seqn, code, ver.ToArray());
@@ -263,7 +262,7 @@ namespace Worker.Workers
 
             switch (typeof(T))
             {
-                case Type versionType when versionType == typeof(BNetLib.Models.Versions):
+                case { } versionType when versionType == typeof(BNetLib.Models.Versions):
                     {
                         var payload = await _bNetClient.Versions(msg.Product);
                         data = (IList<T>)payload.Payload;
@@ -272,7 +271,7 @@ namespace Worker.Workers
                     }
                     break;
 
-                case Type bgdlType when bgdlType == typeof(BNetLib.Models.BGDL):
+                case { } bgdlType when bgdlType == typeof(BNetLib.Models.BGDL):
                     {
                         var payload = await _bNetClient.BGDL(msg.Product);
                         data = (IList<T>)payload.Payload;
@@ -281,7 +280,7 @@ namespace Worker.Workers
                     }
                     break;
 
-                case Type cdnType when cdnType == typeof(BNetLib.Models.CDN):
+                case { } cdnType when cdnType == typeof(BNetLib.Models.CDN):
                     {
                         var payload = await _bNetClient.CDN(msg.Product);
                         data = (IList<T>)payload.Payload;
@@ -303,14 +302,15 @@ namespace Worker.Workers
             return (data, seqn, raw);
         }
 
-        private async Task CheckifEncrypted(BNetLib.Models.Summary msg, string productConfig, DBContext dbContext, ILogger<Summary> _logger, CancellationToken cancellationToken)
+        private async Task CheckifEncrypted(BNetLib.Models.Summary msg, string productConfig, DBContext dbContext, ILogger<Summary> logger, CancellationToken cancellationToken)
         {
-            if (msg.Flags == "cdn" || msg.Flags == "bgdl") return;
+            var (product, _, flags) = msg;
+            if (flags == "cdn" || flags == "bgdl") return;
 
           
-            var currentGameConfig = await dbContext.GameConfigs.FirstOrDefaultAsync(x => x.Code == msg.Product, cancellationToken: cancellationToken);
+            var currentGameConfig = await dbContext.GameConfigs.FirstOrDefaultAsync(x => x.Code == product, cancellationToken: cancellationToken);
 
-            string file = string.Empty;
+            string file;
 
             if(string.IsNullOrWhiteSpace(productConfig))
             {
@@ -319,17 +319,17 @@ namespace Worker.Workers
 
             try
             {
-                file = await _productConfig.GetRaw(productConfig);
+                file = await ProductConfig.GetRaw(productConfig);
             }
             catch
             {
                 // Add missing game even if it's 404, this is for a later feature
-                _logger.LogCritical($"{msg.Product} product config doesn't exist");
+                logger.LogCritical($"{product} product config doesn't exist");
                 if (currentGameConfig == null)
                 {
                     await dbContext.GameConfigs.AddAsync(new GameConfig()
                     {
-                        Code = msg.Product,
+                        Code = product,
                         Config = new ConfigItems()
                         {
                             Encrypted = false,
@@ -343,7 +343,7 @@ namespace Worker.Workers
                 return;
             }
 
-            _logger.LogDebug($"checking {msg.Product} if encrypted or not ");
+            logger.LogDebug($"checking {product} if encrypted or not ");
 
             if (file.Contains("\"decryption_key_name\""))
             {
@@ -353,7 +353,7 @@ namespace Worker.Workers
                 {
                     await dbContext.GameConfigs.AddAsync(new GameConfig()
                     {
-                        Code = msg.Product,
+                        Code = product,
                         Config = new ConfigItems()
                         {
                             Encrypted = true,
@@ -373,7 +373,7 @@ namespace Worker.Workers
                 {
                     await dbContext.GameConfigs.AddAsync(new GameConfig()
                     {
-                        Code = msg.Product,
+                        Code = product,
                         Config = new ConfigItems()
                         {
                             Encrypted = false,

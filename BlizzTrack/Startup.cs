@@ -38,16 +38,15 @@ namespace BlizzTrack
 
             var results = GetAllEntities();
 
-            foreach (var result in results)
+            foreach (var ins in results.Select(result => (IGameToolStartup)Activator.CreateInstance(result)))
             {
-                var ins = (IGameToolStartup)Activator.CreateInstance(result);
-                gameToolStartups.Add(ins);
+                _gameToolStartups.Add(ins);
             }
         }
 
-        public IConfiguration Configuration { get; }
+        private IConfiguration Configuration { get; }
 
-        private readonly List<IGameToolStartup> gameToolStartups = new List<IGameToolStartup>();
+        private readonly List<IGameToolStartup> _gameToolStartups = new();
 
         public void ConfigureServices(IServiceCollection services)
         {
@@ -156,7 +155,7 @@ namespace BlizzTrack
             {
                 AbortOnConnectFail = false,
                 KeyPrefix = "BD_",
-                Hosts = new RedisHost[]
+                Hosts = new[]
                 {
                     new RedisHost { Host = Configuration.GetConnectionString("redis") ?? "localhost", Port = 6379 }
                 },
@@ -186,8 +185,8 @@ namespace BlizzTrack
             });
 
             // Blizzard services
-            services.AddSingleton(x => new BNetLib.Networking.BNetClient());
-            services.AddSingleton(x => new BNetLib.Http.ProductConfig());
+            services.AddSingleton(_ => new BNetLib.Networking.BNetClient());
+            services.AddSingleton(_ => new BNetLib.Http.ProductConfig());
 
             // System Services
             services.AddSingleton<Services.IBlizzardAlerts, Services.BlizzardAlerts>();
@@ -203,7 +202,7 @@ namespace BlizzTrack
             services.AddScoped<Core.Services.ICatalog, Core.Services.Catalog>();
 
             // Load external services
-            gameToolStartups.ForEach(x => x.ConfigureServices(ref services));
+            _gameToolStartups.ForEach(x => x.ConfigureServices(ref services));
         }
 
         public List<Type> GetAllEntities()
@@ -280,22 +279,23 @@ namespace BlizzTrack
                 endpoints.MapControllers();
                 endpoints.MapRazorPages();
 
-                gameToolStartups.ForEach(x => x.MapEndpoints(endpoints));
+                _gameToolStartups.ForEach(x => x.MapEndpoints(endpoints));
             });
         }
 
         private static void InitializeDatabase(IApplicationBuilder app)
         {
-            using var scope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope();
+            using var scope = app.ApplicationServices.GetService<IServiceScopeFactory>()?.CreateScope();
 
-            var ctx = scope.ServiceProvider.GetRequiredService<DBContext>();
-            ctx.Database.Migrate();
+            var ctx = scope?.ServiceProvider.GetRequiredService<DBContext>();
+            ctx?.Database.Migrate();
         }
 
         private static void InitializeRoles(IApplicationBuilder app)
         {
-            using var scope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope();
+            using var scope = app.ApplicationServices.GetService<IServiceScopeFactory>()?.CreateScope();
 
+            if (scope == null) return;
             var ctx = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
 
             // first we create Admin rool

@@ -40,6 +40,43 @@
             </div>
         </div>
     }
+    
+    <feature name="@nameof(FeatureFlags.PatchNotes)">
+        @if (Model.GameParent.PatchNoteAreas?.Count > 0)
+        {
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body pt-0 pb-0 px-0">
+                        <div class="d-none d-lg-block">
+                            <div class="btn-group special no-radius w-100" role="group" aria-label="...">
+                                @foreach (var item in Model.GameParent.PatchNoteAreas)
+                                {
+                                    <a asp-page="/PatchNotes" asp-route-slug="@Model.GameParent.Slug" asp-route-game_type="@item" class="btn btn-outline-default text-white m-0">
+                                        @GameTypeFixer.Fix(item) Patch Notes
+                                    </a>
+                                }
+                            </div>
+                        </div>
+                        <div class="d-lg-none">
+                            <div class="dropdown no-radius">
+                                <button class="btn btn-secondary dropdown-toggle w-100 " type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    Supported Patch Notes
+                                </button>
+                                <div class="dropdown-menu w-100" aria-labelledby="dropdownMenuButton">
+                                    @foreach (var item in Model.GameParent.PatchNoteAreas)
+                                    {
+                                        <a asp-page="/PatchNotes" asp-route-slug="@Model.GameParent.Slug" asp-route-game_type="@item" class="dropdown-item">
+                                            @GameTypeFixer.Fix(item) Patch Notes
+                                        </a>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </feature>
 
     @if (!string.IsNullOrEmpty(Model.Alert))
     {

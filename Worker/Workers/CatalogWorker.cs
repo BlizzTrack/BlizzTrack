@@ -1,5 +1,4 @@
-﻿using BNetLib.Http;
-using Core.Models;
+﻿using Core.Models;
 using Core.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -9,7 +8,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -19,18 +17,18 @@ namespace Worker.Workers
 {
     internal class CatalogWorkerHosted : IHostedService
     {
-        private readonly IServiceProvider serviceProvider;
+        private readonly IServiceProvider _serviceProvider;
 
         public CatalogWorkerHosted(IServiceProvider serviceProvider)
         {
-            this.serviceProvider = serviceProvider;
+            _serviceProvider = serviceProvider;
         }
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
             Task.Run(() =>
             {
-                var c = ActivatorUtilities.CreateInstance<CatalogWorker>(serviceProvider);
+                var c = ActivatorUtilities.CreateInstance<CatalogWorker>(_serviceProvider);
                 c.Run(cancellationToken);
             }, cancellationToken);
 
@@ -70,7 +68,6 @@ namespace Worker.Workers
 
                         await CatalogsConfig(item,
                             sc.ServiceProvider.GetRequiredService<ICDNs>(),
-                            sc.ServiceProvider.GetRequiredService<ProductConfig>(),
                             sc.ServiceProvider.GetRequiredService<DBContext>()
                         );
                     }
@@ -79,7 +76,6 @@ namespace Worker.Workers
                         _logger.LogInformation($"Product Config: {item.Code} {item.Hash}");
 
                         await ProductConfig(item,
-                            sc.ServiceProvider.GetRequiredService<ProductConfig>(),
                             sc.ServiceProvider.GetRequiredService<DBContext>()
                         );
                     }
@@ -91,14 +87,14 @@ namespace Worker.Workers
             _logger.LogCritical("Some how we got here for CatalogWorker");
         }
 
-        public async Task ProductConfig(ConfigUpdate config, ProductConfig _productConfig, DBContext _dbContext)
+        private async Task ProductConfig(ConfigUpdate config, DBContext dbContext)
         {
            
-            if(!await ManifestExist(config.Hash, _dbContext))
+            if(!await ManifestExist(config.Hash, dbContext))
             {
-                var json = await GetRaw(_productConfig, config.Hash);
+                var json = await GetRaw(config.Hash);
 
-                _dbContext.Add(new Core.Models.Catalog()
+                dbContext.Add(new Core.Models.Catalog()
                 {
                     Payload = json,
                     Hash = config.Hash,
@@ -106,23 +102,23 @@ namespace Worker.Workers
                     Type = CatalogType.ProductConfig,
                 });
 
-                await _dbContext.SaveChangesAsync();
+                await dbContext.SaveChangesAsync();
             }
         }
 
-        public async Task CatalogsConfig(ConfigUpdate config, ICDNs _cdns, ProductConfig _productConfig, DBContext _dbContext)
+        private async Task CatalogsConfig(ConfigUpdate config, ICDNs cdns, DBContext dbContext)
         {
-            var cdnUrl = await GetCDNUrl(_cdns, config.Code);
+            var cdnUrl = await GetCdnUrl(cdns, config.Code);
 
-            var buildConfig = await _productConfig.GetDictionary(config.Hash, $"{cdnUrl.Hosts.Split(" ").First()}/{cdnUrl.Path}/config");
+            var buildConfig = await BNetLib.Http.ProductConfig.GetDictionary(config.Hash, $"{cdnUrl.Hosts.Split(" ").First()}/{cdnUrl.Path}/config");
 
             var hash = buildConfig["root"];
             
             var fragments = new List<BNetLib.Catalogs.Models.Fragment>();
 
-            if (!await ManifestExist(buildConfig["root"], _dbContext))
+            if (!await ManifestExist(buildConfig["root"], dbContext))
             {
-                var json = await GetRaw(_productConfig, hash, $"{cdnUrl.Hosts.Split(" ").First()}/{cdnUrl.Path}/data");
+                var json = await GetRaw(hash, $"{cdnUrl.Hosts.Split(" ").First()}/{cdnUrl.Path}/data");
 
                 var s = new Dictionary<string, string>();
                 if (json.RootElement.TryGetProperty("strings", out var gameStrings))
@@ -137,7 +133,7 @@ namespace Worker.Workers
                     }
                 }
 
-                _dbContext.Add(new Core.Models.Catalog()
+                dbContext.Add(new Core.Models.Catalog()
                 {
                     Payload = json,
                     Hash = hash,
@@ -161,20 +157,20 @@ namespace Worker.Workers
 
                 foreach (var item in fragments)
                 {
-                    if (!await ManifestExist(item.hash, _dbContext))
+                    if (!await ManifestExist(item.hash, dbContext))
                     {
                         _logger.LogInformation($"Missing (Inserting): {item.name} {item.hash}");
 
-                        var gameJson = await GetRaw(_productConfig, item.hash, $"{cdnUrl.Hosts.Split(" ").First()}/{cdnUrl.Path}/data");
+                        var gameJson = await GetRaw(item.hash, $"{cdnUrl.Hosts.Split(" ").First()}/{cdnUrl.Path}/data");
 
                         var installs = new List<CatalogInstall>();
                         var strings = new Dictionary<string, string>();
 
-                        var is_Act = false;
+                        var isAct = false;
                         var translationName = string.Empty;
                         if (gameJson.RootElement.TryGetProperty("products", out var productsJson))
                         {
-                            JsonElement baseItem = new JsonElement();
+                            var baseItem = new JsonElement();
 
                             var products = productsJson.EnumerateArray();
 
@@ -190,7 +186,7 @@ namespace Worker.Workers
                             {
                                 if (baseItem.TryGetProperty("is_activision_game", out var f))
                                 {
-                                    is_Act = f.GetBoolean();
+                                    isAct = f.GetBoolean();
                                 }
 
                                 if (baseItem.TryGetProperty("name", out var n))
@@ -226,13 +222,13 @@ namespace Worker.Workers
                             }
                         }
 
-                        _dbContext.Add(new Core.Models.Catalog()
+                        dbContext.Add(new Core.Models.Catalog()
                         {
                             Payload = gameJson,
                             Hash = item.hash,
                             Name = item.name,
                             Type = CatalogType.Fragment,
-                            Activision = is_Act,
+                            Activision = isAct,
                             Installs = installs,
                             Translations = strings,
                             ProperName = translationName == string.Empty ? string.Empty : strings[translationName]
@@ -243,26 +239,26 @@ namespace Worker.Workers
                 }
 
                 _logger.LogInformation($"Saved fragment data");
-                await _dbContext.SaveChangesAsync();
+                await dbContext.SaveChangesAsync();
             }
         }
 
-        private async Task<BNetLib.Models.CDN> GetCDNUrl(ICDNs _cdns, string code)
+        private async Task<BNetLib.Models.CDN> GetCdnUrl(ICDNs cdns, string code)
         {
-            var latestCatalogCDN = await _cdns.Latest(code);
+            var latestCatalogCdn = await cdns.Latest(code);
 
-            return latestCatalogCDN.Content.FirstOrDefault(x => x.Name.Equals("us", StringComparison.OrdinalIgnoreCase));
+            return latestCatalogCdn.Content.FirstOrDefault(x => x.Name.Equals("us", StringComparison.OrdinalIgnoreCase));
         }
 
-        private async Task<bool> ManifestExist(string hash, DBContext _dbContext)
+        private async Task<bool> ManifestExist(string hash, DBContext dbContext)
         {
-            var exist = await _dbContext.Catalogs.FirstOrDefaultAsync(x => x.Hash == hash);
+            var exist = await dbContext.Catalogs.FirstOrDefaultAsync(x => x.Hash == hash);
 
             if (exist == null) return false;
             return true;
         }
 
-        public async Task<JsonDocument> GetRaw(ProductConfig _productConfig, string hash, string url = "level3.blizzard.com/tpr/configs/data", int count = 1)
+        private async Task<JsonDocument> GetRaw(string hash, string url = "level3.blizzard.com/tpr/configs/data", int count = 1)
         {
             if (count == 5)
             {
@@ -273,7 +269,7 @@ namespace Worker.Workers
             }
             try
             {
-                var gameConfig = await _productConfig.GetRaw(hash, url);
+                var gameConfig = await BNetLib.Http.ProductConfig.GetRaw(hash, url);
                 var gameJson = JsonDocument.Parse(gameConfig);
 
 
@@ -281,7 +277,7 @@ namespace Worker.Workers
             }catch
             {
                 await Task.Delay(TimeSpan.FromSeconds(1));
-                return await GetRaw(_productConfig, hash, url, ++count);
+                return await GetRaw(hash, url, ++count);
             }
         }
     }

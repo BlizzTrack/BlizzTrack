@@ -1,201 +1,338 @@
 ﻿@model List<Core.Models.Manifest<BNetLib.Models.Versions[]>>
-@inject Core.Services.ICDNs cdns
+@inject Core.Services.ICDNs Cdns
+@inject Core.Services.IGameParents GameParents;
 
 @{
-    var cdnConfig = await cdns.Latest(Model.First().Code);
+    var cdnConfig = await Cdns.Latest(Model.First().Code);
 
     var cdn = cdnConfig.Content.FirstOrDefault(x => x.Name == "us");
 
     var server = cdn?.Hosts.Split(" ").First();
 }
 
-<div class="col-sm-12">
-    <div class="card ">
-        <div class="card-header">
+<div class="col-lg-6 col-12">
+    <div class="card bg-transparent section-title mb-2">
+        <div class="card-header p-2">
             <div class="col-sm-12 text-left">
                 <h2 class="card-title">Current Seqn</h2>
-                <div class="card-category">@Model.First().Seqn was indexed on 
+                <div class="card-category">
+                    @Model.First().Seqn was indexed on 
                     <time>
-                        @Model.First().Indexed.ToString("ddd, dd MMM yyyy hh:mm:ss ") GMT
-                    </time></div>
-            </div>
-        </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table tablesorter table-hover ps" id="">
-                    <thead class=" text-primary">
-                        <tr>
-                            <th>
-                                Region
-                            </th>
-                            <th>
-                                Version
-                            </th>
-                            <th>
-                                Build Config
-                            </th>
-                            <th>
-                                CDN Config
-                            </th>
-                            <th>
-                                Product Config
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @if (Model.First().Content.Length > 0)
-                        {
-                            @foreach (var item in Model.First().Content)
-                            {
-                                <tr>
-                                    <td>@item.GetName()</td>
-                                    <td class="@(item.Versionsname != Model.Last().Content.FirstOrDefault(x => x.Region == item.Region)?.Versionsname ? "has-changed-data" : "")">
-                                        @item.Versionsname
-                                    </td>
-                                    <td class="@(item.Buildconfig != Model.Last().Content.FirstOrDefault(x => x.Region == item.Region)?.Buildconfig ? "has-changed-data" : "")">
-                                        @if (string.IsNullOrEmpty(server))
-                                        {
-                                            @item.Buildconfig
-                                        }  else {
-                                            var dest = $"{cdn.Path}/config/{string.Join("", item.Buildconfig.Take(2))}/{string.Join("", item.Buildconfig.Skip(2).Take(2))}/{item.Buildconfig}";
-
-                                            <a href="@($"http://{server}/{dest}")" target="_blank" rel="nofollow">
-                                                @item.Buildconfig
-                                            </a>
-                                        }
-                                    </td>
-                                    <td class="@(item.Cdnconfig != Model.Last().Content.FirstOrDefault(x => x.Region == item.Region)?.Cdnconfig ? "has-changed-data" : "")">
-                                        @if (string.IsNullOrEmpty(server))
-                                        {
-                                            @item.Cdnconfig
-                                        }
-                                        else
-                                        {
-                                            var dest = $"{cdn.Path}/config/{string.Join("", item.Cdnconfig.Take(2))}/{string.Join("", item.Cdnconfig.Skip(2).Take(2))}/{item.Cdnconfig}";
-
-                                            <a href="@($"http://{server}/{dest}")" target="_blank" rel="nofollow">
-                                                @item.Cdnconfig
-                                            </a>
-                                        }
-                                    </td>
-                                    <td class="@(item.Productconfig != Model.Last().Content.FirstOrDefault(x => x.Region == item.Region)?.Productconfig ? "has-changed-data" : "")">
-                                        @if (item.Productconfig == "versions" || string.IsNullOrEmpty(item.Productconfig))
-                                        {
-                                            @("N/A")
-                                        }
-                                        else
-                                        {
-                                            <a asp-page="/ViewGameConfigs" asp-route-hash="@item.Productconfig">
-                                                @item.Productconfig
-                                            </a>
-                                        }
-                                    </td>
-                                </tr>
-                            }
-                        } else
-                        {
-                            <tr>
-                                <td colspan="5" class="text-center my-3" style="font-size: large">
-                                    <i class="fas fa-times mr-1"></i> Empty Manifest
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
+                        @Model.First().Indexed.ToString("MMMM dd, yyyy hh:mm tt")
+                    </time>
+                </div>
             </div>
         </div>
     </div>
+        
+    @if (Model.First().Content.Length > 0)
+    {
+        @foreach (var item in Model.First().Content)
+        {
+            var prev = Model.Last().Content.FirstOrDefault(x => x.Region == item.Region);
+            
+            <div class="card">
+                <div class="card-header  p-2">
+                    <div class="col-sm-12 text-left">
+                        <h2 class="card-title">@item.GetName()</h2>
+                    </div>
+                </div>
+                <div class="card-body pt-0 px-0 pb-0">
+                    <div class="game-item-link p-2 px-3">
+                        <div class="d-flex">
+                            <div class="flex-fill">
+                                <h3 class="mt-0 mb-1">
+                                    @item.Versionsname
+                                    
+                                    @if (item.Versionsname != prev?.Versionsname)
+                                    {
+                                        <i class="fa fa-arrow-up"></i>
+                                    }
+                                </h3>
+                                <small>Current Version</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="game-item-link p-2 px-3">
+                        @if (string.IsNullOrEmpty(server))
+                        {
+                            <div class="d-flex">
+                                <div class="flex-fill">
+                                    <h3 class="mt-0 mb-1">
+                                        @item.Buildconfig
+                                        @if (item.Buildconfig != prev?.Buildconfig)
+                                        {
+                                            <i class="fa fa-arrow-up"></i>
+                                        }
+                                    </h3>
+                                    <small>Build config hash</small>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            var dest = $"{cdn.Path}/config/{string.Join("", (item.Buildconfig ?? string.Empty).Take(2))}/{string.Join("", (item.Buildconfig ?? string.Empty).Skip(2).Take(2))}/{item.Buildconfig}";
+                            <a href="@($"http://{server}/{dest}")" target="_blank" rel="nofollow" class="d-flex">
+                                <div class="flex-fill">
+                                    <h3 class="mt-0 mb-1">
+                                        @item.Buildconfig
+                                        @if (item.Buildconfig != prev?.Buildconfig)
+                                        {
+                                            <i class="fa fa-arrow-up"></i>
+                                        }
+                                    </h3>
+                                    <small>Build config hash</small>
+                                </div>
+                                <div class="d-flex font-weight-bolder arrow">
+                                    >
+                                </div>
+                            </a>
+                        }
+                    </div>
+                    
+                    <div class="game-item-link p-2 px-3">
+                        @if (string.IsNullOrEmpty(server))
+                        {
+                            <div class="d-flex">
+                                <div class="flex-fill">
+                                    <h3 class="mt-0 mb-1">
+                                        @item.Cdnconfig
+                                        @if (item.Cdnconfig != prev?.Cdnconfig)
+                                        {
+                                            <i class="fa fa-arrow-up"></i>
+                                        }
+                                    </h3>
+                                    <small>CDN config hash</small>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            var dest = $"{cdn.Path}/config/{string.Join("", (item.Cdnconfig ?? string.Empty).Take(2))}/{string.Join("", (item.Cdnconfig ?? string.Empty).Skip(2).Take(2))}/{item.Cdnconfig}";
+                            <a href="@($"http://{server}/{dest}")" target="_blank" rel="nofollow" class="d-flex">
+                                <div class="flex-fill">
+                                    <h3 class="mt-0 mb-1">
+                                        @item.Cdnconfig
+                                        @if (item.Cdnconfig != prev?.Cdnconfig)
+                                        {
+                                            <i class="fa fa-arrow-up"></i>
+                                        }
+                                    </h3>
+                                    <small>CDN config hash</small>
+                                </div>
+                                <div class="d-flex font-weight-bolder arrow">
+                                    >
+                                </div>
+                            </a>
+                        }
+                    </div>
+                    
+                    <div class="game-item-link p-2 px-3">
+                        @if (item.Productconfig == "versions" || string.IsNullOrEmpty(item.Productconfig.Trim()))
+                        {
+                            <div class="d-flex">
+                                <div class="flex-fill">
+                                    <h3 class="mt-0 mb-1">N/A</h3>
+                                    <small>Product config hash</small>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <a asp-page="/ViewGameConfigs" asp-route-hash="@item.Productconfig" class="d-flex">
+                                <div class="flex-fill">
+                                    <h3 class="mt-0 mb-1">
+                                        @item.Productconfig
+                                        @if (item.Productconfig != prev?.Productconfig)
+                                        {
+                                            <i class="fa fa-arrow-up"></i>
+                                        }
+                                    </h3>
+                                    <small>Product config hash</small>
+                                </div>
+                                <div class="d-flex font-weight-bolder arrow">
+                                    >
+                                </div>
+                            </a>
+                        }
+                    </div>
+                    
+                    <div class="game-item-link p-2 px-3">
+                        @if (item.Keyring == "versions" || string.IsNullOrEmpty(item.Keyring.Trim()))
+                        {
+                            <div class="d-flex">
+                                <div class="flex-fill">
+                                    <h3 class="mt-0 mb-1">N/A</h3>
+                                    <small>Keyring hash</small>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="d-flex">
+                                <div class="flex-fill">
+                                    <h3 class="mt-0 mb-1">
+                                        @item.Keyring
+                                        @if (item.Keyring != prev?.Keyring)
+                                        {
+                                            <i class="fa fa-arrow-up"></i>
+                                        }
+                                    </h3>
+                                    <small>Keyring hash</small>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="text-center mt-5 text-danger" style="font-size: large">
+            <i class="fas fa-times mr-1"></i><br /> Empty Manifest
+        </div>
+    }
 </div>
 
-@if (@Model.Last().Seqn != @Model.First().Seqn)
-{
-<div class="col-sm-12"> 
-    <div class="card ">
-        <div class="card-header">
+<div class="col-lg-6 col-12">
+    <div class="card bg-transparent section-title mb-2">
+        <div class="card-header p-2">
             <div class="col-sm-12 text-left">
                 <h2 class="card-title">Previous Seqn</h2>
-                <div class="card-category">@Model.Last().Seqn was indexed on 
+                <div class="card-category">
+                    @Model.Last().Seqn was indexed on 
                     <time>
-                        @Model.Last().Indexed.ToString("ddd, dd MMM yyyy hh:mm:ss ") GMT
-                    </time></div>
-            </div>
-        </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table tablesorter table-hover ps" id="">
-                    <thead class="text-primary">
-                        <tr>
-                            <th>
-                                Region
-                            </th>
-                            <th>
-                                Version
-                            </th>
-                            <th>
-                                Build Config
-                            </th>
-                            <th>
-                                CDN Config
-                            </th>
-                            <th>
-                                Product Config
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var item in Model.Last().Content)
-                        {
-                            <tr>
-                                <td>@item.GetName()</td>
-                                <td class="@(item.Versionsname != Model.First().Content.FirstOrDefault(x => x.Region == item.Region)?.Versionsname ? "has-changed-data" : "")">
-                                    @item.Versionsname
-                                </td>
-                                <td class="@(item.Buildconfig != Model.First().Content.FirstOrDefault(x => x.Region == item.Region)?.Buildconfig ? "has-changed-data" : "")">
-                                    @if (string.IsNullOrEmpty(server))
-                                    {
-                                        @item.Buildconfig
-                                    }
-                                    else
-                                    {
-                                        var dest = $"{cdn.Path}/config/{string.Join("", item.Buildconfig.Take(2))}/{string.Join("", item.Buildconfig.Skip(2).Take(2))}/{item.Buildconfig}";
-
-                                        <a href="@($"http://{server}/{dest}")" target="_blank" rel="nofollow">
-                                            @item.Buildconfig
-                                        </a>
-                                    }
-                                </td>
-                                <td class="@(item.Cdnconfig != Model.First().Content.FirstOrDefault(x => x.Region == item.Region)?.Cdnconfig ? "has-changed-data" : "")">
-                                    @if (string.IsNullOrEmpty(server))
-                                    {
-                                        @item.Cdnconfig
-                                    }
-                                    else
-                                    {
-                                        var dest = $"{cdn.Path}/config/{string.Join("", item.Cdnconfig.Take(2))}/{string.Join("", item.Cdnconfig.Skip(2).Take(2))}/{item.Cdnconfig}";
-
-                                        <a href="@($"http://{server}/{dest}")" target="_blank" rel="nofollow">
-                                            @item.Cdnconfig
-                                        </a>
-                                    }
-                                </td>
-                                <td class="@(item.Productconfig != Model.First().Content.FirstOrDefault(x => x.Region == item.Region)?.Productconfig ? "has-changed-data" : "")">
-                                    @if (item.Productconfig == "versions" || string.IsNullOrEmpty(item.Productconfig))
-                                    {
-                                        @("N/A")
-                                    }
-                                    else
-                                    {
-                                        <a asp-page="/ViewGameConfigs" asp-route-hash="@item.Productconfig">
-                                            @item.Productconfig
-                                        </a>
-                                    }
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
+                        @Model.Last().Indexed.ToString("MMMM dd, yyyy hh:mm tt")
+                    </time>
+                </div>
             </div>
         </div>
     </div>
+        
+    @if (Model.Last().Content.Length > 0)  
+    {
+        @foreach (var item in Model.Last().Content)
+        {
+            <div class="card">
+                <div class="card-header  p-2">
+                    <div class="col-sm-12 text-left">
+                        <h2 class="card-title">@item.GetName()</h2>
+                    </div>
+                </div>
+                <div class="card-body pt-0 px-0 pb-0">
+                    <div class="game-item-link p-2 px-3">
+                        <div class="d-flex">
+                            <div class="flex-fill">
+                                <h3 class="mt-0 mb-1">@item.Versionsname</h3>
+                                <small>Current Version</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="game-item-link p-2 px-3">
+                        @if (string.IsNullOrEmpty(server))
+                        {
+                            <div class="d-flex">
+                                <div class="flex-fill">
+                                    <h3 class="mt-0 mb-1">@item.Buildconfig</h3>
+                                    <small>Build config hash</small>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            var dest = $"{cdn.Path}/config/{string.Join("", (item.Buildconfig ?? string.Empty).Take(2))}/{string.Join("", (item.Buildconfig ?? string.Empty).Skip(2).Take(2))}/{item.Buildconfig}";
+                            <a href="@($"http://{server}/{dest}")" target="_blank" rel="nofollow" class="d-flex">
+                                <div class="flex-fill">
+                                    <h3 class="mt-0 mb-1">@item.Buildconfig</h3>
+                                    <small>Build config hash</small>
+                                </div>
+                                <div class="d-flex font-weight-bolder arrow">
+                                    >
+                                </div>
+                            </a>
+                        }
+                    </div>
+                    
+                    <div class="game-item-link p-2 px-3">
+                        @if (string.IsNullOrEmpty(server))
+                        {
+                            <div class="d-flex">
+                                <div class="flex-fill">
+                                    <h3 class="mt-0 mb-1">@item.Cdnconfig</h3>
+                                    <small>CDN config hash</small>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            var dest = $"{cdn.Path}/config/{string.Join("", (item.Cdnconfig ?? string.Empty).Take(2))}/{string.Join("", (item.Cdnconfig ?? string.Empty).Skip(2).Take(2))}/{item.Cdnconfig}";
+                            <a href="@($"http://{server}/{dest}")" target="_blank" rel="nofollow" class="d-flex">
+                                <div class="flex-fill">
+                                    <h3 class="mt-0 mb-1">@item.Cdnconfig</h3>
+                                    <small>CDN config hash</small>
+                                </div>
+                                <div class="d-flex font-weight-bolder arrow">
+                                    >
+                                </div>
+                            </a>
+                        }
+                    </div>
+                    
+                    <div class="game-item-link p-2 px-3">
+                        @if (item.Productconfig == "versions" || string.IsNullOrEmpty(item.Productconfig.Trim()))
+                        {
+                            <div class="d-flex">
+                                <div class="flex-fill">
+                                    <h3 class="mt-0 mb-1">N/A</h3>
+                                    <small>Product config hash</small>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <a asp-page="/ViewGameConfigs" asp-route-hash="@item.Productconfig" class="d-flex">
+                                <div class="flex-fill">
+                                    <h3 class="mt-0 mb-1">@item.Productconfig</h3>
+                                    <small>Product config hash</small>
+                                </div>
+                                <div class="d-flex font-weight-bolder arrow">
+                                    >
+                                </div>
+                            </a>
+                        }
+                    </div>
+                    
+                    <div class="game-item-link p-2 px-3">
+                        @if (item.Keyring == "versions" || string.IsNullOrEmpty(item.Keyring.Trim()))
+                        {
+                            <div class="d-flex">
+                                <div class="flex-fill">
+                                    <h3 class="mt-0 mb-1">N/A</h3>
+                                    <small>Keyring hash</small>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="d-flex">
+                                <div class="flex-fill">
+                                    <h3 class="mt-0 mb-1">
+                                        @item.Keyring
+                                    </h3>
+                                    <small>Keyring hash</small>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="text-center mt-5 text-danger" style="font-size: large">
+            <i class="fas fa-times mr-1"></i><br /> Empty Manifest
+        </div>
+    }
 </div>
-}

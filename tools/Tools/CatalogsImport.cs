@@ -112,7 +112,7 @@ namespace Tooling.Tools
 
                     try
                     {
-                        var rootConfig = await _productConfig.GetBytes(region.Buildconfig, p);
+                        var rootConfig = await BNetLib.Http.ProductConfig.GetBytes(region.Buildconfig, p);
 
                         /*
                         using var ms = GenerateStreamFromString(rootConfig);
@@ -221,7 +221,7 @@ namespace Tooling.Tools
                     {
                         if (!await ManifestExist(region.Productconfig))
                         {
-                            var rootConfig = await _productConfig.GetRaw(region.Productconfig);
+                            var rootConfig = await BNetLib.Http.ProductConfig.GetRaw(region.Productconfig);
                             var json = JsonDocument.Parse(rootConfig);
 
                             if (used.Contains(region.Productconfig)) continue;
@@ -268,10 +268,10 @@ namespace Tooling.Tools
 
             //var configFile = await _catalogs.Get(usCDNConfig.Hosts.Split(" ").First(), usCDNConfig.Path, CatalogDataType.Config, latest.Buildconfig);
 
-            var buildConfig = await _productConfig.GetDictionary(latest.Buildconfig, $"{usCDNConfig.Hosts.Split(" ").First()}/{usCDNConfig.Path}/config");
+            var buildConfig = await BNetLib.Http.ProductConfig.GetDictionary(latest.Buildconfig, $"{usCDNConfig.Hosts.Split(" ").First()}/{usCDNConfig.Path}/config");
 
             var hash = buildConfig["root"];
-            var rootConfig = await _productConfig.GetRaw(hash, $"{usCDNConfig.Hosts.Split(" ").First()}/{usCDNConfig.Path}/data");
+            var rootConfig = await BNetLib.Http.ProductConfig.GetRaw(hash, $"{usCDNConfig.Hosts.Split(" ").First()}/{usCDNConfig.Path}/data");
             var json = JsonDocument.Parse(rootConfig);
 
             var fragments = new List<BNetLib.Catalogs.Models.Fragment>();
@@ -320,7 +320,7 @@ namespace Tooling.Tools
                 {
                     _logger.LogInformation($"Missing (Inserting): {item.name} {item.hash}");
 
-                    var gameConfig = await _productConfig.GetRaw(item.hash, $"{usCDNConfig.Hosts.Split(" ").First()}/{usCDNConfig.Path}/data");
+                    var gameConfig = await BNetLib.Http.ProductConfig.GetRaw(item.hash, $"{usCDNConfig.Hosts.Split(" ").First()}/{usCDNConfig.Path}/data");
                     var gameJson = JsonDocument.Parse(gameConfig);
 
 

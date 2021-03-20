@@ -7,7 +7,7 @@ namespace BNetLib.Http
 {
     public class ProductConfig
     {
-        public async Task<string> GetRaw(string config, string path = "level3.blizzard.com/tpr/configs/data")
+        public static async Task<string> GetRaw(string config, string path = "level3.blizzard.com/tpr/configs/data")
         {
             using var wc = new WebClient();
 
@@ -16,7 +16,7 @@ namespace BNetLib.Http
             return await wc.DownloadStringTaskAsync(url);
         }
 
-        public async Task<byte[]> GetBytes(string config, string path = "level3.blizzard.com/tpr/configs/data")
+        public static async Task<byte[]> GetBytes(string config, string path = "level3.blizzard.com/tpr/configs/data")
         {
             using var wc = new WebClient();
 
@@ -25,7 +25,7 @@ namespace BNetLib.Http
             return await wc.DownloadDataTaskAsync(url);
         }
 
-        public async Task<Dictionary<string, string>> GetDictionary(string config, string path = "level3.blizzard.com/tpr/configs/data")
+        public static async Task<Dictionary<string, string>> GetDictionary(string config, string path = "level3.blizzard.com/tpr/configs/data")
         {
             var data = await GetRaw(config, path);
 

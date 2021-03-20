@@ -61,11 +61,12 @@ namespace BlizzTrack.API
 
             var cur = HttpContext.User.Claims;
 
-            var name = cur.First(x => x.Type == ClaimTypes.Name).Value;
+            var enumerable = cur as Claim[] ?? cur.ToArray();
+            var name = enumerable.First(x => x.Type == ClaimTypes.Name).Value;
             var user = new User
             {
-                AccessToken = cur.First(x => x.Type == "urn:bnet:access_token").Value,
-                Id = cur.First(x => x.Type == ClaimTypes.NameIdentifier).Value,
+                AccessToken = enumerable.First(x => x.Type == "urn:bnet:access_token").Value,
+                Id = enumerable.First(x => x.Type == ClaimTypes.NameIdentifier).Value,
                 Email = $"{name.Replace("#", "-")}@battle.net", // We don't want user emails
                 UserName = name.Replace("#", "-"),
                 BattleTag = name
