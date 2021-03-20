@@ -237,7 +237,7 @@ code {
     color: rgba(255, 255, 255, 0.7) !important;
 }
 
-.game-item-link .fa-arrow-up {
+.game-item-link .fa-not-equal {
     margin-left: 5px;
     color: var(--red) !important;
     font-size: small;
