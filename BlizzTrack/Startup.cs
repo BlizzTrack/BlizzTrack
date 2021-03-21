@@ -27,6 +27,7 @@ using System.Linq;
 using System.Reflection;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using StackExchange.Redis;
 
 namespace BlizzTrack
 {
@@ -151,24 +152,13 @@ namespace BlizzTrack
                };
            });
 
+            var redisConfiguration = Configuration.GetSection("Redis").Get<RedisConfiguration>();
+
+
             var conf = new RedisConfiguration()
             {
-                AbortOnConnectFail = false,
-                KeyPrefix = "BD_",
-                Hosts = new[]
-                {
-                    new RedisHost { Host = Configuration.GetConnectionString("redis") ?? "localhost", Port = 6379 }
-                },
-                AllowAdmin = true,
-                ConnectTimeout = 1000,
-                PoolSize = 20,
-                Database = 1,
-                ServerEnumerationStrategy = new ServerEnumerationStrategy()
-                {
-                    Mode = ServerEnumerationStrategy.ModeOptions.All,
-                    TargetRole = ServerEnumerationStrategy.TargetRoleOptions.Any,
-                    UnreachableServerAction = ServerEnumerationStrategy.UnreachableServerActionOptions.IgnoreIfOtherAvailable
-                }
+                ConnectionString = Configuration.GetConnectionString("redis"),
+                AllowAdmin = true
             };
 
             services.AddStackExchangeRedisExtensions<NewtonsoftSerializer>(conf);
