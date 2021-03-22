@@ -12,9 +12,7 @@ using System.Threading.Tasks;
 
 namespace BlizzTrack.API
 {
-    [Obsolete]
-    [DataContract]
-    [JsonConverter(typeof(StringEnumConverter))]
+    [Obsolete, DataContract, JsonConverter(typeof(StringEnumConverter))]
     public enum FileType
     {
         [EnumMember(Value = "help")]
@@ -33,9 +31,7 @@ namespace BlizzTrack.API
         Seqn,
     }
 
-    [Obsolete]
-    [DataContract]
-    [JsonConverter(typeof(StringEnumConverter))]
+    [Obsolete, DataContract, JsonConverter(typeof(StringEnumConverter))]
     public enum FileFilter
     {
         [EnumMember(Value = "versions")]
@@ -48,8 +44,7 @@ namespace BlizzTrack.API
         CDN
     }
 
-    [Obsolete]
-    [JsonConverter(typeof(StringEnumConverter))]
+    [Obsolete, JsonConverter(typeof(StringEnumConverter))]
     public enum SummaryFilter
     {
         [EnumMember(Value = "seqn")]
@@ -59,11 +54,8 @@ namespace BlizzTrack.API
         All
     }
 
-    [Route("api/ngpd")]
-    [ApiController]
-    [ApiExplorerSettings(GroupName = "Game Versions (Deprecated)")]
-    [Produces("application/json")]
-    [Obsolete]
+    [Route("api/ngpd"), ApiController, ApiExplorerSettings(GroupName = "Game Versions (Deprecated)"),
+     Produces("application/json"), Obsolete]
     public class NGPDController : ControllerBase
     {
         private readonly IVersions _versions;
@@ -92,8 +84,7 @@ namespace BlizzTrack.API
         /// <param name="file_type">File Type</param>
         /// <param name="filter">Filter mode</param>
         /// <param name="seqn">Selected Seqn</param>
-        [HttpGet("{code}/{file_type}")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [HttpGet("{code}/{file_type}"), ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> Get(string code, FileType file_type = FileType.Help, [FromQuery] FileFilter? filter = default, [FromQuery] int? seqn = null)
         {
             var scheme = Request.Scheme;
@@ -103,7 +94,7 @@ namespace BlizzTrack.API
             }
 
             var file = file_type.ToString().ToLower();
-            AbstractCommand cmd = new SummaryCommand();
+            AbstractCommand cmd;
             code = code.ToLower();
             object result = null;
 

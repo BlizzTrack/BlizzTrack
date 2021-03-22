@@ -1,5 +1,4 @@
 ﻿using BlizzTrack.Models;
-using BNetLib.Converters;
 using BNetLib.Networking.Commands;
 using Core.Models;
 using Core.Services;
@@ -13,10 +12,7 @@ using System.Threading.Tasks;
 
 namespace BlizzTrack.API
 {
-    [Route("api/summary")]
-    [ApiController]
-    [ApiExplorerSettings(GroupName = "Summary Data")]
-    [Produces("application/json")]
+    [Route("api/summary"), ApiController, ApiExplorerSettings(GroupName = "Summary Data"), Produces("application/json")]
     public class SummaryController : ControllerBase
     {
         private readonly ISummary _summary;
@@ -40,18 +36,12 @@ namespace BlizzTrack.API
         [Produces(typeof(SummaryResults.SummaryChanges))]
         public async Task<IActionResult> GetChanges()
         {
-            var scheme = Request.Scheme;
-            if (Request.Host.Host.Contains("blizztrack", StringComparison.OrdinalIgnoreCase))
-            {
-                scheme = "https";
-            }
+            var manifests = await _summary.Take(2);
 
-            var Manifests = await _summary.Take(2);
+            var latest = manifests.First();
+            var previous = manifests.Last();
 
-            var latest = Manifests.First();
-            var previous = Manifests.Last();
-
-            var SummaryDiff = new List<SummaryResults.SummaryItem>();
+            var summaryDiff = new List<SummaryResults.SummaryItem>();
             var configs = await _gameConfig.In(latest.Content.Select(x => x.Product).ToArray());
 
             foreach (var item in latest.Content)
@@ -61,7 +51,7 @@ namespace BlizzTrack.API
                 var x = previous.Content.FirstOrDefault(x => x.Product == item.Product && x.Flags == item.Flags);
                 if (x == null || x.Seqn != item.Seqn)
                 {
-                    SummaryDiff.Add(new SummaryResults.SummaryItem()
+                    summaryDiff.Add(new SummaryResults.SummaryItem()
                     {
                         Name = config?.Name ?? item.GetName(),
                         Product = x.Product,
@@ -86,7 +76,7 @@ namespace BlizzTrack.API
 
             return Ok(new SummaryResults.SummaryChanges
             {
-                Changes = SummaryDiff,
+                Changes = summaryDiff,
                 Latest = new SummaryResults.SummaryChange
                 {
                     Code = latest.Code,
@@ -155,9 +145,10 @@ namespace BlizzTrack.API
         /// </summary>
         /// <returns>Returns latest summary data</returns>
         /// <response code="200">Returns latest summary seqn list</response>
-        [HttpGet("seqn")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(SummaryResults.ResultBase<List<SharedResults.SeqnItem>>))]
-        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ReponseTypes.NotFound))]
+        [HttpGet("seqn"),
+         ProducesResponseType(StatusCodes.Status200OK,
+             Type = typeof(SummaryResults.ResultBase<List<SharedResults.SeqnItem>>)),
+         ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ReponseTypes.NotFound))]
         public async Task<IActionResult> SummarySeqn()
         {
             var summary = await _summary.Seqn();
@@ -185,12 +176,12 @@ namespace BlizzTrack.API
         /// <returns>Returns summary data for given seqn (latest if empty)</returns>
         /// <response code="200">Returns summary data</response>
         /// <param name="seqn">Selected Seqn</param>
-        /// <param name="game_filter">Game code filter (EX: pro)</param>
-        [HttpGet("")]
-        [HttpGet("all")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(SummaryResults.ResultBase<List<SummaryResults.SummaryItem>>))]
-        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ReponseTypes.NotFound))]
-        public async Task<IActionResult> SummaryList([FromQuery] int? seqn, [FromQuery] string game_filter)
+        /// <param name="gameFilter">Game code filter (EX: pro)</param>
+        [HttpGet(""), HttpGet("all"),
+         ProducesResponseType(StatusCodes.Status200OK,
+             Type = typeof(SummaryResults.ResultBase<List<SummaryResults.SummaryItem>>)),
+         ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ReponseTypes.NotFound))]
+        public async Task<IActionResult> SummaryList([FromQuery] int? seqn, [FromQuery(Name = "game_filter")] string gameFilter)
         {
             var data = await _summary.Single(seqn);
             if (data == null) return NotFound(new ReponseTypes.NotFound());
@@ -224,7 +215,7 @@ namespace BlizzTrack.API
                             }
                         }
                     };
-                }).Where(x => game_filter == default || x.Product.Contains(game_filter?.ToString(), StringComparison.OrdinalIgnoreCase)).ToList()
+                }).Where(x => gameFilter == default || x.Product.Contains(gameFilter?.ToString(), StringComparison.OrdinalIgnoreCase)).ToList()
             };
 
             return Ok(result);
@@ -232,10 +223,7 @@ namespace BlizzTrack.API
 
         private string Scheme()
         {
-            if (HttpContext.Request.Host.Host.Contains("blizztrack", StringComparison.OrdinalIgnoreCase))
-                return "https";
-
-            return "http";
+            return HttpContext.Request.Host.Host.Contains("blizztrack", StringComparison.OrdinalIgnoreCase) ? "https" : "http";
         }
     }
 

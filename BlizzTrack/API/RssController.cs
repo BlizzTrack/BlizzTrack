@@ -12,14 +12,11 @@ using System.Xml;
 
 namespace BlizzTrack.API
 {
-    [ApiExplorerSettings(GroupName = "RSS Feeds")]
-    [Route("rss")]
-    [ApiController]
-    [Produces("application/rss+xml")]
+    [ApiExplorerSettings(GroupName = "RSS Feeds"), Route("rss"), ApiController, Produces("application/rss+xml")]
     public class RssController : ControllerBase
     {
         private readonly Core.Services.IGameParents _gameParents;
-        private readonly Services.IPatchnotes _patchnotes;
+        private readonly IPatchnotes _patchnotes;
 
         public RssController(IPatchnotes patchnotes, Core.Services.IGameParents gameParents)
         {
@@ -34,8 +31,7 @@ namespace BlizzTrack.API
         /// <response code="200">Returns valid RSS feed</response>
         /// <param name="slug">The game slug (EX: overwatch)</param>
         /// <param name="type">The game type (EX: ptr)</param>
-        [ResponseCache(Duration = 60 * 5)]
-        [HttpGet("{slug}/{type}")]
+        [ResponseCache(Duration = 60 * 5), HttpGet("{slug}/{type}")]
         public async Task<IActionResult> Get(string slug, string type)
         {
 
@@ -75,12 +71,12 @@ namespace BlizzTrack.API
                 NewLineOnAttributes = false,
                 Indent = true
             };
-            using var stream = new MemoryStream();
-            using (var xmlWriter = XmlWriter.Create(stream, settings))
+            await using var stream = new MemoryStream();
+            await using (var xmlWriter = XmlWriter.Create(stream, settings))
             {
                 var rssFormatter = new Rss20FeedFormatter(feed, false);
                 rssFormatter.WriteTo(xmlWriter);
-                xmlWriter.Flush();
+                await xmlWriter.FlushAsync();
             }
             return File(stream.ToArray(), "application/rss+xml; charset=utf-8");
         }

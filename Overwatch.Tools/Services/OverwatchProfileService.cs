@@ -5,21 +5,20 @@ using Overwatch.Tools.Models;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Overwatch.Tools.Services
 {
     public interface IOverwatchProfileService
     {
-        Task<Player<Endorsements>> GetEndorsments(string player, Platform platform);
+        Task<Player<Endorsements>> GetEndorsements(string player, Platform platform);
     }
 
     public class OverwatchProfileService : IOverwatchProfileService
     {
         private readonly HtmlParser _parser = new HtmlParser();
 
-        public async Task<Player<Endorsements>> GetEndorsments(string player, Platform platform)
+        public async Task<Player<Endorsements>> GetEndorsements(string player, Platform platform)
         {
             var result = new Player<Endorsements>()
             {
@@ -30,8 +29,7 @@ namespace Overwatch.Tools.Services
             {
                 BaseAddress = new Uri("https://playoverwatch.com/en-gb/career/")
             };
-
-
+            
             var reqUrl = platform != Platform.PC
                ? $"{platform.ToString().ToLower()}/{player}"
                : $"pc/{player.BattletagToUrlFriendlyString()}";
@@ -72,14 +70,11 @@ namespace Overwatch.Tools.Services
                 {
                     var dataValue = endorsement.GetAttribute("data-value");
 
-                    if (dataValue != null)
-                    {
-                        var className = endorsement.GetAttribute("class");
-                        // parse the endorsement type out of the class name
-                        const string endorsementTypeSeparator = "--";
-                        var endorsementName = className.Substring(className.IndexOf(endorsementTypeSeparator, StringComparison.Ordinal) + endorsementTypeSeparator.Length);
-                        contents.Add(ParseEndorsementName(endorsementName), float.Parse(dataValue));
-                    }
+                    if (dataValue == null) continue;
+                    var className = endorsement.GetAttribute("class");
+                    const string endorsementTypeSeparator = "--";
+                    var endorsementName = className.Substring(className.IndexOf(endorsementTypeSeparator, StringComparison.Ordinal) + endorsementTypeSeparator.Length);
+                    contents.Add(ParseEndorsementName(endorsementName), float.Parse(dataValue));
                 }
             }
             return contents;
@@ -87,17 +82,13 @@ namespace Overwatch.Tools.Services
 
         private static Endorsement ParseEndorsementName(string input)
         {
-            switch (input)
+            return input switch
             {
-                case "teammate":
-                    return Endorsement.GoodTeammate;
-                case "sportsmanship":
-                    return Endorsement.Sportsmanship;
-                case "shotcaller":
-                    return Endorsement.Shotcaller;
-                default:
-                    return Endorsement.GoodTeammate;
-            }
+                "teammate" => Endorsement.GoodTeammate,
+                "sportsmanship" => Endorsement.Sportsmanship,
+                "shotcaller" => Endorsement.Shotcaller,
+                _ => Endorsement.GoodTeammate
+            };
         }
     }
 }

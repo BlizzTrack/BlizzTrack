@@ -88,7 +88,7 @@ namespace BlizzTrack.API
         [HttpGet("patch-notes/{code}/{type}")]
         public async Task<IActionResult> PatchNotes([FromServices] Services.IPatchnotes patchnotes, string code, string type)
         {
-            return Ok(await patchnotes.Get(code, type, null));
+            return Ok(await patchnotes.Get(code, type));
         }
 
         #endregion /patch-notes/:code/:type
@@ -97,26 +97,31 @@ namespace BlizzTrack.API
 
         [ResponseCache(Duration = 1200)]
         [HttpGet("patch-notes/{code}/{type}/rss")]
-        public async Task<IActionResult> PatchNotesRss([FromServices] Services.IPatchnotes patchnotes, [FromServices] Core.Services.IGameParents gameParents, string code, string type)
+        public async Task<IActionResult> PatchNotesRss([FromServices] Services.IPatchnotes patchnotes, [FromServices] IGameParents gameParents, string code, string type)
         {
             var notes = await patchnotes.All(code, type);
 
             var parent = await gameParents.Get(code);
 
-            var feed = new SyndicationFeed($"{parent.Name} {Helpers.GameTypeFixer.Fix(type)} Patch Notes", $"Patch notes for {parent.Name} {Helpers.GameTypeFixer.Fix(type)}", new Uri("https://blizztrack.com"), $"https://blizztrack.com/rss/{parent.Slug}/{type}", DateTime.Now);
+            var feed = new SyndicationFeed($"{parent.Name} {Helpers.GameTypeFixer.Fix(type)} Patch Notes",
+                $"Patch notes for {parent.Name} {Helpers.GameTypeFixer.Fix(type)}",
+                new Uri("https://blizztrack.com"),
+                $"https://blizztrack.com/rss/{parent.Slug}/{type}", DateTime.Now)
+            {
+                Copyright = new TextSyndicationContent($"{DateTime.Now.Year} Mitchel Sellers")
+            };
 
-            feed.Copyright = new TextSyndicationContent($"{DateTime.Now.Year} Mitchel Sellers");
             var items = new List<SyndicationItem>();
             foreach (var item in notes)
             {
                 var postUrl = $"https://blizztrack.com/patch-notes/{parent.Slug}/{type}?build_time={item.Created.Ticks}";
                 var title = $"Posted: {item.Created}";
                 var description = $"New patch notes discovered on {item.Created}";
-                var f = new SyndicationItem(title, description, new Uri(postUrl), postUrl, item.Created);
+                var f = new SyndicationItem(title, description, new Uri(postUrl), postUrl, item.Created)
+                {
+                    PublishDate = item.Created, LastUpdatedTime = item.Updated, Id = item.Created.Ticks.ToString()
+                };
 
-                f.PublishDate = item.Created;
-                f.LastUpdatedTime = item.Updated;
-                f.Id = item.Created.Ticks.ToString();
 
                 f.Categories.Add(new SyndicationCategory(type));
                 items.Add(f);
@@ -130,12 +135,12 @@ namespace BlizzTrack.API
                 NewLineOnAttributes = false,
                 Indent = true
             };
-            using var stream = new MemoryStream();
-            using (var xmlWriter = XmlWriter.Create(stream, settings))
+            await using var stream = new MemoryStream();
+            await using (var xmlWriter = XmlWriter.Create(stream, settings))
             {
                 var rssFormatter = new Rss20FeedFormatter(feed, false);
                 rssFormatter.WriteTo(xmlWriter);
-                xmlWriter.Flush();
+                await xmlWriter.FlushAsync();
             }
             return File(stream.ToArray(), "application/rss+xml; charset=utf-8");
         }

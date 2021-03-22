@@ -27,7 +27,6 @@ using System.Linq;
 using System.Reflection;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using StackExchange.Redis;
 
 namespace BlizzTrack
 {
@@ -57,7 +56,7 @@ namespace BlizzTrack
             services.AddSwaggerGen(options =>
             {
                 options.DocInclusionPredicate((_, api) => !string.IsNullOrWhiteSpace(api.GroupName));
-                options.TagActionsBy(api => new[] { api.GroupName });
+                options.TagActionsBy(api => new[] {api.GroupName});
 
                 var files = Directory.GetFiles(AppContext.BaseDirectory, "*.xml");
                 foreach (var file in files)
@@ -77,83 +76,84 @@ namespace BlizzTrack
                 o.PageViewLocationFormats.Add("/Pages/Partials/{0}" + RazorViewEngine.ViewExtension);
             });
 
-            services.Configure<RouteOptions>(options =>
-            {
-                options.ConstraintMap.Add("enum", typeof(EnumConstraint));
-            });
+            services.Configure<RouteOptions>(options => { options.ConstraintMap.Add("enum", typeof(EnumConstraint)); });
 
-            services.AddControllers().AddNewtonsoftJson(options => options.SerializerSettings.Formatting = Newtonsoft.Json.Formatting.Indented).AddXmlSerializerFormatters();
+            services.AddControllers()
+                .AddNewtonsoftJson(options =>
+                    options.SerializerSettings.Formatting = Newtonsoft.Json.Formatting.Indented)
+                .AddXmlSerializerFormatters();
             services.AddControllersWithViews().AddNewtonsoftJson(options =>
             {
                 options.SerializerSettings.Formatting = Newtonsoft.Json.Formatting.Indented;
                 options.SerializerSettings.Converters.Add(new StringEnumConverter());
             });
-            services.AddRazorPages().AddNewtonsoftJson(options => options.SerializerSettings.Formatting = Newtonsoft.Json.Formatting.Indented);
-            services.Configure<MvcNewtonsoftJsonOptions>(x => x.SerializerSettings.NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore);
+            services.AddRazorPages().AddNewtonsoftJson(options =>
+                options.SerializerSettings.Formatting = Newtonsoft.Json.Formatting.Indented);
+            services.Configure<MvcNewtonsoftJsonOptions>(x =>
+                x.SerializerSettings.NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore);
 
-            services.AddDefaultIdentity<User>(options => { options.SignIn.RequireConfirmedAccount = false; options.User.RequireUniqueEmail = false; })
-                  .AddRoles<IdentityRole>()
-                  .AddEntityFrameworkStores<DBContext>();
+            services.AddDefaultIdentity<User>(options =>
+                {
+                    options.SignIn.RequireConfirmedAccount = false;
+                    options.User.RequireUniqueEmail = false;
+                })
+                .AddRoles<IdentityRole>()
+                .AddEntityFrameworkStores<DBContext>();
 
             services.AddDbContext<DBContext>(options =>
                 options.UseNpgsql(
-                    Configuration.GetConnectionString("ConnectionString"), o =>
-                    {
-                        o.UseTrigrams();
-                    }).EnableSensitiveDataLogging());
+                        Configuration.GetConnectionString("ConnectionString"), o => { o.UseTrigrams(); })
+                    .EnableSensitiveDataLogging());
 
             services.AddMvc(options => options.EnableEndpointRouting = false)
                 .SetCompatibilityVersion(CompatibilityVersion.Latest).AddNewtonsoftJson();
 
             services.AddAuthentication(options =>
-            {
-                options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-            }).AddCookie(options =>
-            {
-                options.Cookie.Name = "BT.Auth";
-                options.Cookie.IsEssential = true;
-                options.ExpireTimeSpan = TimeSpan.FromDays(7);
-                options.SlidingExpiration = true;
+                {
+                    options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                    options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                    options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                }).AddCookie(options =>
+                {
+                    options.Cookie.Name = "BT.Auth";
+                    options.Cookie.IsEssential = true;
+                    options.ExpireTimeSpan = TimeSpan.FromDays(7);
+                    options.SlidingExpiration = true;
 
-                options.LoginPath = "/Auth/Login";
-                options.LogoutPath = "/Auth/Logout";
-                options.AccessDeniedPath = "/"; // We don't really care
-            })
-           .AddBattleNet(options =>
-           {
-               options.ClientId = Configuration.GetValue("BattleNet:ClientID", "");
-               options.ClientSecret = Configuration.GetValue("BattleNet:ClientSecret", "");
+                    options.LoginPath = "/Auth/Login";
+                    options.LogoutPath = "/Auth/Logout";
+                    options.AccessDeniedPath = "/"; // We don't really care
+                })
+                .AddBattleNet(options =>
+                {
+                    options.ClientId = Configuration.GetValue("BattleNet:ClientID", "");
+                    options.ClientSecret = Configuration.GetValue("BattleNet:ClientSecret", "");
 
-               options.SaveTokens = true;
-               options.CorrelationCookie.SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Unspecified;
+                    options.SaveTokens = true;
+                    options.CorrelationCookie.SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Unspecified;
 
-               options.Events = new OAuthEvents
-               {
-                   OnCreatingTicket = ctx =>
-                   {
-                       ctx.Identity.AddClaim(new Claim("urn:bnet:access_token", ctx.AccessToken));
-                       return Task.CompletedTask;
-                   },
+                    options.Events = new OAuthEvents
+                    {
+                        OnCreatingTicket = ctx =>
+                        {
+                            ctx.Identity.AddClaim(new Claim("urn:bnet:access_token", ctx.AccessToken));
+                            return Task.CompletedTask;
+                        },
 
-                   OnTicketReceived = ctx =>
-                   {
-                       var username = ctx.Principal.FindFirstValue(ClaimTypes.NameIdentifier);
-                       if (string.IsNullOrWhiteSpace(username))
-                       {
-                           ctx.HandleResponse();
-                           ctx.Response.Redirect("/");
-                           return Task.CompletedTask;
-                       }
+                        OnTicketReceived = ctx =>
+                        {
+                            var username = ctx.Principal.FindFirstValue(ClaimTypes.NameIdentifier);
+                            if (string.IsNullOrWhiteSpace(username))
+                            {
+                                ctx.HandleResponse();
+                                ctx.Response.Redirect("/");
+                                return Task.CompletedTask;
+                            }
 
-                       return Task.CompletedTask;
-                   }
-               };
-           });
-
-            var redisConfiguration = Configuration.GetSection("Redis").Get<RedisConfiguration>();
-
+                            return Task.CompletedTask;
+                        }
+                    };
+                });
 
             var conf = new RedisConfiguration()
             {
@@ -168,10 +168,7 @@ namespace BlizzTrack
                 options.Endpoint = Configuration.GetValue("AWS:Endpoint", "");
                 options.SecretKey = Configuration.GetValue("AWS:SecretKey", "");
                 options.AccessKey = Configuration.GetValue("AWS:AccessKey", "");
-                options.OnClientConfiguration = client =>
-                {
-                    client.WithSSL();
-                };
+                options.OnClientConfiguration = client => { client.WithSSL(); };
             });
 
             // Blizzard services
@@ -195,7 +192,7 @@ namespace BlizzTrack
             _gameToolStartups.ForEach(x => x.ConfigureServices(ref services));
         }
 
-        public List<Type> GetAllEntities()
+        private static IEnumerable<Type> GetAllEntities()
         {
             var a = new List<Assembly>();
             var files = Directory.GetFiles(AppContext.BaseDirectory, "*.Tools.dll");

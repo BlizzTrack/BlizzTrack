@@ -11,19 +11,17 @@ using System.Threading.Tasks;
 
 namespace BlizzTrack.API
 {
-    [Route("api/patch-notes")]
-    [ApiController]
-    [ApiExplorerSettings(GroupName = "Game Patch Notes")]
-    [Produces("application/json")]
+    [Route("api/patch-notes"), ApiController, ApiExplorerSettings(GroupName = "Game Patch Notes"),
+     Produces("application/json")]
     public class PatchNotesController : ControllerBase
     {
-        private readonly IGameParents gameParents;
-        private readonly Services.IPatchnotes patchnotes;
+        private readonly IGameParents _gameParents;
+        private readonly Services.IPatchnotes _patchnotes;
 
         public PatchNotesController(IGameParents gameParents, Services.IPatchnotes patchnotes)
         {
-            this.gameParents = gameParents;
-            this.patchnotes = patchnotes;
+            _gameParents = gameParents;
+            _patchnotes = patchnotes;
         }
 
         /// <summary>
@@ -35,7 +33,7 @@ namespace BlizzTrack.API
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(PatchNoteResults.PatchNoteRef))]
         public async Task<IActionResult> List()
         {
-            var parents = await gameParents.All();
+            var parents = await _gameParents.All();
             parents = parents.Where(x => x.PatchNoteAreas?.Count > 0).ToList();
 
             var returnResults = new List<PatchNoteResults.PatchNoteRef>();
@@ -69,19 +67,20 @@ namespace BlizzTrack.API
         /// <returns>Latest patch notes for given game</returns>
         /// <response code="200">Latest patch notes for given game</response>
         /// <param name="game">The game slug (EX: overwatch)</param>
-        [HttpGet("{game}")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(PatchNoteResults.Result<Dictionary<string, PatchNoteResults.PatchNoteBody>>))]
-        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ReponseTypes.NotFound))]
+        [HttpGet("{game}"),
+         ProducesResponseType(StatusCodes.Status200OK,
+             Type = typeof(PatchNoteResults.Result<Dictionary<string, PatchNoteResults.PatchNoteBody>>)),
+         ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ReponseTypes.NotFound))]
         public async Task<IActionResult> List(string game)
         {
-            var parent = await gameParents.Get(game);
+            var parent = await _gameParents.Get(game);
             if (parent == null) return NotFound(new ReponseTypes.NotFound());
 
             var items = new Dictionary<string, PatchNoteResults.PatchNoteBody>();
 
             foreach (var code in parent.PatchNoteAreas)
             {
-                var data = await patchnotes.Get(parent.Code, code);
+                var data = await _patchnotes.Get(parent.Code, code);
 
                 PatchNoteResults.PatchNoteBodyPayload payload;
                 if (!string.IsNullOrEmpty(data.Details))
@@ -133,18 +132,19 @@ namespace BlizzTrack.API
         /// <returns>Latest patch note for game and game_type</returns>
         /// <response code="200">Returns latest patch notes for given game_type</response>
         /// <param name="game">The game slug (EX: overwatch)</param>
-        /// <param name="game_type">The game type (EX: ptr)</param>
-        [HttpGet("{game}/{game_type}")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(PatchNoteResults.Result<Dictionary<string, PatchNoteResults.PatchNoteBody>>))]
-        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ReponseTypes.NotFound))]
-        public async Task<IActionResult> View(string game, string game_type)
+        /// <param name="gameType">The game type (EX: ptr)</param>
+        [HttpGet("{game}/{game_type}"),
+         ProducesResponseType(StatusCodes.Status200OK,
+             Type = typeof(PatchNoteResults.Result<Dictionary<string, PatchNoteResults.PatchNoteBody>>)),
+         ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ReponseTypes.NotFound))]
+        public async Task<IActionResult> View(string game, string gameType)
         {
-            var parent = await gameParents.Get(game);
+            var parent = await _gameParents.Get(game);
             if (parent == null) return NotFound(new ReponseTypes.NotFound());
 
-            if (!parent.PatchNoteAreas.Contains(game_type.ToLower())) return NotFound(new ReponseTypes.NotFound());
+            if (!parent.PatchNoteAreas.Contains(gameType.ToLower())) return NotFound(new ReponseTypes.NotFound());
 
-            var data = await patchnotes.Get(parent.Code, game_type);
+            var data = await _patchnotes.Get(parent.Code, gameType);
 
             PatchNoteResults.PatchNoteBodyPayload payload;
             if (!string.IsNullOrEmpty(data.Details))
@@ -162,9 +162,9 @@ namespace BlizzTrack.API
 
             var types = new Dictionary<string, string>();
 
-            for (var i = 0; i < parent.PatchNoteAreas.Count; i++)
+            foreach (var t in parent.PatchNoteAreas)
             {
-                types[parent.PatchNoteAreas[i]] = Url.Action("view", "PatchNotes", new { game = parent.Slug, game_type = parent.PatchNoteAreas[i] }, Scheme());
+                types[t] = Url.Action("view", "PatchNotes", new { game = parent.Slug, game_type = t }, Scheme());
             }
 
             types["all"] = Url.Action("List", "PatchNotes", new { game = parent.Slug }, Scheme());
@@ -185,7 +185,7 @@ namespace BlizzTrack.API
                 Logos = parent.Logos,
                 Results = new Dictionary<string, PatchNoteResults.PatchNoteBody>
                     {
-                        { game_type.ToLower(), items }
+                        { gameType.ToLower(), items }
                     },
             });
         }
