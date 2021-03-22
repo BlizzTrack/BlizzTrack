@@ -15,129 +15,156 @@ namespace Core.Extensions
             if (title == null) return "";
 
             const int maxlen = 80;
-            int len = title.Length;
-            bool prevdash = false;
+            var len = title.Length;
+            var prevdash = false;
             var sb = new StringBuilder(len);
             char c;
 
-            for (int i = 0; i < len; i++)
+            for (var i = 0; i < len; i++)
             {
                 c = title[i];
-                if ((c >= 'a' && c <= 'z') || (c >= '0' && c <= '9'))
+                switch (c)
                 {
-                    sb.Append(c);
-                    prevdash = false;
-                }
-                else if (c >= 'A' && c <= 'Z')
-                {
-                    // tricky way to convert to lowercase
-                    sb.Append((char)(c | 32));
-                    prevdash = false;
-                }
-                else if (c == ' ' || c == ',' || c == '.' || c == '/' ||
-                    c == '\\' || c == '-' || c == '_' || c == '=')
-                {
-                    if (!prevdash && sb.Length > 0)
+                    case >= 'a' and <= 'z':
+                    case >= '0' and <= '9':
+                        sb.Append(c);
+                        prevdash = false;
+                        break;
+                    case >= 'A' and <= 'Z':
+                        // tricky way to convert to lowercase
+                        sb.Append((char)(c | 32));
+                        prevdash = false;
+                        break;
+                    case ' ':
+                    case ',':
+                    case '.':
+                    case '/':
+                    case '\\':
+                    case '-':
+                    case '_':
+                    case '=':
                     {
-                        sb.Append('-');
-                        prevdash = true;
+                        if (!prevdash && sb.Length > 0)
+                        {
+                            sb.Append('-');
+                            prevdash = true;
+                        }
+
+                        break;
                     }
-                }
-                else if (c >= 128)
-                {
-                    int prevlen = sb.Length;
-                    sb.Append(c.RemapInternationalCharToAscii());
-                    if (prevlen != sb.Length) prevdash = false;
+                    default:
+                    {
+                        if (c >= 128)
+                        {
+                            var prevlen = sb.Length;
+                            sb.Append(c.RemapInternationalCharToAscii());
+                            if (prevlen != sb.Length) prevdash = false;
+                        }
+
+                        break;
+                    }
                 }
                 if (i == maxlen) break;
             }
 
-            if (prevdash)
-                return sb.ToString().Substring(0, sb.Length - 1);
-            else
-                return sb.ToString();
+            return prevdash ? sb.ToString().Substring(0, sb.Length - 1) : sb.ToString();
         }
 
         // From https://meta.stackexchange.com/questions/7435/non-us-ascii-characters-dropped-from-full-profile-url/7696#7696
-        public static string RemapInternationalCharToAscii(this char c)
+        private static string RemapInternationalCharToAscii(this char c)
         {
             string s = c.ToString().ToLowerInvariant();
             if ("àåáâäãåą".Contains(s))
             {
                 return "a";
             }
-            else if ("èéêëę".Contains(s))
+
+            if ("èéêëę".Contains(s))
             {
                 return "e";
             }
-            else if ("ìíîïı".Contains(s))
+
+            if ("ìíîïı".Contains(s))
             {
                 return "i";
             }
-            else if ("òóôõöøőð".Contains(s))
+
+            if ("òóôõöøőð".Contains(s))
             {
                 return "o";
             }
-            else if ("ùúûüŭů".Contains(s))
+
+            if ("ùúûüŭů".Contains(s))
             {
                 return "u";
             }
-            else if ("çćčĉ".Contains(s))
+
+            if ("çćčĉ".Contains(s))
             {
                 return "c";
             }
-            else if ("żźž".Contains(s))
+
+            if ("żźž".Contains(s))
             {
                 return "z";
             }
-            else if ("śşšŝ".Contains(s))
+
+            if ("śşšŝ".Contains(s))
             {
                 return "s";
             }
-            else if ("ñń".Contains(s))
+
+            if ("ñń".Contains(s))
             {
                 return "n";
             }
-            else if ("ýÿ".Contains(s))
+
+            if ("ýÿ".Contains(s))
             {
                 return "y";
             }
-            else if ("ğĝ".Contains(s))
+
+            if ("ğĝ".Contains(s))
             {
                 return "g";
             }
-            else if (c == 'ř')
+
+            if (c == 'ř')
             {
                 return "r";
             }
-            else if (c == 'ł')
+
+            if (c == 'ł')
             {
                 return "l";
             }
-            else if (c == 'đ')
+
+            if (c == 'đ')
             {
                 return "d";
             }
-            else if (c == 'ß')
+
+            if (c == 'ß')
             {
                 return "ss";
             }
-            else if (c == 'Þ')
+
+            if (c == 'Þ')
             {
                 return "th";
             }
-            else if (c == 'ĥ')
+
+            if (c == 'ĥ')
             {
                 return "h";
             }
-            else if (c == 'ĵ')
+
+            if (c == 'ĵ')
             {
                 return "j";
             }
-            else
-            {
-                return "";
-            }
+
+            return "";
         }
     }
 }

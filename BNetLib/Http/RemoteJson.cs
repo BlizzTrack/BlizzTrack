@@ -12,9 +12,9 @@ namespace BNetLib.Http
             using var wc = new WebClient();
             if (headers != null)
             {
-                foreach (var header in headers)
+                foreach (var (key, value) in headers)
                 {
-                    wc.Headers.Add(header.Key, header.Value);
+                    wc.Headers.Add(key, value);
                 }
             }
 

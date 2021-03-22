@@ -4,7 +4,7 @@ namespace BNetLib.Helpers
 {
     public static class RegionName
     {
-        private readonly static Dictionary<string, string> _regionNames = new Dictionary<string, string>()
+        private static readonly Dictionary<string, string> RegionNames = new Dictionary<string, string>()
         {
             { "US", "Americas" },
             { "EU", "Europe" },
@@ -24,9 +24,7 @@ namespace BNetLib.Helpers
 
         public static string Get(string code)
         {
-            if (_regionNames.TryGetValue(code.ToUpper(), out var name)) return name;
-
-            return code;
+            return RegionNames.TryGetValue(code.ToUpper(), out var name) ? name : code;
         }
     }
 }

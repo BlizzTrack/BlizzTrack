@@ -17,11 +17,8 @@ using System.Threading.Tasks;
 
 namespace BlizzTrack.API
 {
-    [ApiExplorerSettings(IgnoreApi = true)]
-    [Route("Auth")]
-    [ApiController]
-    [FeatureGate(nameof(FeatureFlags.UserAuth))]
-    [Authorize]
+    [ApiExplorerSettings(IgnoreApi = true), Route("Auth"), ApiController, FeatureGate(nameof(FeatureFlags.UserAuth)),
+     Authorize]
     public class AuthController : ControllerBase
     {
         private readonly UserManager<User> _userManager;
@@ -35,14 +32,14 @@ namespace BlizzTrack.API
             _config = config;
         }
 
-        [AllowAnonymous]
-        [HttpGet("Login")]
-        public async Task Login(string returnUrl = "/")
+        [AllowAnonymous, HttpGet("Login")]
+        public async Task Login()
         {
-            await HttpContext.ChallengeAsync(BattleNetAuthenticationDefaults.AuthenticationScheme, new AuthenticationProperties()
-            {
-                RedirectUri = new PathString("/Auth/ExternalAuthLogin").Add(QueryString.Create("returnUrl", "/")),
-            });
+            await HttpContext.ChallengeAsync(BattleNetAuthenticationDefaults.AuthenticationScheme,
+                new AuthenticationProperties()
+                {
+                    RedirectUri = new PathString("/Auth/ExternalAuthLogin")
+                });
         }
 
         [HttpGet("Logout")]
@@ -53,9 +50,8 @@ namespace BlizzTrack.API
             return Redirect("/");
         }
 
-        [AllowAnonymous]
-        [HttpGet("ExternalAuthLogin")]
-        public async Task<ActionResult> ExternalAuthLogin(string returnUrl = "/")
+        [AllowAnonymous, HttpGet("ExternalAuthLogin")]
+        public async Task<ActionResult> ExternalAuthLogin()
         {
             await Task.Delay(TimeSpan.FromSeconds(1));
 
@@ -103,7 +99,8 @@ namespace BlizzTrack.API
                     await _userManager.AddToRoleAsync(user, "Admin");
             }
 
-            var identity = new ClaimsIdentity(CookieAuthenticationDefaults.AuthenticationScheme, ClaimTypes.Name, ClaimTypes.Role);
+            var identity = new ClaimsIdentity(CookieAuthenticationDefaults.AuthenticationScheme, ClaimTypes.Name,
+                ClaimTypes.Role);
 
             identity.AddClaim(new Claim(ClaimTypes.NameIdentifier, user.Id));
             identity.AddClaim(new Claim(ClaimTypes.Name, user.UserName));
@@ -116,10 +113,11 @@ namespace BlizzTrack.API
 
             var f = new ClaimsPrincipal(identity);
 
-            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, f, new AuthenticationProperties
-            {
-                IsPersistent = true
-            });
+            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, f,
+                new AuthenticationProperties
+                {
+                    IsPersistent = true
+                });
 
             return Redirect("/");
         }

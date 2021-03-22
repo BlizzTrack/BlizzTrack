@@ -14,11 +14,11 @@ namespace Core.Extensions
 
             var someObjectType = someObject.GetType();
 
-            foreach (var item in source)
+            foreach (var (key, value) in source)
             {
                 someObjectType
-                         .GetProperty(item.Key, bindingAttr)
-                         .SetValue(someObject, item.Value, null);
+                         .GetProperty(key, bindingAttr)
+                         ?.SetValue(someObject, value, null);
             }
 
             return someObject;

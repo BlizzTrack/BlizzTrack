@@ -7,7 +7,7 @@ namespace BlizzTrack.Pages
 {
     public class ViewGameManifestRawModel : PageModel
     {
-        private readonly Core.Services.ICatalog _catalog;
+        private readonly ICatalog _catalog;
 
         public ViewGameManifestRawModel(ICatalog catalog)
         {

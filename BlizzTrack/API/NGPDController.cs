@@ -96,7 +96,7 @@ namespace BlizzTrack.API
             var file = file_type.ToString().ToLower();
             AbstractCommand cmd;
             code = code.ToLower();
-            object result = null;
+            object result;
 
             var parent = await _gameParents.Get(code);
 

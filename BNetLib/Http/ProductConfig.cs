@@ -25,22 +25,16 @@ namespace BNetLib.Http
             return await wc.DownloadDataTaskAsync(url);
         }
 
-        public static async Task<Dictionary<string, string>> GetDictionary(string config, string path = "level3.blizzard.com/tpr/configs/data")
+        public static async Task<Dictionary<string, string>> GetDictionary(string config,
+            string path = "level3.blizzard.com/tpr/configs/data")
         {
             var data = await GetRaw(config, path);
 
-            var res = new Dictionary<string, string>();
-
-            foreach (var line in data.Split("\n"))
-            {
-                var l = line.Trim();
-
-                if (l.StartsWith("#") || string.IsNullOrEmpty(l)) continue;
-                var lineData = l.Split(" = ");
-                res.Add(lineData.First(), lineData.Last());
-            }
-
-            return res;
+            return (from line in data.Split("\n")
+                select line.Trim()
+                into l
+                where !l.StartsWith("#") && !string.IsNullOrEmpty(l)
+                select l.Split(" = ")).ToDictionary(lineData => lineData.First(), lineData => lineData.Last());
         }
     }
 }

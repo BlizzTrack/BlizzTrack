@@ -137,11 +137,9 @@ namespace BNetLib.Helpers
                 code = code.Replace(k, "");
                 foreach (var (key, value) in Suffix)
                 {
-                    if (code.Equals(key, StringComparison.CurrentCultureIgnoreCase))
-                    {
-                        name += " " + value;
-                        break;
-                    }
+                    if (!code.Equals(key, StringComparison.CurrentCultureIgnoreCase)) continue;
+                    name += " " + value;
+                    break;
                 }
 
                 break;

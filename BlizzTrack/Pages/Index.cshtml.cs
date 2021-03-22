@@ -43,8 +43,8 @@ namespace BlizzTrack.Pages
             _bgdl = bgdl;
         }
 
-        public List<Manifest<BNetLib.Models.Summary[]>> Manifests = null;
-        public List<(BNetLib.Models.Summary newest, BNetLib.Models.Summary previous)> SummaryDiff = new List<(BNetLib.Models.Summary newest, BNetLib.Models.Summary previous)>();
+        public List<Manifest<BNetLib.Models.Summary[]>> Manifests;
+        public readonly List<(BNetLib.Models.Summary newest, BNetLib.Models.Summary previous)> SummaryDiff = new();
 
         [BindProperty(SupportsGet = true, Name = "search")]
         public string Search { get; set; }
@@ -55,9 +55,9 @@ namespace BlizzTrack.Pages
 
         public List<Manifest<BNetLib.Models.Versions[]>> Versions;
 
-        public List<Manifest<BNetLib.Models.BGDL[]>> BGDLs;
+        public List<Manifest<BNetLib.Models.BGDL[]>> BgdLs;
 
-        public List<UpdateTimes> GameVersions { get; set; } = new List<UpdateTimes>();
+        public List<UpdateTimes> GameVersions { get; } = new();
 
         public List<CatalogEntryType> CatalogEntries { get; set; }
 
@@ -68,7 +68,7 @@ namespace BlizzTrack.Pages
 
             CatalogEntries  = await _dbContext.Catalogs
                 .OrderByDescending(x => x.Indexed)
-                .Where(x => Parents.Select(x => x.ManifestID).Contains(x.Name))
+                .Where(x => Parents.Select(gameParents => gameParents.ManifestID).Contains(x.Name))
                 .Select(x => new CatalogEntryType
                 {
                     Code = x.Name,
@@ -82,7 +82,6 @@ namespace BlizzTrack.Pages
 
             Configs = await _gameConfig.In(latest.Where(x => x.Flags == "versions").Select(x => x.Product).ToArray());
 
-            var verCodes = latest.Where(x => x.Flags == "versions").Select(x => x.Product).ToList();
             var verSeqn = latest.Where(x => x.Flags == "versions").Select(x => x.Seqn).ToList();
             var vers = await _dbContext.Versions.OrderByDescending(x => x.Seqn).Where(s => verSeqn.Contains(s.Seqn)).Select(x => new UpdateTimes
             {
@@ -103,7 +102,7 @@ namespace BlizzTrack.Pages
             GameVersions.AddRange(bgdl);
 
             Versions = await _versions.MultiBySeqn(latest.Where(x => x.Flags == "versions").Select(x => x.Seqn).ToList());
-            BGDLs = await _bgdl.MultiBySeqn(latest.Where(x => x.Flags == "bgdl").Select(x => x.Seqn).ToList());
+            BgdLs = await _bgdl.MultiBySeqn(latest.Where(x => x.Flags == "bgdl").Select(x => x.Seqn).ToList());
 
             foreach (var item in latest)
             {

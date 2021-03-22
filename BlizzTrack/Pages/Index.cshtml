@@ -99,7 +99,7 @@
                                             }
                                             else if (item.Flags == "bgdl")
                                             {
-                                                var ver = Model.BGDLs.FirstOrDefault(x => x.Code == item.Product);
+                                                var ver = Model.BgdLs.FirstOrDefault(x => x.Code == item.Product);
 
                                                 if (ver == null)
                                                 {
@@ -226,7 +226,7 @@
                                             }
                                             else if (item.newest.Flags == "bgdl")
                                             {
-                                                var ver = Model.BGDLs.FirstOrDefault(x => x.Code == item.newest.Product);
+                                                var ver = Model.BgdLs.FirstOrDefault(x => x.Code == item.newest.Product);
 
                                                 if (ver == null)
                                                 {
@@ -275,33 +275,31 @@
         var latestCodes = Model.Manifests.First().Content.ToList();
         latestCodes.Remove(latestCodes.FirstOrDefault(x => x.Product == "storm"));
 
-        var previousCodes = Model.Manifests.Last().Content;
-
-        List<(bool, List<Core.Models.GameParents>)> games = new List<(bool, List<Core.Models.GameParents>)>();
-
-        games.Add((false, Model.Parents.Where(x =>
+        var games = new List<(bool, List<Core.Models.GameParents>)>
         {
-            var f = Model.CatalogEntries.Where(s => s.Code == x.ManifestID).FirstOrDefault();
-            if (f == null) return true;
-            return !f.Activison;
-        }).ToList()));
+            (false, Model.Parents.Where(x =>
+            {
+                var f = Model.CatalogEntries.FirstOrDefault(s => s.Code == x.ManifestID);
+                return f == null || !f.Activison;
+            }).ToList()),
+            (true, Model.Parents.Where(x =>
+            {
+                var f = Model.CatalogEntries.FirstOrDefault(s => s.Code == x.ManifestID);
+                return f != null && f.Activison;
+            }).ToList())
+        };
 
-        games.Add((true, Model.Parents.Where(x =>
-        {
-            var f = Model.CatalogEntries.Where(s => s.Code == x.ManifestID).FirstOrDefault();
-            if (f == null) return false;
-            return f.Activison;
-        }).ToList()));
+
     }
 
-    @foreach (var gameEntry in games)
+    @foreach (var (isActivision, gameParentsList) in games)
     {
 
         <div class="card bg-transparent mb-2 section-title" style="box-shadow: none;">
             <div class="card-header">
                 <div class="col-sm-12 text-left">
                     <h2 class="card-title">
-                        @if (gameEntry.Item1)
+                        @if (isActivision)
                         {
                             @Html.Raw("Activision")
                         }
@@ -314,7 +312,7 @@
             </div>
         </div>
 
-        @foreach (var parent in gameEntry.Item2.OrderBy(x => x.Code))
+        @foreach (var parent in gameParentsList.OrderBy(x => x.Code))
         {
             var gamesList = latestCodes.Where(x => x.Product.StartsWith(parent.Code)).ToList();
             if (parent.ChildrenOverride?.Count > 0)
@@ -449,7 +447,7 @@
                                         }
                                         else if (item.Flags == "bgdl")
                                         {
-                                            var ver = Model.BGDLs.FirstOrDefault(x => x.Code == item.Product);
+                                            var ver = Model.BgdLs.FirstOrDefault(x => x.Code == item.Product);
                                             if(ver == null)
                             {
                                 @("N/A")
@@ -510,8 +508,6 @@
                             continue;
                         }
 
-                        var f = previousCodes.FirstOrDefault(x => x.Product == product && x.Flags == flags);
-
                         var config = Model.Configs.FirstOrDefault(x => x.Code == product) ?? new Core.Models.GameConfig
                         {
                             Config = new Core.Models.ConfigItems()
@@ -567,7 +563,7 @@
                                             }
                                             else if (flags == "bgdl")
                                             {
-                                                var ver = Model.BGDLs.FirstOrDefault(x => x.Code == product);
+                                                var ver = Model.BgdLs.FirstOrDefault(x => x.Code == product);
 
                                                 if (ver == null)
                                                 {

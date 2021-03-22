@@ -47,20 +47,17 @@ namespace BNetLib.Networking
         {
             var dataItems = new List<T>();
 
-            var keys = new List<KeyType>();
             var enumerable = lines as string[] ?? lines.ToArray();
             if (!enumerable.Any()) return (default, 0);
 
             var keysLine = enumerable.Skip(1).Take(1).First();
             var seqn = 0;
 
-            foreach (var key in keysLine.Split("|"))
-            {
-                var item = key.Split("!");
-                var itemType = item.Last().Split(":").First();
-                    
-                keys.Add(new KeyType(Enum.Parse<KeyTypeEnum>(itemType, true), item.First()));
-            }
+            var keys = (from key in keysLine.Split("|")
+                select key.Split("!")
+                into item
+                let itemType = item.Last().Split(":").First()
+                select new KeyType(Enum.Parse<KeyTypeEnum>(itemType, true), item.First())).ToList();
 
             foreach (var line in enumerable.Skip(2))
             {
@@ -82,7 +79,7 @@ namespace BNetLib.Networking
                     var key = keys[i];
                     var item = values[i].Trim();
 
-                    switch(key.Type)
+                    switch (key.Type)
                     {
                         case KeyTypeEnum.DEC:
                             _ = int.TryParse(item, out var seqn1);
@@ -97,6 +94,7 @@ namespace BNetLib.Networking
                             {
                                 lineItem[key.Key] = item == "" ? "" : item.Trim();
                             }
+
                             break;
                     }
                 }

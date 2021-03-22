@@ -23,12 +23,12 @@ namespace BNetLib.Networking
             return await Do<Versions>(new VersionCommand(code));
         }
 
-        public async Task<ClientResult<BGDL>> BGDL(string code)
+        public async Task<ClientResult<BGDL>> Bgdl(string code)
         {
             return await Do<BGDL>(new BGDLCommand(code));
         }
 
-        public async Task<ClientResult<CDN>> CDN(string code)
+        public async Task<ClientResult<CDN>> Cdn(string code)
         {
             return await Do<CDN>(new CDNCommand(code));
         }
@@ -38,7 +38,7 @@ namespace BNetLib.Networking
             return await Do<Summary>(new SummaryCommand());
         }
 
-        public async Task<ClientResult<T>> Do<T>(AbstractCommand command) where T : NGPD, new() => await Do<T>(command.ToString());
+        private async Task<ClientResult<T>> Do<T>(AbstractCommand command) where T : NGPD, new() => await Do<T>(command.ToString());
 
         private async Task<ClientResult<T>> Do<T>(string command) where T : NGPD, new()
         {
@@ -85,7 +85,7 @@ namespace BNetLib.Networking
                 return default;
             }catch(Exception ex)
             {
-                Console.Error.WriteLine($"Failed to call: {command} -> {ex}");
+                await Console.Error.WriteLineAsync($"Failed to call: {command} -> {ex}");
                 return default;
             }
         }

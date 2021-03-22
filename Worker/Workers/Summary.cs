@@ -273,7 +273,7 @@ namespace Worker.Workers
 
                 case { } bgdlType when bgdlType == typeof(BNetLib.Models.BGDL):
                     {
-                        var payload = await _bNetClient.BGDL(msg.Product);
+                        var payload = await _bNetClient.Bgdl(msg.Product);
                         data = (IList<T>)payload.Payload;
                         seqn = payload.Seqn;
                         raw = payload.Raw;
@@ -282,7 +282,7 @@ namespace Worker.Workers
 
                 case { } cdnType when cdnType == typeof(BNetLib.Models.CDN):
                     {
-                        var payload = await _bNetClient.CDN(msg.Product);
+                        var payload = await _bNetClient.Cdn(msg.Product);
                         data = (IList<T>)payload.Payload;
                         seqn = payload.Seqn;
                         raw = payload.Raw;

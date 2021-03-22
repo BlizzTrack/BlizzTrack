@@ -16,12 +16,12 @@ namespace BlizzTrack.API
     public class PatchNotesController : ControllerBase
     {
         private readonly IGameParents _gameParents;
-        private readonly Services.IPatchnotes _patchnotes;
+        private readonly Services.IPatchnotes _patchNotes;
 
-        public PatchNotesController(IGameParents gameParents, Services.IPatchnotes patchnotes)
+        public PatchNotesController(IGameParents gameParents, Services.IPatchnotes patchNotes)
         {
             _gameParents = gameParents;
-            _patchnotes = patchnotes;
+            _patchNotes = patchNotes;
         }
 
         /// <summary>
@@ -80,7 +80,7 @@ namespace BlizzTrack.API
 
             foreach (var code in parent.PatchNoteAreas)
             {
-                var data = await _patchnotes.Get(parent.Code, code);
+                var data = await _patchNotes.Get(parent.Code, code);
 
                 PatchNoteResults.PatchNoteBodyPayload payload;
                 if (!string.IsNullOrEmpty(data.Details))
@@ -144,7 +144,7 @@ namespace BlizzTrack.API
 
             if (!parent.PatchNoteAreas.Contains(gameType.ToLower())) return NotFound(new ReponseTypes.NotFound());
 
-            var data = await _patchnotes.Get(parent.Code, gameType);
+            var data = await _patchNotes.Get(parent.Code, gameType);
 
             PatchNoteResults.PatchNoteBodyPayload payload;
             if (!string.IsNullOrEmpty(data.Details))

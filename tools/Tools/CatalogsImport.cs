@@ -11,7 +11,6 @@ using ShellProgressBar;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -24,7 +23,7 @@ namespace Tooling.Tools
     {
         private readonly IVersions _versions;
         private readonly ICDNs _cdns;
-        private readonly Core.Services.IGameConfig _gameConfig;
+        private readonly IGameConfig _gameConfig;
         private readonly ProductConfig _productConfig;
         private readonly DBContext _dbContext;
         private readonly ILogger<CatalogsImport> _logger;
@@ -51,37 +50,10 @@ namespace Tooling.Tools
             await BuildConfig();
         }
 
-        public Stream GenerateStreamFromString(string s)
-        {
-            var stream = new MemoryStream();
-            var writer = new StreamWriter(stream);
-            writer.Write(s);
-            writer.Flush();
-            stream.Position = 0;
-            return stream;
-        }
-
-        public async Task BuildConfig()
+        protected async Task BuildConfig()
         {
             Console.Clear();
-
-            var options = new ProgressBarOptions
-            {
-                ForegroundColor = ConsoleColor.Yellow,
-                ForegroundColorDone = ConsoleColor.DarkGreen,
-                BackgroundColor = ConsoleColor.DarkGray,
-                BackgroundCharacter = '\u2593',
-                CollapseWhenFinished = true,
-                ShowEstimatedDuration = true
-            };
-            var childOptions = new ProgressBarOptions
-            {
-                ForegroundColor = ConsoleColor.Green,
-                BackgroundColor = ConsoleColor.DarkGreen,
-                CollapseWhenFinished = true,
-                BackgroundCharacter = '\u2593',
-            };
-
+            
             var versions = await _dbContext.Versions.OrderByDescending(x => x.Seqn).ToListAsync();
             var cdns = await _dbContext.CDN.OrderByDescending(x => x.Seqn).ToListAsync();
 
@@ -129,7 +101,7 @@ namespace Tooling.Tools
 
                         var data = new BuildConfigItem
                         {
-                            Content = gConfig.Config.Encrypted ? Convert.ToBase64String(rootConfig) : System.Text.Encoding.Default.GetString(rootConfig),
+                            Content = gConfig != null && gConfig.Config.Encrypted ? Convert.ToBase64String(rootConfig) : System.Text.Encoding.Default.GetString(rootConfig),
                             URL = $"{server}/{dest}",
                             Encrypted = gConfig.Config.Encrypted,
                             Meta = new Dictionary<string, string> {
@@ -169,12 +141,10 @@ namespace Tooling.Tools
                     }
                 }
 
-                if (i >= 10)
-                {
-                    i = 1;
-                    _logger.LogInformation("Triggering Saving... Please wait");
-                    await _dbContext.SaveChangesAsync();
-                }
+                if (i < 10) continue;
+                i = 1;
+                _logger.LogInformation("Triggering Saving... Please wait");
+                await _dbContext.SaveChangesAsync();
             }
 
             await _dbContext.SaveChangesAsync();
@@ -261,17 +231,17 @@ namespace Tooling.Tools
         public async Task Catalogs()
         {
             var latestCatalogVersion = await _versions.Latest("catalogs");
-            var latestCatalogCDN = await _cdns.Latest("catalogs");
+            var latestCatalogCdn = await _cdns.Latest("catalogs");
 
-            var usCDNConfig = latestCatalogCDN.Content.FirstOrDefault(x => x.Name.Equals("us", StringComparison.OrdinalIgnoreCase));
+            var usCdnConfig = latestCatalogCdn.Content.FirstOrDefault(x => x.Name.Equals("us", StringComparison.OrdinalIgnoreCase));
             var latest = latestCatalogVersion.Content.Last();
 
             //var configFile = await _catalogs.Get(usCDNConfig.Hosts.Split(" ").First(), usCDNConfig.Path, CatalogDataType.Config, latest.Buildconfig);
 
-            var buildConfig = await BNetLib.Http.ProductConfig.GetDictionary(latest.Buildconfig, $"{usCDNConfig.Hosts.Split(" ").First()}/{usCDNConfig.Path}/config");
+            var buildConfig = await BNetLib.Http.ProductConfig.GetDictionary(latest.Buildconfig, $"{usCdnConfig.Hosts.Split(" ").First()}/{usCdnConfig.Path}/config");
 
             var hash = buildConfig["root"];
-            var rootConfig = await BNetLib.Http.ProductConfig.GetRaw(hash, $"{usCDNConfig.Hosts.Split(" ").First()}/{usCDNConfig.Path}/data");
+            var rootConfig = await BNetLib.Http.ProductConfig.GetRaw(hash, $"{usCdnConfig.Hosts.Split(" ").First()}/{usCdnConfig.Path}/data");
             var json = JsonDocument.Parse(rootConfig);
 
             var fragments = new List<BNetLib.Catalogs.Models.Fragment>();
@@ -314,25 +284,24 @@ namespace Tooling.Tools
 
             _logger.LogInformation($"Fragments: {string.Join(", ", fragments.Select(x => x.name))}");
 
-            foreach(var item in fragments)
+            foreach(var (name, s) in fragments)
             {
-                if(!await ManifestExist(item.hash))
+                if(!await ManifestExist(s))
                 {
-                    _logger.LogInformation($"Missing (Inserting): {item.name} {item.hash}");
+                    _logger.LogInformation($"Missing (Inserting): {name} {s}");
 
-                    var gameConfig = await BNetLib.Http.ProductConfig.GetRaw(item.hash, $"{usCDNConfig.Hosts.Split(" ").First()}/{usCDNConfig.Path}/data");
+                    var gameConfig = await BNetLib.Http.ProductConfig.GetRaw(s, $"{usCdnConfig.Hosts.Split(" ").First()}/{usCdnConfig.Path}/data");
                     var gameJson = JsonDocument.Parse(gameConfig);
 
 
                     var installs = new List<CatalogInstall>();
                     var strings = new Dictionary<string, string>();
 
-                    var is_Act = false;
+                    var isAct = false;
                     var translationName = string.Empty;
+                    var baseItem = new JsonElement();
                     if (gameJson.RootElement.TryGetProperty("products", out var productsJson))
                     {
-                        JsonElement baseItem = new JsonElement();
-
                         var products = productsJson.EnumerateArray();
 
                         while (products.MoveNext())
@@ -347,7 +316,7 @@ namespace Tooling.Tools
                         {
                             if (baseItem.TryGetProperty("is_activision_game", out var f))
                             {
-                                is_Act = f.GetBoolean();
+                                isAct = f.GetBoolean();
                             }
 
                             if (baseItem.TryGetProperty("name", out var n))
@@ -386,17 +355,17 @@ namespace Tooling.Tools
                     _dbContext.Add(new Core.Models.Catalog()
                     {
                         Payload = gameJson,
-                        Hash = item.hash,
-                        Name = item.name,
+                        Hash = s,
+                        Name = name,
                         Type = CatalogType.Fragment,
-                        Activision = is_Act,
+                        Activision = isAct,
                         Installs = installs,
                         Translations = strings,
                         ProperName = translationName == string.Empty ? string.Empty : strings[translationName]
                     });
                 }
 
-                _logger.LogInformation($"Processed: {item.name} {item.hash}");
+                _logger.LogInformation($"Processed: {name} {s}");
             }
 
             _logger.LogInformation($"Saved fragment data");

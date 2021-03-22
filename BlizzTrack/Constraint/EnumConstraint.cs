@@ -10,7 +10,7 @@ namespace BlizzTrack.Constraint
 {
     public class EnumConstraint : IRouteConstraint
     {
-        private static readonly ConcurrentDictionary<string, string[]> Cache = new ConcurrentDictionary<string, string[]>();
+        private static readonly ConcurrentDictionary<string, string[]> Cache = new();
         private readonly string[] _validOptions;
         /// <summary>
         /// Create new <see cref="EnumConstraint"/>
@@ -21,7 +21,7 @@ namespace BlizzTrack.Constraint
             _validOptions = Cache.GetOrAdd(enumType, key =>
             {
                 var type = Type.GetType(key);
-                return type != null ? Enum.GetNames(type) : new string[0];
+                return type != null ? Enum.GetNames(type) : Array.Empty<string>();
             });
         }
 
@@ -29,8 +29,7 @@ namespace BlizzTrack.Constraint
         {
             var candidate = values[routeKey]?.ToString();
 
-            object value;
-            if (values.TryGetValue(candidate, out value) && value != null)
+            if (values.TryGetValue(candidate ?? string.Empty, out var value) && value != null)
             {
                 return _validOptions.Contains(value.ToString(), StringComparer.OrdinalIgnoreCase);
             }

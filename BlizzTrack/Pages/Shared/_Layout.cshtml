@@ -10,7 +10,7 @@
     <meta name="tags"
           content="blizzard, overwatch, world of warcraft, version tracker, wow, ow, diablo 3, starcraft 2, public test realm, ptr, hearthstone, heroes of the storm, starcraft, starcraft ii, overwatch ptr patch notes, heroes of the storm ptr patch notes" />
 
-    <link rel="apple-touch-icon" sizes="76x76" href="../assets/img/apple-icon.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="~/images/apple-touch-icon.png">
     <title>
         @ViewData["Title"] - BlizzTrack
     </title>
@@ -151,7 +151,7 @@
                                 </button>
                             </li>
                             <feature name="@nameof(FeatureFlags.UserAuth)">
-                                @if (Context.User.Identity.IsAuthenticated)
+                                @if (Context.User.Identity != null && Context.User.Identity.IsAuthenticated)
                                 {
                                     <li class="dropdown nav-item">
                                         <a href="#" class="dropdown-toggle nav-link" data-toggle="dropdown">
@@ -285,8 +285,8 @@
     {
         <script>
             if (!window.console) window.console = {};
-            var methods = ["log", "debug", "warn", "info"];
-            for (var i = 0; i < methods.length; i++) {
+            const methods = ["log", "debug", "warn", "info"];
+            for (let i = 0; i < methods.length; i++) {
                 console[methods[i]] = function () { };
             }
         </script>
@@ -311,9 +311,9 @@
     <script src="~/js/storage.js" asp-append-version="true"></script>
     <script src="~/lib/moment.js/moment.min.js" asp-append-version="true"></script>
 
-    @RenderSection("Scripts", required: false)
+@await RenderSectionAsync("Scripts", required: false)
 
-    <script>
+<script>
         $(document).ready(function () {
             $('[data-toggle="tooltip"]').tooltip()
 
