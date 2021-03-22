@@ -163,12 +163,12 @@
                 foreach (var change in Model.PatchNotes.HeroUpdates)
                 {
                     <div class="card bg-transparent mb-2" style="box-shadow: none;" id="@change.Title.Slugify()">
-                        <div class="card-header">
+                        <div class="card-header bg-transparent">
                             <div class="col-sm-12 text-left">
                                 <h2 class="card-title">
                                     @change.Title <small style="font-size: x-small"><a href="#@change.Title.Slugify()"><i class="fas fa-anchor"></i></a></small>
                                 </h2>
-                                <h5 class="card-category">@change.Description</h5>
+                                <h5 class="card-category">@Html.Raw(Markdown.Parse(change.Description))</h5>
                             </div>
                         </div>
 
@@ -178,7 +178,7 @@
                                 // https://cdn.blizztrack.com/overwatch/heroes/
 
                                 <div class="card mb-2" id="@update.HeroName.Slugify()">
-                                    <div class="card-header border-0 pt-3 pb-1 d-flex align-items-center">
+                                    <div class="card-header border-0 p-2 d-flex align-items-center">
                                         <img src="@($"https://cdn.blizztrack.com/overwatch/heroes/{update.Metadata.AssetGuid}.png")" class="mr-3" width="45" alt="@update.HeroName">
 
                                         <div class="text-left">
@@ -199,7 +199,7 @@
                                             @foreach (var ability in update.Abilities.Select(x => x.AbilityChanges))
                                             {
                                                 <div class="card bg-transparent pl-3 m-0 py-0 pt-0" style="box-shadow: none">
-                                                    <div class="card-header border-0 pt-1 pb-1 d-flex align-items-center">
+                                                    <div class="card-header bg-transparent border-0 pt-1 pb-1 d-flex align-items-center">
                                                         <div class="PatchIcon-Holder">
                                                             <img class="PatchIcon mr-3" src="@($"https://cdn.blizztrack.com/overwatch/abilities/{ability.Metadata.IconGuid}.png")" width="30" alt="@ability.AbilityName">
                                                         </div>
