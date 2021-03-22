@@ -222,6 +222,12 @@ namespace Worker.Workers
                             }
                         }
 
+                        var properName = string.Empty;
+                        if (!string.IsNullOrEmpty(translationName))
+                        {
+                            if (strings.ContainsKey(translationName)) properName = strings[translationName];
+                        }
+                        
                         dbContext.Add(new Core.Models.Catalog()
                         {
                             Payload = gameJson,
@@ -231,7 +237,7 @@ namespace Worker.Workers
                             Activision = isAct,
                             Installs = installs,
                             Translations = strings,
-                            ProperName = translationName == string.Empty ? string.Empty : strings[translationName]
+                            ProperName = properName
                         });
                     }
 
