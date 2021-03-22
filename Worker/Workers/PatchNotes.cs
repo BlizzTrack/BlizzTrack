@@ -26,7 +26,7 @@ namespace Worker.Workers
         {
             Task.Run(() =>
             {
-                var c = ActivatorUtilities.CreateInstance<Patchnotes>(_serviceProvider);
+                var c = ActivatorUtilities.CreateInstance<PatchNotes>(_serviceProvider);
                 c.Run(cancellationToken);
             }, cancellationToken);
 
@@ -39,12 +39,12 @@ namespace Worker.Workers
         }
     }
 
-    public class Patchnotes
+    public class PatchNotes
     {
-        private readonly ILogger<Patchnotes> _logger;
+        private readonly ILogger<PatchNotes> _logger;
         private readonly IServiceScopeFactory _serviceScope;
 
-        public Patchnotes(IServiceScopeFactory serviceScope, ILogger<Patchnotes> logger)
+        public PatchNotes(IServiceScopeFactory serviceScope, ILogger<PatchNotes> logger)
         {
             _serviceScope = serviceScope;
             _logger = logger;

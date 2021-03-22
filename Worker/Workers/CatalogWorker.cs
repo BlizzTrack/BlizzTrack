@@ -243,14 +243,14 @@ namespace Worker.Workers
             }
         }
 
-        private async Task<BNetLib.Models.CDN> GetCdnUrl(ICDNs cdns, string code)
+        private static async Task<BNetLib.Models.CDN> GetCdnUrl(ICDNs cdns, string code)
         {
             var latestCatalogCdn = await cdns.Latest(code);
 
             return latestCatalogCdn.Content.FirstOrDefault(x => x.Name.Equals("us", StringComparison.OrdinalIgnoreCase));
         }
 
-        private async Task<bool> ManifestExist(string hash, DBContext dbContext)
+        private static async Task<bool> ManifestExist(string hash, DBContext dbContext)
         {
             var exist = await dbContext.Catalogs.FirstOrDefaultAsync(x => x.Hash == hash);
 
