@@ -2,7 +2,7 @@
 @model BlizzTrack.Pages.ViewGameModel
 
 @{
-    ViewData["Title"] = $"{(Model.GameConfig.Name ?? Model.Meta.GetName())} // {GameTypeFixer.Fix(Model.Meta.Flags)}";
+    ViewData["Title"] = $"{(string.IsNullOrEmpty(Model.GameConfig.Name) ? Model.Meta.GetName() : Model.GameConfig.Name )} // {GameTypeFixer.Fix(Model.Meta.Flags)}";
 }
 
 @if (Model.GameParent?.Logos?.Count > 0)
@@ -27,7 +27,7 @@
                     All Games
                 </a>
             </li>
-            <li class="breadcrumb-item active" aria-current="page">@(Model.GameConfig.Name ?? Model.Meta.GetName())</li>
+            <li class="breadcrumb-item active" aria-current="page">@(string.IsNullOrEmpty(Model.GameConfig.Name) ? Model.Meta.GetName() : Model.GameConfig.Name )</li>
             <li class="breadcrumb-item active" aria-current="page">@GameTypeFixer.Fix(Model.Meta.Flags)</li>
         </ol>
     </div>

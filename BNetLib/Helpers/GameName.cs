@@ -145,7 +145,7 @@ namespace BNetLib.Helpers
                 break;
             }
 
-            return name == "" ? code : name;
+            return string.IsNullOrEmpty(name) ? code : name;
         }
     }
 }
