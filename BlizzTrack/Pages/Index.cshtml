@@ -149,7 +149,7 @@
         </div>
     }
 
-    @if (Model.SummaryDiff.OrderByAlphaNumeric(x => x.newest.Product).Count() > 0)
+    @if (Model.SummaryDiff.OrderByAlphaNumeric(x => x.newest.Product).Any())
     {
         <div class="col-12">
             <div class="card ">

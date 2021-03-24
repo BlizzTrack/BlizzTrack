@@ -13,6 +13,8 @@ namespace Core.Models
         public DbSet<GameParents> GameParents { get; set; }
         public DbSet<PatchNote> PatchNotes { get; set; }
         public DbSet<Catalog> Catalogs { get; set; }
+        
+        public DbSet<Assets> Assets { get; set; }
 
         public DBContext(DbContextOptions<DBContext> options) : base(options)
         {

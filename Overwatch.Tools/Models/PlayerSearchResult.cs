@@ -22,7 +22,7 @@ namespace Overwatch.Tools.Models
         NINTENDOSWITCH
     }
 
-    public class PlayerSearchResult
+    public class PlayerSearchResult<T>
     {
         [JsonProperty("name")]
         public string Name { get; set; }
@@ -34,10 +34,10 @@ namespace Overwatch.Tools.Models
         public int Id { get; set; }
 
         [JsonProperty("level")]
-        public int Level { get; set; }
+        public int? Level { get; set; }
 
         [JsonProperty("playerLevel")]
-        public int PlayerLevel { get; set; }
+        public int? PlayerLevel { get; set; }
 
         [JsonProperty("isPublic")]
         public bool IsPublic { get; set; }
@@ -46,6 +46,6 @@ namespace Overwatch.Tools.Models
         public string Platform { get; set; }
 
         [JsonProperty("portrait")]
-        public string Portrait { get; set; }
+        public T Portrait { get; set; }
     }
 }

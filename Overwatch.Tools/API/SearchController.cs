@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace Overwatch.Tools.API
 {
@@ -18,10 +19,12 @@ namespace Overwatch.Tools.API
     public class SearchController : ControllerBase
     {
         private readonly IOverwatchSearchService _overwatchSearchService;
+        private readonly DBContext _dbContext;
 
-        public SearchController(IOverwatchSearchService overwatchSearchService)
+        public SearchController(IOverwatchSearchService overwatchSearchService, DBContext dbContext)
         {
             _overwatchSearchService = overwatchSearchService;
+            _dbContext = dbContext;
         }
 
         /// <summary>
@@ -33,7 +36,7 @@ namespace Overwatch.Tools.API
         /// <param name="searchMode">Mode you wish to search with</param>
         /// <param name="platformMode">The platform you wish to search on</param>
         [HttpGet("{player}")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<PlayerSearchResult>))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<PlayerSearchResult<Portrait>>))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ReponseTypes.NotFound))]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ReponseTypes.BadRequest))]
         public async Task<IActionResult> SearchPlayers(
@@ -56,19 +59,41 @@ namespace Overwatch.Tools.API
 
             if (searchMode != null)
             {
-                switch (searchMode)
+                res = searchMode switch
                 {
-                    case SearchMode.LevelHighToLow:
-                        res = res.OrderByDescending(x => x.Level).ToList();
-                        break;
-                    case SearchMode.LevelLowToHigh:
-                        res = res.OrderBy(x => x.Level).ToList();
-                        break;
-                }
-
+                    SearchMode.LevelHighToLow => res.OrderByDescending(x => x.Level).ToList(),
+                    SearchMode.LevelLowToHigh => res.OrderBy(x => x.Level).ToList(),
+                    _ => res
+                };
             }
 
-            return Ok(res);
+            var ids = res.Select(x => x.Portrait).ToList();
+            var assets = await _dbContext.Assets
+                .Where(x => ids.Contains(x.Metadata.RootElement.GetProperty("id").GetString())).ToListAsync();
+            
+            return Ok(res.Select(x =>
+            {
+                var asset = assets.FirstOrDefault(z =>
+                    z.Metadata.RootElement.GetProperty("id").GetString() == x.Portrait);
+                
+                return new PlayerSearchResult<Portrait>()
+                {
+                    Id = x.Id,
+                    Level = x.Level,
+                    Name = x.Name,
+                    Platform =  x.Platform,
+                    IsPublic =  x.IsPublic,
+                    UrlName =  x.UrlName,
+                    Portrait = asset == null ? null : new Portrait()
+                    {
+                        Id = asset.Metadata.RootElement.GetProperty("id").GetString(),
+                        Url = asset.url,
+                        Name = asset.Metadata.RootElement.GetProperty("name").GetString(),
+                        Version = asset.Metadata.RootElement.GetProperty("release").GetString(),
+                        Event = asset.Metadata.RootElement.GetProperty("event").GetString()
+                    }
+                };
+            }));
         }
     }
 }

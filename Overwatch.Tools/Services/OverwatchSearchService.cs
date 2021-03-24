@@ -9,18 +9,18 @@ namespace Overwatch.Tools.Services
 {
     public interface IOverwatchSearchService
     {
-        Task<List<PlayerSearchResult>> Search(string player);
+        Task<List<PlayerSearchResult<string>>> Search(string player);
     }
 
     public class OverwatchSearchService : IOverwatchSearchService
     {
-        public async Task<List<PlayerSearchResult>> Search(string player)
+        public async Task<List<PlayerSearchResult<string>>> Search(string player)
         {
             using var wc = new WebClient();
 
             var data = await wc.DownloadStringTaskAsync($"https://playoverwatch.com/en-us/search/account-by-name/{player}/");
 
-            return JsonConvert.DeserializeObject<List<PlayerSearchResult>>(data);
+            return JsonConvert.DeserializeObject<List<PlayerSearchResult<string>>>(data);
         }
     }
 }

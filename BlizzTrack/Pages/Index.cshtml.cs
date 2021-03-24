@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using BlizzTrack.API;
 
 namespace BlizzTrack.Pages
 {
@@ -44,6 +45,7 @@ namespace BlizzTrack.Pages
         }
 
         public List<Manifest<BNetLib.Models.Summary[]>> Manifests;
+        
         public readonly List<(BNetLib.Models.Summary newest, BNetLib.Models.Summary previous)> SummaryDiff = new();
 
         [BindProperty(SupportsGet = true, Name = "search")]
@@ -103,7 +105,7 @@ namespace BlizzTrack.Pages
 
             Versions = await _versions.MultiBySeqn(latest.Where(x => x.Flags == "versions").Select(x => x.Seqn).ToList());
             BgdLs = await _bgdl.MultiBySeqn(latest.Where(x => x.Flags == "bgdl").Select(x => x.Seqn).ToList());
-
+            
             foreach (var item in latest)
             {
                 var exist = previous.FirstOrDefault(x => x.Product == item.Product && x.Flags == item.Flags);
@@ -111,7 +113,7 @@ namespace BlizzTrack.Pages
                 {
                     SummaryDiff.Add((item, null));
                     continue;
-                }// TODO
+                }
                 if (exist.Seqn != item.Seqn)
                 {
                     SummaryDiff.Add((item, exist));
