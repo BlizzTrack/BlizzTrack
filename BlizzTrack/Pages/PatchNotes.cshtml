@@ -10,6 +10,12 @@
     }
 
     ViewData["Title"] = $"{Model.GameParent.Name} // {GameTypeFixer.Fix(Model.GameType)} Patch Notes";
+    
+    ViewData["Description"] = "A powerful website which lets you view the versions of all the games that Blizzard Entertainment has on Battle.net!";
+    if (!string.IsNullOrEmpty(Model.GameParent.About))
+    {
+        ViewData["Description"] = Model.GameParent.About;
+    }
 }
 
 @if (Model.GameParent?.Logos?.Count > 0)
@@ -121,7 +127,7 @@
 
     <div class="col-2 d-none d-xl-block">
         <div class="card bg-transparent mb-2" style="box-shadow: none;">
-            <div class="card-header px-1">
+            <div class="card-header bg-transparent px-1">
                 <div class="col-sm-12 text-left">
                     <h2 class="card-title">
                         All Builds
@@ -175,8 +181,6 @@
                         <div class="card-body">
                             @foreach (var update in change.Heroes.Select(x => x.HeroChanges))
                             {
-                                // https://cdn.blizztrack.com/overwatch/heroes/
-
                                 <div class="card mb-2" id="@update.HeroName.Slugify()">
                                     <div class="card-header border-0 p-2 d-flex align-items-center">
                                         <img src="@($"https://cdn.blizztrack.com/overwatch/heroes/{update.Metadata.AssetGuid}.png")" class="mr-3" width="45" alt="@update.HeroName">
@@ -229,7 +233,7 @@
                 foreach (var change in Model.PatchNotes.GenericUpdates)
                 {
                     <div class="card bg-transparent mb-2" style="box-shadow: none;" id="@change.Title.Slugify()">
-                        <div class="card-header">
+                        <div class="card-header bg-transparent">
                             <div class="col-sm-12 text-left">
                                 @if (!string.IsNullOrWhiteSpace(change.Title))
                                 {

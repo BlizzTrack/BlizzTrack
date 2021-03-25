@@ -52,6 +52,9 @@ namespace BlizzTrack.Pages.Admin.Parents
 
         [Display(Name = "Visible")]
         public bool Visible { get; set; }
+        
+        [Display(Name =  "About this game")]
+        public string GameAbout { get; set; }
 
         public Core.Models.GameParents ToGameParents => new Core.Models.GameParents()
         {
@@ -135,7 +138,7 @@ namespace BlizzTrack.Pages.Admin.Parents
 
                 var dest = Path.Join("bt", "logos", "games", $"{Guid.NewGuid()}{Path.GetExtension(GameInfoModel.Icon.FileName)}").Replace("\\", "/").TrimStart('/');
 
-                using var ms = GameInfoModel.Icon.OpenReadStream();
+                await using var ms = GameInfoModel.Icon.OpenReadStream();
 
                 await _minioClient.PutObjectAsync(_bucket, dest, ms, ms.Length, GameInfoModel.Icon.ContentType, new Dictionary<string, string> { { "x-amz-acl", "public-read" } });
 
@@ -176,6 +179,8 @@ namespace BlizzTrack.Pages.Admin.Parents
             }
 
             parent.Visible = true;
+            parent.About = GameInfoModel.GameAbout;
+            
             await _gameParents.Add(parent);
 
             return Redirect($"/admin/game-parents/modify?handler=Edit&code={parent.Code}");
@@ -206,6 +211,7 @@ namespace BlizzTrack.Pages.Admin.Parents
                     PatchNoteTool = GameInfo.PatchNoteTool,
                     PatchNoteCode = GameInfo.PatchNoteCode,
                     CatalogManifestID = GameInfo.ManifestID ?? GameInfo.Code,
+                    GameAbout = GameInfo.About,
                     Visible = true
                 };
         }
@@ -233,7 +239,7 @@ namespace BlizzTrack.Pages.Admin.Parents
 
                 var dest = Path.Join("bt", "logos", "games", $"{Guid.NewGuid()}{Path.GetExtension(GameInfoModel.Icon.FileName)}").Replace("\\", "/").TrimStart('/');
 
-                using var ms = GameInfoModel.Icon.OpenReadStream();
+                await using var ms = GameInfoModel.Icon.OpenReadStream();
 
                 await _minioClient.PutObjectAsync(_bucket, dest, ms, ms.Length, GameInfoModel.Icon.ContentType, new Dictionary<string, string> { { "x-amz-acl", "public-read" } });
 
@@ -270,6 +276,7 @@ namespace BlizzTrack.Pages.Admin.Parents
             GameInfo.PatchNoteAreas = new List<string>();
             GameInfo.ManifestID = GameInfoModel.CatalogManifestID;
             GameInfo.Visible = true;
+            GameInfo.About = GameInfoModel.GameAbout;
 
             if (!string.IsNullOrWhiteSpace(GameInfoModel.GameChildOverride))
                 foreach (var item in GameInfoModel.GameChildOverride.Split(','))

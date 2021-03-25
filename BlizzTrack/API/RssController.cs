@@ -34,7 +34,6 @@ namespace BlizzTrack.API
         [ResponseCache(Duration = 60 * 5), HttpGet("{slug}/{type}")]
         public async Task<IActionResult> Get(string slug, string type)
         {
-
             var parent = await _gameParents.Get(slug);
 
             if (parent == null || !parent.PatchNoteAreas.Contains(type.ToLower())) return NotFound();
@@ -69,7 +68,8 @@ namespace BlizzTrack.API
                 Encoding = Encoding.UTF8,
                 NewLineHandling = NewLineHandling.None,
                 NewLineOnAttributes = false,
-                Indent = true
+                Indent = true,
+                Async = true
             };
             await using var stream = new MemoryStream();
             await using (var xmlWriter = XmlWriter.Create(stream, settings))

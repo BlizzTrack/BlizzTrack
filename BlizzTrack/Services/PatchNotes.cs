@@ -20,11 +20,11 @@ namespace BlizzTrack.Services
         Task<List<PatchNoteBuild>> GetBuildDates(string code, string type, string langauge);
     }
 
-    public class Patchnotes : IPatchnotes
+    public class PatchNotes : IPatchnotes
     {
         private readonly DBContext _dbContext;
 
-        public Patchnotes(DBContext dbContext)
+        public PatchNotes(DBContext dbContext)
         {
             _dbContext = dbContext;
         }
@@ -39,9 +39,8 @@ namespace BlizzTrack.Services
                     x.Updated,
                     x.Created
                 }).ToListAsync();
-            if (data == null) return null;
 
-            return data.Select(x => new PatchNoteBuild()
+            return data?.Select(x => new PatchNoteBuild()
             {
                 Created = x.Created,
                 Updated = x.Updated
@@ -51,12 +50,10 @@ namespace BlizzTrack.Services
         public async Task<PatchNoteData> Get(string code, string type, DateTime? buildTime = null, string language = "en-us")
         {
             var data = await _dbContext.PatchNotes
-                .Where(x => code.ToLower().StartsWith(x.Code) && type.ToLower().Equals(x.Type) && buildTime == null ? true : buildTime == x.Created)
+                .Where(x => code.ToLower().StartsWith(x.Code) && type.ToLower().Equals(x.Type) && buildTime == null || buildTime == x.Created)
                 .Where(x => x.Language == language)
                 .OrderByDescending(x => x.Created).ThenByDescending(x => x.Updated).FirstOrDefaultAsync();
-            if (data == null) return null;
-
-            return Parse(data);
+            return data == null ? null : Parse(data);
         }
 
         public async Task<List<PatchNoteData>> GetByTypes(string code, string language, params string[] types)
@@ -74,9 +71,9 @@ namespace BlizzTrack.Services
             return items;
         }
 
-        private static BNetLib.Models.Patchnotes.Overwatch.Metadata ReadMetaData(System.Text.Json.JsonElement jsonElement)
+        private static BNetLib.Models.Patchnotes.Overwatch.Metadata ReadMetaData(JsonElement jsonElement)
         {
-            if (jsonElement.ValueKind == System.Text.Json.JsonValueKind.Null) return null;
+            if (jsonElement.ValueKind == JsonValueKind.Null) return null;
 
             return new BNetLib.Models.Patchnotes.Overwatch.Metadata()
             {
@@ -90,19 +87,10 @@ namespace BlizzTrack.Services
             var data = await _dbContext.PatchNotes
                 .Where(x => code.ToLower().StartsWith(x.Code) && type.ToLower().Equals(x.Type))
                 .OrderByDescending(x => x.Created).ThenByDescending(x => x.Updated).ToListAsync();
-            if (data == null) return null;
-
-            var res = new List<PatchNoteData>();
-
-            foreach(var note in data)
-            {
-                res.Add(Parse(note));
-            }
-
-            return res;
+            return data?.Select(Parse).ToList();
         }
 
-        private PatchNoteData Parse(PatchNote data)
+        private static PatchNoteData Parse(PatchNote data)
         {
             var note = new PatchNoteData()
             {
@@ -123,9 +111,9 @@ namespace BlizzTrack.Services
             {
                 if (item.TryGetProperty("generic_update", out var genericUpdate))
                 {
-                    if (genericUpdate.ValueKind != System.Text.Json.JsonValueKind.Null)
+                    if (genericUpdate.ValueKind != JsonValueKind.Null)
                     {
-                        if (note.GenericUpdates == null) note.GenericUpdates = new List<BNetLib.Models.Patchnotes.Overwatch.GenericUpdate>();
+                        note.GenericUpdates ??= new List<BNetLib.Models.Patchnotes.Overwatch.GenericUpdate>();
 
                         var update = new BNetLib.Models.Patchnotes.Overwatch.GenericUpdate
                         {
@@ -147,7 +135,7 @@ namespace BlizzTrack.Services
                                 DisplayType = updateItem.GetProperty("display_type").GetString()
                             };
 
-                            update.Updates.Add(new BNetLib.Models.Patchnotes.Overwatch.Update() { UpdateChanges = u });
+                            update.Updates.Add(new BNetLib.Models.Patchnotes.Overwatch.Update { UpdateChanges = u });
                         }
 
                         note.GenericUpdates.Add(update);
@@ -156,9 +144,9 @@ namespace BlizzTrack.Services
 
                 if (item.TryGetProperty("hero_update", out var heroUpdate))
                 {
-                    if (heroUpdate.ValueKind != System.Text.Json.JsonValueKind.Null)
+                    if (heroUpdate.ValueKind != JsonValueKind.Null)
                     {
-                        if (note.HeroUpdates == null) note.HeroUpdates = new List<BNetLib.Models.Patchnotes.Overwatch.HeroUpdate>();
+                        note.HeroUpdates ??= new List<BNetLib.Models.Patchnotes.Overwatch.HeroUpdate>();
 
                         var update = new BNetLib.Models.Patchnotes.Overwatch.HeroUpdate
                         {

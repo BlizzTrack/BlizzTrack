@@ -134,6 +134,15 @@
                             </div>
                         </div>
                     </div>
+                                        <div class="row">
+                                            <div class="col-sm-12">
+                                                <div class="form-group">
+                                                    @Html.LabelFor(x => x.GameInfoModel.GameAbout)
+                                                    @Html.TextBoxFor(x => x.GameInfoModel.GameAbout, new { placeholder = "Parent Name", @class = "form-control mb-1" })
+                                                    @Html.ValidationMessageFor(x => x.GameInfoModel.GameAbout, "", new { @class = "text-danger" })
+                                                </div>
+                                            </div>
+                                        </div>
                     <div class="row">
                         <div class="col-sm-12">
                             <div class="form-group">

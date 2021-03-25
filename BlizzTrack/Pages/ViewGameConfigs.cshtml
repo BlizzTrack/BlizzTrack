@@ -3,6 +3,7 @@
 @model BlizzTrack.Pages.ViewGameManifestRawModel
 @{
     ViewData["Title"] = $"Viewing Config {Model.Hash}";
+    ViewData["Description"] = "A powerful website which lets you view the versions of all the games that Blizzard Entertainment has on Battle.net!";
 
     var hash = Model.Catalog.Hash;
 }

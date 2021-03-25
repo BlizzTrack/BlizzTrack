@@ -18,12 +18,14 @@ namespace BlizzTrack.API
         private readonly ISummary _summary;
         private readonly ILogger<SummaryController> _logger;
         private readonly IGameConfig _gameConfig;
+        private readonly IGameParents _gameParents;
 
-        public SummaryController(ISummary summary, ILogger<SummaryController> logger, IGameConfig gameConfig)
+        public SummaryController(ISummary summary, ILogger<SummaryController> logger, IGameConfig gameConfig, IGameParents gameParents)
         {
             _summary = summary;
             _logger = logger;
             _gameConfig = gameConfig;
+            _gameParents = gameParents;
         }
 
         /// <summary>
@@ -43,22 +45,25 @@ namespace BlizzTrack.API
 
             var summaryDiff = new List<SummaryResults.SummaryItem>();
             var configs = await _gameConfig.In(latest.Content.Select(x => x.Product).ToArray());
-
+            var parents = await _gameParents.All();
+           
             foreach (var item in latest.Content)
             {
                 var config = configs.FirstOrDefault(f => f.Code == item.Product);
+                var parent = parents.FirstOrDefault(x =>
+                    item.Product.StartsWith(x.Code) || x.ChildrenOverride.Contains(item.Product));
 
                 var x = previous.Content.FirstOrDefault(x => x.Product == item.Product && x.Flags == item.Flags);
                 if (x == null || x.Seqn != item.Seqn)
                 {
-                    summaryDiff.Add(new SummaryResults.SummaryItem()
+                    summaryDiff.Add(new SummaryResults.SummaryItem
                     {
-                        Name = config?.Name ?? item.GetName(),
+                        Name = string.IsNullOrEmpty(config?.Name) ? item.GetName() : config.Name,
                         Product = x.Product,
                         Flags = x.Flags,
                         Seqn = x.Seqn,
                         Encrypted = config?.Config.Encrypted,
-                        Logos = config?.Logos,
+                        Logos = parent?.Logos,
                         Relations = new Dictionary<SharedResults.RelationTypes, string>()
                         {
                             {
@@ -85,14 +90,17 @@ namespace BlizzTrack.API
                     Indexed = latest.Indexed,
                     Data = latest.Content.Select(x => {
                         var config = configs.FirstOrDefault(f => f.Code == x.Product);
+                        var parent = parents.FirstOrDefault(z =>
+                            x.Product.StartsWith(z.Code) || z.ChildrenOverride.Contains(x.Product));
+
                         return new SummaryResults.SummaryItem
                         {
-                            Name = config?.Name ?? x.GetName(),
+                            Name = string.IsNullOrEmpty(config?.Name) ? x.GetName() : config.Name,
                             Product = x.Product,
                             Flags = x.Flags,
                             Seqn = x.Seqn,
                             Encrypted = config?.Config.Encrypted,
-                            Logos = config?.Logos,
+                            Logos = parent?.Logos,
                             Relations = new Dictionary<SharedResults.RelationTypes, string>()
                         {
                             {
@@ -115,14 +123,17 @@ namespace BlizzTrack.API
                     Indexed = previous.Indexed,
                     Data = previous.Content.Select(x => {
                         var config = configs.FirstOrDefault(f => f.Code == x.Product);
+                        var parent = parents.FirstOrDefault(z =>
+                            x.Product.StartsWith(z.Code) || z.ChildrenOverride.Contains(x.Product));
+
                         return new SummaryResults.SummaryItem
                         {
-                            Name = config?.Name ?? x.GetName(),
+                            Name = string.IsNullOrEmpty(config?.Name) ? x.GetName() : config.Name,
                             Product = x.Product,
                             Flags = x.Flags,
                             Seqn = x.Seqn,
                             Encrypted = config?.Config.Encrypted,
-                            Logos = config?.Logos,
+                            Logos = parent?.Logos,
                             Relations = new Dictionary<SharedResults.RelationTypes, string>()
                         {
                             {
@@ -186,7 +197,8 @@ namespace BlizzTrack.API
             var data = await _summary.Single(seqn);
             if (data == null) return NotFound(new ReponseTypes.NotFound());
             var configs = await _gameConfig.In(data.Content.Select(x => x.Product).ToArray());
-
+            var parents = await _gameParents.All();
+            
             var result = new SummaryResults.ResultBase<List<SummaryResults.SummaryItem>>()
             {
                 Seqn = data.Seqn,
@@ -195,14 +207,16 @@ namespace BlizzTrack.API
                 Code = "summary",
                 Data = data.Content.Select(x => {
                     var config = configs.FirstOrDefault(f => f.Code == x.Product);
+                    var parent = parents.FirstOrDefault(z =>
+                        x.Product.StartsWith(z.Code) || z.ChildrenOverride.Contains(x.Product));
                     return new SummaryResults.SummaryItem
                     {
-                        Name = config?.Name ?? x.GetName(),
+                        Name = string.IsNullOrEmpty(config?.Name) ? x.GetName() : config?.Name,
                         Product = x.Product,
                         Flags = x.Flags,
                         Seqn = x.Seqn,
                         Encrypted = config?.Config.Encrypted,
-                        Logos = config?.Logos,
+                        Logos = parent?.Logos,
                         Relations = new Dictionary<SharedResults.RelationTypes, string>()
                         {
                             {
@@ -234,12 +248,12 @@ namespace BlizzTrack.API
             /// <summary>
             ///     File Seqn
             /// </summary>
-            public int? Seqn { get; set; } = null;
+            public int? Seqn { get; set; }
 
             /// <summary>
             ///     NGPD Command Sent
             /// </summary>
-            public string Command { get; set; } = null;
+            public string Command { get; set; }
 
             /// <summary>
             ///     Game Name

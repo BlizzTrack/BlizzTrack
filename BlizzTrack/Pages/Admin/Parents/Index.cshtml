@@ -34,18 +34,27 @@
                 <div class="table-responsive ps">
                     <table class="table tablesorter table-hover" id="">
                         <thead class=" text-primary">
-                            <tr>
-                                <th>
-                                    Icon
-                                </th>
-                                <th>
-                                    Name
-                                </th>
-                                <th>
-                                    Code
-                                </th>
-                                <th></th>
-                            </tr>
+                        <tr>
+                            <th>
+                                Icon
+                            </th>
+                            <th>
+                                Name
+                            </th>
+                            <th>
+                                Version File Count
+                            </th>
+                            <th>
+                                BGDL File Count
+                            </th>
+                            <th>
+                                CDN File Count
+                            </th>
+                            <th>
+                                Code
+                            </th>
+                            <th></th>
+                        </tr>
                         </thead>
                         <tbody>
                             @foreach (var game in Model.Parents)
@@ -71,6 +80,15 @@
                                     </td>
                                     <td>
                                         @game.Name
+                                    </td>
+                                    <td>
+                                        @Model.Children.Count(x => (x.Product.StartsWith(game.Code) || game.ChildrenOverride.Contains(x.Product) )&& x.Flags == "versions" || x.Flags == "")
+                                    </td>
+                                    <td>
+                                        @Model.Children.Count(x => (x.Product.StartsWith(game.Code) || game.ChildrenOverride.Contains(x.Product) ) && x.Flags == "bgdl")
+                                    </td>
+                                    <td>
+                                        @Model.Children.Count(x => (x.Product.StartsWith(game.Code) || game.ChildrenOverride.Contains(x.Product) ) && x.Flags == "cdn")
                                     </td>
                                     <td>
                                         @(game.Code)

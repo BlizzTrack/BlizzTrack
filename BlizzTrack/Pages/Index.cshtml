@@ -4,6 +4,7 @@
 @using static Core.Extensions.ListExtensions
 @{
     ViewData["Title"] = "All Games";
+    ViewData["Description"] = "A powerful website which lets you view the versions of all the games that Blizzard Entertainment has on Battle.net!";
 }
 
 <div class="row">
@@ -346,6 +347,10 @@
                         }
                         <div>
                             <h2 class="card-title mb-0">@parent.Name <small style="font-size: x-small"><a href="#@parent.Slug" aria-label="@parent.Name"><i class="fas fa-anchor"></i></a></small></h2>
+                            @if (!string.IsNullOrEmpty(parent.About))
+                            {
+                                <h5 class="card-category mb-0 mt-1">@parent.About</h5>
+                            }
                         </div>
                     </div>
                     <feature name="@nameof(FeatureFlags.PatchNotes)">

@@ -177,7 +177,7 @@ namespace BlizzTrack
 
             // System Services
             services.AddSingleton<Services.IBlizzardAlerts, Services.BlizzardAlerts>();
-            services.AddScoped<Services.IPatchnotes, Services.Patchnotes>();
+            services.AddScoped<Services.IPatchnotes, Services.PatchNotes>();
 
             // Shared services
             services.AddScoped<Core.Services.ISummary, Core.Services.Summary>();
@@ -265,7 +265,7 @@ namespace BlizzTrack
             {
                 endpoints.MapControllers();
                 endpoints.MapRazorPages();
-
+                
                 _gameToolStartups.ForEach(x => x.MapEndpoints(endpoints));
             });
         }

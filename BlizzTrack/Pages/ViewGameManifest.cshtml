@@ -3,6 +3,13 @@
 
 @{
     ViewData["Title"] = $"{(string.IsNullOrEmpty(Model.GameConfig.Name) ? Model.Meta.GetName() : Model.GameConfig.Name )} // {GameTypeFixer.Fix(Model.Meta.Flags)}";
+    
+    ViewData["Description"] = "A powerful website which lets you view the versions of all the games that Blizzard Entertainment has on Battle.net!";
+
+    if (!string.IsNullOrEmpty(Model.GameParent.About))
+    {
+        ViewData["Description"] = Model.GameParent.About;
+    }
 }
 
 @if (Model.GameParent?.Logos?.Count > 0)

@@ -30,6 +30,8 @@ namespace Core.Models
         public bool? Visible { get; set; }
 
         [Column(TypeName = "jsonb")]
-        public List<Icons> Logos { get; set; } = new List<Icons>();
+        public List<Icons> Logos { get; set; } = new();
+        
+        public string About { get; set; }
     }
 }
