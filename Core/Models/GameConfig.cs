@@ -20,6 +20,8 @@ namespace Core.Models
         public string Website { get; set; }
 
         public string ServiceURL { get; set; }
+        
+        public GameChildren Owner { get; set; }
 
         public string GetName()
         {

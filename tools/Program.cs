@@ -44,15 +44,19 @@ namespace tools
                     config = x.GetCustomAttributes(typeof(ToolAttribute), true).First() as ToolAttribute 
                 }).OrderBy(x => x.config.Order))
             {
-                if (task.task.GetCustomAttributes(typeof(ToolAttribute), true).First() is ToolAttribute attr)
+                switch (task.task.GetCustomAttributes(typeof(ToolAttribute), true).First())
                 {
-                    var name = attr.Name;
-                    if (string.IsNullOrEmpty(name)) name = task.config.Name.ToLower();
+                    case ToolAttribute attr:
+                    {
+                        var name = attr.Name;
+                        if (string.IsNullOrEmpty(name)) name = task.config.Name.ToLower();
 
-                    if (attr.Disabled) continue;
+                        if (attr.Disabled) continue;
 
-                    var tool = (ITool)ActivatorUtilities.CreateInstance(services, task.task);
-                    results.Add(name, tool);
+                        var tool = (ITool)ActivatorUtilities.CreateInstance(services, task.task);
+                        results.Add(name, tool);
+                        break;
+                    }
                 }
             }
 

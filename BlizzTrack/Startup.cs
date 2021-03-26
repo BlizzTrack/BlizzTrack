@@ -28,7 +28,6 @@ using System.Reflection;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.DataProtection;
-using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 
 namespace BlizzTrack
 {
@@ -145,13 +144,9 @@ namespace BlizzTrack
                         OnTicketReceived = ctx =>
                         {
                             var username = ctx.Principal.FindFirstValue(ClaimTypes.NameIdentifier);
-                            if (string.IsNullOrWhiteSpace(username))
-                            {
-                                ctx.HandleResponse();
-                                ctx.Response.Redirect("/");
-                                return Task.CompletedTask;
-                            }
-
+                            if (!string.IsNullOrWhiteSpace(username)) return Task.CompletedTask;
+                            ctx.HandleResponse();
+                            ctx.Response.Redirect("/");
                             return Task.CompletedTask;
                         }
                     };
@@ -189,6 +184,7 @@ namespace BlizzTrack
             services.AddScoped<Core.Services.IGameConfig, Core.Services.GameConfig>();
             services.AddScoped<Core.Services.IGameParents, Core.Services.GameParents>();
             services.AddScoped<Core.Services.ICatalog, Core.Services.Catalog>();
+            services.AddScoped<Core.Services.IGameCompanies, Core.Services.GameCompanies>();
 
             // Load external services
             _gameToolStartups.ForEach(x => x.ConfigureServices(ref services));

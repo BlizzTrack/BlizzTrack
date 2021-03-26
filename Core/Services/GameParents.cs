@@ -1,6 +1,7 @@
 ﻿using Core.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Core.Services
@@ -33,13 +34,19 @@ namespace Core.Services
 
         public async Task<List<Models.GameParents>> All()
         {
-            return await _dbContext.GameParents.ToListAsync();
+            return await _dbContext.GameParents
+                .Include(x => x.Children)
+                .ThenInclude(x => x.GameConfig)
+                .ToListAsync();
         }
 
         public async Task<Models.GameParents> Get(string code)
         {
             code = code.ToLower();
-            return await _dbContext.GameParents.FirstOrDefaultAsync(x => code == x.Code || x.Slug == code.ToLower() || code.StartsWith(x.Code) || x.ChildrenOverride.Contains(code.ToLower()));
+            return await _dbContext.GameParents
+                .Include(x => x.Children)
+                .ThenInclude(x => x.GameConfig)
+                .FirstOrDefaultAsync(x => code == x.Code || x.Slug == code.ToLower() || code.StartsWith(x.Code) || x.ChildrenOverride.Contains(code.ToLower()));
         }
 
         public async Task Update(Models.GameParents config)

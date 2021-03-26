@@ -6,15 +6,17 @@ using BNetLib.Models;
 using Core.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace Core.Migrations
 {
     [DbContext(typeof(DBContext))]
-    partial class DBContextModelSnapshot : ModelSnapshot
+    [Migration("20210326063734_AddedGameChildren4")]
+    partial class AddedGameChildren4
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -102,21 +104,6 @@ namespace Core.Migrations
                     b.ToTable("GameChildren");
                 });
 
-            modelBuilder.Entity("Core.Models.GameCompany", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .UseIdentityByDefaultColumn();
-
-                    b.Property<string>("Name")
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("GameCompanies");
-                });
-
             modelBuilder.Entity("Core.Models.GameConfig", b =>
                 {
                     b.Property<string>("Code")
@@ -163,11 +150,6 @@ namespace Core.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int?>("OwnerId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasDefaultValue(3);
-
                     b.Property<List<string>>("PatchNoteAreas")
                         .HasColumnType("text[]");
 
@@ -191,8 +173,6 @@ namespace Core.Migrations
                         .HasColumnType("text");
 
                     b.HasKey("Code");
-
-                    b.HasIndex("OwnerId");
 
                     b.ToTable("GameParents");
                 });
@@ -582,15 +562,6 @@ namespace Core.Migrations
                     b.Navigation("Owner");
                 });
 
-            modelBuilder.Entity("Core.Models.GameParents", b =>
-                {
-                    b.HasOne("Core.Models.GameCompany", "Owner")
-                        .WithMany("Parents")
-                        .HasForeignKey("OwnerId");
-
-                    b.Navigation("Owner");
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -645,11 +616,6 @@ namespace Core.Migrations
             modelBuilder.Entity("Core.Models.GameChildren", b =>
                 {
                     b.Navigation("GameConfig");
-                });
-
-            modelBuilder.Entity("Core.Models.GameCompany", b =>
-                {
-                    b.Navigation("Parents");
                 });
 
             modelBuilder.Entity("Core.Models.GameParents", b =>

@@ -33,5 +33,9 @@ namespace Core.Models
         public List<Icons> Logos { get; set; } = new();
         
         public string About { get; set; }
+        
+        public ICollection<GameChildren> Children { get; set; }
+
+        public GameCompany Owner { get; set; }
     }
 }

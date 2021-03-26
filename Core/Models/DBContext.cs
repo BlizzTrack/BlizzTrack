@@ -12,6 +12,8 @@ namespace Core.Models
         public DbSet<Manifest<BNetLib.Models.Summary[]>> Summary { get; set; }
         public DbSet<GameConfig> GameConfigs { get; set; }
         public DbSet<GameParents> GameParents { get; set; }
+        public DbSet<GameChildren> GameChildren { get; set; }
+        public DbSet<GameCompany> GameCompanies { get; set; }
         public DbSet<PatchNote> PatchNotes { get; set; }
         public DbSet<Catalog> Catalogs { get; set; }
         public DbSet<Assets> Assets { get; set; }
@@ -50,8 +52,26 @@ namespace Core.Models
             builder.Entity<GameParents>().Property(x => x.PatchNoteTool).HasDefaultValue("legacy");
             builder.Entity<GameParents>().Property(x => x.Visible).HasDefaultValue(true);
 
+            
             builder.Entity<Catalog>().Property(x => x.Indexed).HasDefaultValueSql("CURRENT_TIMESTAMP");
 
+            builder.Entity<GameChildren>()
+                .HasOne(x => x.GameConfig)
+                .WithOne(x => x.Owner)
+                .HasPrincipalKey<GameChildren>(x => x.Code)
+                .HasForeignKey<GameConfig>(x => x.Code);
+
+            builder.Entity<GameParents>().Property("OwnerId").HasDefaultValue(3);
+            
+            builder.Entity<GameParents>()
+                .HasMany(c => c.Children)
+                .WithOne(x => x.Parent)
+                .HasPrincipalKey(x => x.Code)
+                .HasForeignKey(x => x.ParentCode);
+
+            builder.Entity<GameCompany>()
+                .HasMany(x => x.Parents)
+                .WithOne(x => x.Owner);
         }
     }
 }

@@ -6,15 +6,17 @@ using BNetLib.Models;
 using Core.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace Core.Migrations
 {
     [DbContext(typeof(DBContext))]
-    partial class DBContextModelSnapshot : ModelSnapshot
+    [Migration("20210326053333_AddedGameChildren")]
+    partial class AddedGameChildren
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -82,39 +84,17 @@ namespace Core.Migrations
 
             modelBuilder.Entity("Core.Models.GameChildren", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .UseIdentityByDefaultColumn();
-
                     b.Property<string>("Code")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("ParentCode")
-                        .IsRequired()
                         .HasColumnType("text");
 
-                    b.HasKey("Id");
+                    b.HasKey("Code");
 
                     b.HasIndex("ParentCode");
 
                     b.ToTable("GameChildren");
-                });
-
-            modelBuilder.Entity("Core.Models.GameCompany", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .UseIdentityByDefaultColumn();
-
-                    b.Property<string>("Name")
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("GameCompanies");
                 });
 
             modelBuilder.Entity("Core.Models.GameConfig", b =>
@@ -163,11 +143,6 @@ namespace Core.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int?>("OwnerId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasDefaultValue(3);
-
                     b.Property<List<string>>("PatchNoteAreas")
                         .HasColumnType("text[]");
 
@@ -191,8 +166,6 @@ namespace Core.Migrations
                         .HasColumnType("text");
 
                     b.HasKey("Code");
-
-                    b.HasIndex("OwnerId");
 
                     b.ToTable("GameParents");
                 });
@@ -563,32 +536,9 @@ namespace Core.Migrations
                 {
                     b.HasOne("Core.Models.GameParents", "Parent")
                         .WithMany("Children")
-                        .HasForeignKey("ParentCode")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("ParentCode");
 
                     b.Navigation("Parent");
-                });
-
-            modelBuilder.Entity("Core.Models.GameConfig", b =>
-                {
-                    b.HasOne("Core.Models.GameChildren", "Owner")
-                        .WithOne("GameConfig")
-                        .HasForeignKey("Core.Models.GameConfig", "Code")
-                        .HasPrincipalKey("Core.Models.GameChildren", "Code")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Owner");
-                });
-
-            modelBuilder.Entity("Core.Models.GameParents", b =>
-                {
-                    b.HasOne("Core.Models.GameCompany", "Owner")
-                        .WithMany("Parents")
-                        .HasForeignKey("OwnerId");
-
-                    b.Navigation("Owner");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -640,16 +590,6 @@ namespace Core.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("Core.Models.GameChildren", b =>
-                {
-                    b.Navigation("GameConfig");
-                });
-
-            modelBuilder.Entity("Core.Models.GameCompany", b =>
-                {
-                    b.Navigation("Parents");
                 });
 
             modelBuilder.Entity("Core.Models.GameParents", b =>

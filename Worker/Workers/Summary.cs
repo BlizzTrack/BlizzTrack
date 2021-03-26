@@ -67,6 +67,8 @@ namespace Worker.Workers
 
                 using var sc = _serviceScope.CreateScope();
                 var summary = sc.ServiceProvider.GetRequiredService<Core.Services.ISummary>();
+                var parents = sc.ServiceProvider.GetRequiredService<Core.Services.IGameParents>();
+                
                 var dbContext = sc.ServiceProvider.GetRequiredService<DBContext>();
 
                 var latest = await summary.Latest();
@@ -102,7 +104,25 @@ namespace Worker.Workers
                         try
                         {
                             if (latest is not null)
+                            {
+                                var parent = await parents.Get(item.Product) ?? await parents.Get("unknown");
+
+                                var gameChildData =
+                                    await dbContext.GameChildren.FirstOrDefaultAsync(x => x.Code == item.Product, cancellationToken: cancellationToken);
+
                                 await AddItemToData(item, latest.Seqn, dbContext, cancellationToken);
+                                
+                                if (gameChildData == null)
+                                {
+                                    await dbContext.GameChildren.AddAsync(new GameChildren
+                                    {
+                                        Code = item.Product,
+                                        ParentCode = parent.Code,
+                                        GameConfig =  await dbContext.GameConfigs.FirstOrDefaultAsync(x => x.Code == item.Product, cancellationToken: cancellationToken),
+                                    }, cancellationToken);
+                                }
+                            }
+
                             await dbContext.SaveChangesAsync(cancellationToken);
                         }
                         catch (Exception ex)
@@ -218,9 +238,12 @@ namespace Worker.Workers
                                 });
                             }
 
-                            var config = ver.FirstOrDefault(x => x.Region == "us");
-                            if (msg.Product == "catalogs") config = ver.Last();
-                            if (msg.Product == "bts") config = ver.FirstOrDefault(x => x.Region == "launcher");
+                            var config = msg.Product switch
+                            {
+                                "catalogs" => ver.Last(),
+                                "bts" => ver.FirstOrDefault(x => x.Region == "launcher"),
+                                _ => ver.FirstOrDefault(x => x.Region == "us")
+                            };
 
                             if (config is not null)
                                 await CheckifEncrypted(msg, config.Productconfig, db, _logger, cancellationToken);

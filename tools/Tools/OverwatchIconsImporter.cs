@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text.Json;
-using System.Threading;
 using System.Threading.Tasks;
 using AngleSharp.Html.Parser;
 using Core.Models;
@@ -14,11 +13,10 @@ using Minio;
 using Newtonsoft.Json;
 using Tooling.Attributes;
 using Microsoft.Extensions.Configuration;
-using JsonSerializer = Newtonsoft.Json.JsonSerializer;
 
 namespace Tooling.Tools
 {
-    [Tool(Name = "Overwatch Icon Importer", Order = 1, Disabled = false)]
+    [Tool(Name = "Overwatch Icon Importer", Order = 1, Disabled = true)]
     public class OverwatchIconsImporter : ITool
     {
         private readonly ILogger<OverwatchIconsImporter> _logger;

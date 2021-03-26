@@ -7,7 +7,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using BlizzTrack.API;
 
 namespace BlizzTrack.Pages
 {
@@ -20,28 +19,21 @@ namespace BlizzTrack.Pages
             public DateTime Updated { get; set; }
         }
 
-        public class CatalogEntryType
-        {
-            public string Code { get; set; }
-
-            public bool Activison { get; set; }
-        }
-
         private readonly ISummary _summary;
         private readonly IGameConfig _gameConfig;
         private readonly IVersions _versions;
         private readonly IBGDL _bgdl;
-        private readonly IGameParents _gameParents;
+        private readonly IGameCompanies _gameCompanies;
         private readonly DBContext _dbContext;
 
-        public IndexModel(ISummary summary, IGameConfig gameConfig, IVersions versions, IGameParents gameParents, DBContext dbContext, IBGDL bgdl)
+        public IndexModel(ISummary summary, IGameConfig gameConfig, IVersions versions,DBContext dbContext, IBGDL bgdl, IGameCompanies gameCompanies)
         {
             _summary = summary;
             _gameConfig = gameConfig;
             _versions = versions;
-            _gameParents = gameParents;
             _dbContext = dbContext;
             _bgdl = bgdl;
+            _gameCompanies = gameCompanies;
         }
 
         public List<Manifest<BNetLib.Models.Summary[]>> Manifests;
@@ -49,33 +41,21 @@ namespace BlizzTrack.Pages
         public readonly List<(BNetLib.Models.Summary newest, BNetLib.Models.Summary previous)> SummaryDiff = new();
 
         [BindProperty(SupportsGet = true, Name = "search")]
-        public string Search { get; set; }
+        public string Search { get;  set; }
 
         public List<Core.Models.GameConfig> Configs;
 
-        public List<Core.Models.GameParents> Parents;
+        public List<GameCompany> Companies;
 
         public List<Manifest<BNetLib.Models.Versions[]>> Versions;
 
         public List<Manifest<BNetLib.Models.BGDL[]>> BgdLs;
 
         public List<UpdateTimes> GameVersions { get; } = new();
-
-        public List<CatalogEntryType> CatalogEntries { get; set; }
-
+        
         public async Task OnGetAsync()
         {
-            Parents = await _gameParents.All();
-            Parents = Parents.Where(x => x.Visible == true).ToList();
-
-            CatalogEntries  = await _dbContext.Catalogs
-                .OrderByDescending(x => x.Indexed)
-                .Where(x => Parents.Select(gameParents => gameParents.ManifestID).Contains(x.Name))
-                .Select(x => new CatalogEntryType
-                {
-                    Code = x.Name,
-                    Activison = x.Activision
-                }).Distinct().ToListAsync();
+            Companies = await _gameCompanies.All();
 
             Manifests = await _summary.Take(2);
 
