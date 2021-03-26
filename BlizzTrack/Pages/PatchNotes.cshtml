@@ -12,10 +12,6 @@
     ViewData["Title"] = $"{Model.GameParent.Name} // {GameTypeFixer.Fix(Model.GameType)} Patch Notes";
     
     ViewData["Description"] = "A powerful website which lets you view the versions of all the games that Blizzard Entertainment has on Battle.net!";
-    if (!string.IsNullOrEmpty(Model.GameParent.About))
-    {
-        ViewData["Description"] = Model.GameParent.About;
-    }
 }
 
 @if (Model.GameParent?.Logos?.Count > 0)
@@ -260,7 +256,7 @@
                                     </div>
 
                                     <div class="card-body text-white py-1">
-                                        @Html.Raw(BlizzTrack.Helpers.Markdown.Parse(update.Description))
+                                        @Html.Raw(Markdown.Parse(update.Description))
                                     </div>
                                 </div>
                             }

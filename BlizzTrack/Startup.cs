@@ -27,6 +27,8 @@ using System.Linq;
 using System.Reflection;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 
 namespace BlizzTrack
 {
@@ -61,8 +63,6 @@ namespace BlizzTrack
                 var files = Directory.GetFiles(AppContext.BaseDirectory, "*.xml");
                 foreach (var file in files)
                 {
-                    // var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-                    // var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
                     options.IncludeXmlComments(file);
                 }
             }).AddSwaggerGenNewtonsoftSupport();
@@ -105,6 +105,8 @@ namespace BlizzTrack
                         Configuration.GetConnectionString("ConnectionString"), o => { o.UseTrigrams(); })
                     .EnableSensitiveDataLogging());
 
+            services.AddDataProtection().PersistKeysToDbContext<DBContext>();
+            
             services.AddMvc(options => options.EnableEndpointRouting = false)
                 .SetCompatibilityVersion(CompatibilityVersion.Latest).AddNewtonsoftJson();
 
@@ -177,7 +179,7 @@ namespace BlizzTrack
 
             // System Services
             services.AddSingleton<Services.IBlizzardAlerts, Services.BlizzardAlerts>();
-            services.AddScoped<Services.IPatchnotes, Services.PatchNotes>();
+            services.AddScoped<Services.IPatchNotes, Services.PatchNotes>();
 
             // Shared services
             services.AddScoped<Core.Services.ISummary, Core.Services.Summary>();

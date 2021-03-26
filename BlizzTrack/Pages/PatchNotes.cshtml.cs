@@ -14,11 +14,11 @@ namespace BlizzTrack.Pages
     {
         private readonly IGameParents _gameParents;
 
-        private readonly Services.IPatchnotes _patchNotes;
+        private readonly Services.IPatchNotes _patchNotes;
 
         private readonly Services.IBlizzardAlerts _blizzardAlerts;
 
-        public PatchNotesModel(IGameParents gameParents, Services.IPatchnotes patchNotes, Services.IBlizzardAlerts blizzardAlerts)
+        public PatchNotesModel(IGameParents gameParents, Services.IPatchNotes patchNotes, Services.IBlizzardAlerts blizzardAlerts)
         {
             _gameParents = gameParents;
             _patchNotes = patchNotes;

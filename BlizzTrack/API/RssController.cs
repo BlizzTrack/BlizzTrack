@@ -16,11 +16,11 @@ namespace BlizzTrack.API
     public class RssController : ControllerBase
     {
         private readonly Core.Services.IGameParents _gameParents;
-        private readonly IPatchnotes _patchnotes;
+        private readonly IPatchNotes _patchNotes;
 
-        public RssController(IPatchnotes patchnotes, Core.Services.IGameParents gameParents)
+        public RssController(IPatchNotes patchNotes, Core.Services.IGameParents gameParents)
         {
-            _patchnotes = patchnotes;
+            _patchNotes = patchNotes;
             _gameParents = gameParents;
         }
 
@@ -38,7 +38,7 @@ namespace BlizzTrack.API
 
             if (parent == null || !parent.PatchNoteAreas.Contains(type.ToLower())) return NotFound();
 
-            var notes = await _patchnotes.All(parent.Code, type);
+            var notes = await _patchNotes.All(parent.Code, type);
             if (notes == null || notes.Count <= 0) return NotFound();
 
 

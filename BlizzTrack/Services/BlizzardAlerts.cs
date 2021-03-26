@@ -52,7 +52,7 @@ namespace BlizzTrack.Services
 
             var url = $"https://cdn.blz-contentstack.com/v3/content_types/game_update/entries?desc=post_date&environment=prod&query={{\"type\":\"experimental\", \"expired\":false}}&limit=1&locale=en-us";
 
-            var headers = new Dictionary<string, string>()
+            var headers = new Dictionary<string, string>
                 {
                     { "api_key", "blt43efdd4acc4bdcb2" },
                     { "access_token", "cs10ce60130ad4ae4fcacf3344" }

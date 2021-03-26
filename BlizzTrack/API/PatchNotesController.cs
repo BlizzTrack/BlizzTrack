@@ -16,9 +16,9 @@ namespace BlizzTrack.API
     public class PatchNotesController : ControllerBase
     {
         private readonly IGameParents _gameParents;
-        private readonly Services.IPatchnotes _patchNotes;
+        private readonly Services.IPatchNotes _patchNotes;
 
-        public PatchNotesController(IGameParents gameParents, Services.IPatchnotes patchNotes)
+        public PatchNotesController(IGameParents gameParents, Services.IPatchNotes patchNotes)
         {
             _gameParents = gameParents;
             _patchNotes = patchNotes;

@@ -9,18 +9,18 @@ using System.Threading.Tasks;
 
 namespace BlizzTrack.Services
 {
-    public interface IPatchnotes
+    public interface IPatchNotes
     {
-        Task<PatchNoteData> Get(string code, string type, DateTime? buildTime = null, string langauge = "en-us");
+        Task<PatchNoteData> Get(string code, string type, DateTime? buildTime = null, string language = "en-us");
 
         Task<List<PatchNoteData>> All(string code, string type);
 
         Task<List<PatchNoteData>> GetByTypes(string code, string language, params string[] type);
 
-        Task<List<PatchNoteBuild>> GetBuildDates(string code, string type, string langauge);
+        Task<List<PatchNoteBuild>> GetBuildDates(string code, string type, string language);
     }
 
-    public class PatchNotes : IPatchnotes
+    public class PatchNotes : IPatchNotes
     {
         private readonly DBContext _dbContext;
 

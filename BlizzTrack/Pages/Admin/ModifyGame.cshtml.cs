@@ -141,9 +141,12 @@ namespace BlizzTrack.Pages.Admin
                 var asset = GameInfo.Logos.FirstOrDefault(x => x.URL == asset_url && x.Type == asset_type);
                 GameInfo.Logos.Remove(asset);
 
-                var path = new Uri(asset.URL);
-                var filePath = path.AbsolutePath.TrimStart('/');
-                await _minioClient.RemoveObjectAsync(_bucket, filePath);
+                if (asset != null)
+                {
+                    var path = new Uri(asset.URL);
+                    var filePath = path.AbsolutePath.TrimStart('/');
+                    await _minioClient.RemoveObjectAsync(_bucket, filePath);
+                }
 
                 await _gameConfig.Update(GameInfo);
             }

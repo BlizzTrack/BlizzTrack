@@ -1,9 +1,10 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace Core.Models
 {
-    public class DBContext : IdentityDbContext<User>
+    public class DBContext : IdentityDbContext<User>, IDataProtectionKeyContext
     {
         public DbSet<Manifest<BNetLib.Models.Versions[]>> Versions { get; set; }
         public DbSet<Manifest<BNetLib.Models.BGDL[]>> BGDL { get; set; }
@@ -13,8 +14,9 @@ namespace Core.Models
         public DbSet<GameParents> GameParents { get; set; }
         public DbSet<PatchNote> PatchNotes { get; set; }
         public DbSet<Catalog> Catalogs { get; set; }
-        
         public DbSet<Assets> Assets { get; set; }
+        
+        public DbSet<DataProtectionKey> DataProtectionKeys { get; set; }
 
         public DBContext(DbContextOptions<DBContext> options) : base(options)
         {

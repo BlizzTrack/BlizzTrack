@@ -86,9 +86,9 @@ namespace BlizzTrack.API
         #region /patch-notes/:code/:type
 
         [HttpGet("patch-notes/{code}/{type}")]
-        public async Task<IActionResult> PatchNotes([FromServices] Services.IPatchnotes patchnotes, string code, string type)
+        public async Task<IActionResult> PatchNotes([FromServices] Services.IPatchNotes patchNotes, string code, string type)
         {
-            return Ok(await patchnotes.Get(code, type));
+            return Ok(await patchNotes.Get(code, type));
         }
 
         #endregion /patch-notes/:code/:type
@@ -97,9 +97,9 @@ namespace BlizzTrack.API
 
         [ResponseCache(Duration = 1200)]
         [HttpGet("patch-notes/{code}/{type}/rss")]
-        public async Task<IActionResult> PatchNotesRss([FromServices] Services.IPatchnotes patchnotes, [FromServices] IGameParents gameParents, string code, string type)
+        public async Task<IActionResult> PatchNotesRss([FromServices] Services.IPatchNotes patchNotes, [FromServices] IGameParents gameParents, string code, string type)
         {
-            var notes = await patchnotes.All(code, type);
+            var notes = await patchNotes.All(code, type);
 
             var parent = await gameParents.Get(code);
 
