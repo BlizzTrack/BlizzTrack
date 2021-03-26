@@ -2,6 +2,7 @@
 @model BlizzTrack.Pages.IndexModel
 
 @using static Core.Extensions.ListExtensions
+@using System.Diagnostics
 @{
     ViewData["Title"] = "All Games";
     ViewData["Description"] = "A powerful website which lets you view the versions of all the games that Blizzard Entertainment has on Battle.net!";
@@ -291,7 +292,9 @@
 
     @foreach (var parent in company.Parents.OrderBy(x => x.Code))
     {
-        if (parent.Children.Count <= 0)
+        var parentCodes = parent.Children.Select(x => x.Code).ToList();
+        var gameCodes = latestCodes.Where(x => parentCodes.Contains(x.Product)).ToArray();
+        if (gameCodes.Length <= 0)
         {
             continue;
         }
@@ -363,14 +366,11 @@
                     }
                 </feature>
                 <div class="card-body pt-0 px-0 pb-0">
-                    @{
-                        var parentCodes = parent.Children.Select(x => x.Code).ToList();
-                    }
-                    @foreach (var item in latestCodes.Where(x => parentCodes.Contains(x.Product)))
+                    @foreach (var (product, seqn, flags) in gameCodes)
                     {
-                        var config = parent.Children.FirstOrDefault(x => x.Code == item.Product)?.GameConfig;
+                        var config = parent.Children.FirstOrDefault(x => x.Code == product)?.GameConfig;
 
-                        if (item.Flags == "cdn")
+                        if (flags == "cdn")
                         {
                             continue;
                         }
@@ -383,12 +383,12 @@
                                 {
                                     Encrypted = true,
                                 },
-                                Code = item.Product
+                                Code = product
                             };
                         }
 
                         <div class="game-item-link p-2 px-3">
-                            <a class="d-flex" asp-page="/ViewGameManifest" asp-route-code="@item.Product" asp-route-file="@(string.IsNullOrEmpty(item.Flags) ? "versions" : item.Flags)" asp-route-latest-seqn="@item.Seqn">
+                            <a class="d-flex" asp-page="/ViewGameManifest" asp-route-code="@product" asp-route-file="@(string.IsNullOrEmpty(flags) ? "versions" : flags)" asp-route-latest-seqn="@seqn">
                                 <div class="flex-fill">
                                     <h3 class="mt-0 mb-1">@config.GetName()</h3>
                                     <ol class="breadcrumb p-0 m-0 bg-transparent">
@@ -396,24 +396,24 @@
                                             <i class="fa fa-@(config.Config.Encrypted ? "lock" : "lock-open")"></i>
                                         </li>
                                         <li class="breadcrumb-item active">
-                                            @item.Product
+                                            @product
                                         </li>
                                         <li class="breadcrumb-item active">
-                                            @item.Flags
+                                            @flags
                                         </li>
                                         <li class="breadcrumb-item active">
-                                            @if (item.Flags == "versions")
+                                            @if (flags == "versions")
                                             {
-                                                var ver = Model.Versions.FirstOrDefault(x => x.Code == item.Product);
+                                                var ver = Model.Versions.FirstOrDefault(x => x.Code == product);
                                                 if (ver == null)
                                                 {
                                                     @("N/A")
                                                 }
-                                                else if (item.Product == "catalogs")
+                                                else if (product == "catalogs")
                                                 {
                                                     @(ver.Content.Last().Versionsname)
                                                 }
-                                                else if (item.Product == "bts")
+                                                else if (product == "bts")
                                                 {
                                                     @("N/A")
                                                 }
@@ -430,18 +430,18 @@
                                                     }
                                                 }
                                             }
-                                            else if (item.Flags == "bgdl")
+                                            else if (flags == "bgdl")
                                             {
-                                                var ver = Model.BgdLs.FirstOrDefault(x => x.Code == item.Product);
+                                                var ver = Model.BgdLs.FirstOrDefault(x => x.Code == product);
                                                 if (ver == null)
                                                 {
                                                     @("N/A")
                                                 }
-                                                else if (item.Product == "catalogs")
+                                                else if (product == "catalogs")
                                                 {
                                                     @(ver.Content.Last().Versionsname)
                                                 }
-                                                else if (item.Product == "bts")
+                                                else if (product == "bts")
                                                 {
                                                     @("N/A")
                                                 }
@@ -461,7 +461,7 @@
                                         </li>
                                         <li class="breadcrumb-item active">
                                             <time>
-                                                @Model.GameVersions.FirstOrDefault(x => x.Code == item.Product && x.Type == item.Flags)?.Updated.ToString("MMMM dd, yyyy hh:mm tt")
+                                                @Model.GameVersions.FirstOrDefault(x => x.Code == product && x.Type == flags)?.Updated.ToString("MMMM dd, yyyy hh:mm tt")
                                             </time>
                                         </li>
                                     </ol>
