@@ -17,6 +17,11 @@ namespace Core.Models
         public string Raw { get; set; }
 
         public int Parent { get; set; }
+        
+        public string ConfigId { get; set; }
+        
+        [ForeignKey("ConfigId ")]
+        public GameConfig Config { get; set; }
 
         [NotMapped]
         public string Name => BNetLib.Helpers.GameName.Get(Code);

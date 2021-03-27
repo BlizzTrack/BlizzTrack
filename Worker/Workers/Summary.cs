@@ -252,7 +252,12 @@ namespace Worker.Workers
                         var f = Manifest<BNetLib.Models.Versions[]>.Create(seqn, code, ver.ToArray());
                         f.Raw = raw;
                         f.Parent = parentSeqn;
-                        db.Versions.Add(f);
+                        var cfg = await db.GameConfigs.FirstOrDefaultAsync(x => x.Code == f.Code,
+                            cancellationToken: cancellationToken);
+                        if(cfg != null)
+                            f.ConfigId = cfg.Code;
+                        
+                        await db.Versions.AddAsync(f, cancellationToken);
                         break;
                     }
                 case List<BNetLib.Models.CDN> cdn:
@@ -260,7 +265,13 @@ namespace Worker.Workers
                         var f = Manifest<BNetLib.Models.CDN[]>.Create(seqn, code, cdn.ToArray());
                         f.Raw = raw;
                         f.Parent = parentSeqn;
-                        db.CDN.Add(f);
+                        
+                        var cfg = await db.GameConfigs.FirstOrDefaultAsync(x => x.Code == f.Code,
+                            cancellationToken: cancellationToken);
+                        if(cfg != null)
+                            f.ConfigId = cfg.Code;
+                        
+                        await db.CDN.AddAsync(f, cancellationToken);
                         break;
                     }
                 case List<BNetLib.Models.BGDL> bgdl:
@@ -268,7 +279,13 @@ namespace Worker.Workers
                         var f = Manifest<BNetLib.Models.BGDL[]>.Create(seqn, code, bgdl.ToArray());
                         f.Raw = raw;
                         f.Parent = parentSeqn;
-                        db.BGDL.Add(f);
+                        
+                        var cfg = await db.GameConfigs.FirstOrDefaultAsync(x => x.Code == f.Code,
+                            cancellationToken: cancellationToken);
+                        if(cfg != null)
+                            f.ConfigId = cfg.Code;
+                        
+                        await db.BGDL.AddAsync(f, cancellationToken);
                         break;
                     }
                 default:

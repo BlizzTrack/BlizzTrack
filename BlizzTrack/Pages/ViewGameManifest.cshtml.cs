@@ -16,16 +16,16 @@ namespace BlizzTrack.Pages
         private readonly ISummary _summary;
         private readonly IGameConfig _gameConfig;
         private readonly IBlizzardAlerts _blizzardAlerts;
-        private readonly IGameParents _gameParents;
+        private readonly IGameChildren _children;
 
-        public ViewGameModel(ISummary summary, IBGDL bgdl, IVersions versions, IGameConfig gameConfig, IBlizzardAlerts blizzardAlerts, IGameParents gameParents)
+        public ViewGameModel(ISummary summary, IBGDL bgdl, IVersions versions, IGameConfig gameConfig, IBlizzardAlerts blizzardAlerts, IGameChildren children)
         {
             _summary = summary;
             _bgdl = bgdl;
             _versions = versions;
             _gameConfig = gameConfig;
             _blizzardAlerts = blizzardAlerts;
-            _gameParents = gameParents;
+            _children = children;
         }
 
         [BindProperty(SupportsGet = true, Name = "code")]
@@ -44,10 +44,8 @@ namespace BlizzTrack.Pages
 
         public object Manifest { get; set; }
 
-        public Core.Models.GameConfig GameConfig { get; set; }
-
-        public Core.Models.GameParents GameParent { get; set; }
-
+        public Core.Models.GameChildren Self { get; set; }
+        
         public string Alert { get; set; } = string.Empty;
 
         public async Task<IActionResult> OnGetAsync()
@@ -55,25 +53,21 @@ namespace BlizzTrack.Pages
             var summary = await _summary.Latest();
             var exist = summary.Content.FirstOrDefault(x => x.Product.Equals(Code, System.StringComparison.OrdinalIgnoreCase) && x.Flags.Equals(File, System.StringComparison.OrdinalIgnoreCase));
             if (exist == null) return NotFound();
-
-            GameParent = await _gameParents.Get(Code);
-
-            GameConfig = await _gameConfig.Get(exist.Product);
-
-            if (GameConfig == null)
+        
+            Self = await _children.Get(Code);
+            
+            Self.GameConfig ??= new Core.Models.GameConfig()
             {
-                GameConfig = new Core.Models.GameConfig()
+                Config = new ConfigItems()
                 {
-                    Config = new ConfigItems()
-                    {
-                        Encrypted = true,
-                    },
-                    Code = Code.ToLower(),
-                    Name = exist.GetName()
-                };
-            }
-            if (!string.IsNullOrEmpty(GameConfig.ServiceURL))
-                Alert = await _blizzardAlerts.Get(GameConfig.ServiceURL);
+                    Encrypted = true,
+                },
+                Code = Code.ToLower(),
+                Name = exist.GetName()
+            };
+            
+            if (!string.IsNullOrEmpty(Self.GameConfig.ServiceURL))
+                Alert = await _blizzardAlerts.Get(Self.GameConfig.ServiceURL);
 
             Meta = exist;
 

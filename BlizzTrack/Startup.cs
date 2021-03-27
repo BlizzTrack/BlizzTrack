@@ -185,6 +185,7 @@ namespace BlizzTrack
             services.AddScoped<Core.Services.IGameParents, Core.Services.GameParents>();
             services.AddScoped<Core.Services.ICatalog, Core.Services.Catalog>();
             services.AddScoped<Core.Services.IGameCompanies, Core.Services.GameCompanies>();
+            services.AddScoped<Core.Services.IGameChildren, Core.Services.GameChildren>();
 
             // Load external services
             _gameToolStartups.ForEach(x => x.ConfigureServices(ref services));

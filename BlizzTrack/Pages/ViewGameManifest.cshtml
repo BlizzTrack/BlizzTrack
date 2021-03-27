@@ -2,14 +2,14 @@
 @model BlizzTrack.Pages.ViewGameModel
 
 @{
-    ViewData["Title"] = $"{(string.IsNullOrEmpty(Model.GameConfig.Name) ? Model.Meta.GetName() : Model.GameConfig.Name )} // {GameTypeFixer.Fix(Model.Meta.Flags)}";
+    ViewData["Title"] = $"{(string.IsNullOrEmpty(Model.Self.GameConfig.Name) ? Model.Meta.GetName() : Model.Self.GameConfig.Name )} // {GameTypeFixer.Fix(Model.Meta.Flags)}";
     
     ViewData["Description"] = "A powerful website which lets you view the versions of all the games that Blizzard Entertainment has on Battle.net!";
 }
 
-@if (Model.GameParent?.Logos?.Count > 0)
+@if (Model.Self.Parent?.Logos?.Count > 0)
 {
-    var logo = Model.GameParent.Logos.FirstOrDefault(x => x.Type == "image/png");
+    var logo = Model.Self.Parent.Logos.FirstOrDefault(x => x.Type == "image/png");
     if (logo != null)
     { 
         @section Header {
@@ -29,12 +29,12 @@
                     All Games
                 </a>
             </li>
-            <li class="breadcrumb-item active" aria-current="page">@(string.IsNullOrEmpty(Model.GameConfig.Name) ? Model.Meta.GetName() : Model.GameConfig.Name )</li>
+            <li class="breadcrumb-item active" aria-current="page">@(string.IsNullOrEmpty(Model.Self.GameConfig.Name) ? Model.Meta.GetName() : Model.Self.GameConfig.Name )</li>
             <li class="breadcrumb-item active" aria-current="page">@GameTypeFixer.Fix(Model.Meta.Flags)</li>
         </ol>
     </div>
 
-    @if (Model.GameConfig == null || Model.GameConfig.Config.Encrypted)
+    @if (Model.Self.GameConfig == null || Model.Self.GameConfig.Config.Encrypted)
     {
         <div class="col-12">
             <div class="alert alert-danger" role="alert">
@@ -46,16 +46,16 @@
     {
 
         <feature name="@nameof(FeatureFlags.PatchNotes)">
-            @if (Model.GameParent.PatchNoteAreas?.Count > 0)
+            @if (Model.Self.Parent.PatchNoteAreas?.Count > 0)
             {
                 <div class="col-12">
                     <div class="card">
                         <div class="card-body pt-0 pb-0 px-0">
                             <div class="d-none d-lg-block">
                                 <div class="btn-group special no-radius w-100" role="group" aria-label="...">
-                                    @foreach (var item in Model.GameParent.PatchNoteAreas)
+                                    @foreach (var item in Model.Self.Parent.PatchNoteAreas)
                                     {
-                                        <a asp-page="/PatchNotes" asp-route-slug="@Model.GameParent.Slug" asp-route-game_type="@item" class="btn btn-outline-default text-white m-0">
+                                        <a asp-page="/PatchNotes" asp-route-slug="@Model.Self.Parent.Slug" asp-route-game_type="@item" class="btn btn-outline-default text-white m-0">
                                             @GameTypeFixer.Fix(item) Patch Notes
                                         </a>
                                     }
@@ -67,9 +67,9 @@
                                         Supported Patch Notes
                                     </button>
                                     <div class="dropdown-menu w-100" aria-labelledby="dropdownMenuButton">
-                                        @foreach (var item in Model.GameParent.PatchNoteAreas)
+                                        @foreach (var item in Model.Self.Parent.PatchNoteAreas)
                                         {
-                                            <a asp-page="/PatchNotes" asp-route-slug="@Model.GameParent.Slug" asp-route-game_type="@item" class="dropdown-item">
+                                            <a asp-page="/PatchNotes" asp-route-slug="@Model.Self.Parent.Slug" asp-route-game_type="@item" class="dropdown-item">
                                                 @GameTypeFixer.Fix(item) Patch Notes
                                             </a>
                                         }

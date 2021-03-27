@@ -33,20 +33,42 @@ namespace Core.Models
             builder.Entity<GameConfig>().ToTable("game_configs");
 
             builder.Entity<Manifest<BNetLib.Models.Versions[]>>().Property(x => x.Indexed).HasDefaultValueSql("CURRENT_TIMESTAMP");
-            builder.Entity<Manifest<BNetLib.Models.Versions[]>>().HasKey(x => new { x.Code, x.Seqn });
+            builder.Entity<Manifest<BNetLib.Models.Versions[]>>().HasKey(x => new {x.Code, x.Seqn});
+            builder.Entity<Manifest<BNetLib.Models.Versions[]>>()
+                .HasIndex(x => x.ConfigId)
+                .IsUnique(false);
+            builder.Entity<Manifest<BNetLib.Models.Versions[]>>()
+                .HasOne(x => x.Config)
+                .WithOne()
+                .OnDelete(DeleteBehavior.SetNull);
             builder.Entity<Manifest<BNetLib.Models.Versions[]>>().ToTable("versions");
 
             builder.Entity<Manifest<BNetLib.Models.BGDL[]>>().Property(x => x.Indexed).HasDefaultValueSql("CURRENT_TIMESTAMP");
             builder.Entity<Manifest<BNetLib.Models.BGDL[]>>().HasKey(x => new { x.Code, x.Seqn });
+            builder.Entity<Manifest<BNetLib.Models.BGDL[]>>()
+                .HasIndex(x => x.ConfigId)
+                .IsUnique(false);
+            builder.Entity<Manifest<BNetLib.Models.BGDL[]>>()
+                .HasOne(x => x.Config)
+                .WithOne()
+                .OnDelete(DeleteBehavior.SetNull);
             builder.Entity<Manifest<BNetLib.Models.BGDL[]>>().ToTable("bgdl");
 
             builder.Entity<Manifest<BNetLib.Models.CDN[]>>().Property(x => x.Indexed).HasDefaultValueSql("CURRENT_TIMESTAMP");
             builder.Entity<Manifest<BNetLib.Models.CDN[]>>().HasKey(x => new { x.Code, x.Seqn });
+            builder.Entity<Manifest<BNetLib.Models.CDN[]>>()
+                .HasIndex(x => x.ConfigId)
+                .IsUnique(false);
+            builder.Entity<Manifest<BNetLib.Models.CDN[]>>()
+                .HasOne(x => x.Config)
+                .WithOne()
+                .OnDelete(DeleteBehavior.SetNull);
             builder.Entity<Manifest<BNetLib.Models.CDN[]>>().ToTable("cdns");
 
             builder.Entity<Manifest<BNetLib.Models.Summary[]>>().Property(x => x.Indexed).HasDefaultValueSql("CURRENT_TIMESTAMP");
             builder.Entity<Manifest<BNetLib.Models.Summary[]>>().HasKey(x => x.Seqn);
             builder.Entity<Manifest<BNetLib.Models.Summary[]>>().Ignore(x => x.Parent);
+            builder.Entity<Manifest<BNetLib.Models.Summary[]>>().Ignore(x => x.Config);
             builder.Entity<Manifest<BNetLib.Models.Summary[]>>().ToTable("summary");
 
             builder.Entity<GameParents>().Property(x => x.PatchNoteTool).HasDefaultValue("legacy");
@@ -60,9 +82,9 @@ namespace Core.Models
                 .WithOne(x => x.Owner)
                 .HasPrincipalKey<GameChildren>(x => x.Code)
                 .HasForeignKey<GameConfig>(x => x.Code);
-
-            builder.Entity<GameParents>().Property("OwnerId").HasDefaultValue(3);
             
+            builder.Entity<GameParents>().Property("OwnerId").HasDefaultValue(3);
+
             builder.Entity<GameParents>()
                 .HasMany(c => c.Children)
                 .WithOne(x => x.Parent)

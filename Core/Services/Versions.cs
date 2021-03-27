@@ -32,17 +32,17 @@ namespace Core.Services
 
         public async Task<Manifest<BNetLib.Models.Versions[]>> Latest(string code)
         {
-            return await _dbContext.Versions.AsNoTracking().OrderByDescending(x => x.Seqn).Where(x => x.Code.ToLower() == code.ToLower()).FirstOrDefaultAsync();
+            return await _dbContext.Versions.AsNoTracking().Include(x => x.Config).OrderByDescending(x => x.Seqn).Where(x => x.Code.ToLower() == code.ToLower()).FirstOrDefaultAsync();
         }
 
         public async Task<List<Manifest<BNetLib.Models.Versions[]>>> MultiBySeqn(List<int> seqns)
         {
-            return await _dbContext.Versions.AsNoTracking().Where(x => seqns.Contains(x.Seqn)).ToListAsync();
+            return await _dbContext.Versions.AsNoTracking().Include(x => x.Config).Where(x => seqns.Contains(x.Seqn)).ToListAsync();
         }
 
         public async Task<Manifest<BNetLib.Models.Versions[]>> Previous(string code)
         {
-            return await _dbContext.Versions.AsNoTracking().OrderByDescending(x => x.Seqn).Where(x => x.Code.ToLower() == code.ToLower()).Skip(1).Take(1).FirstOrDefaultAsync();
+            return await _dbContext.Versions.AsNoTracking().Include(x => x.Config).OrderByDescending(x => x.Seqn).Where(x => x.Code.ToLower() == code.ToLower()).Skip(1).Take(1).FirstOrDefaultAsync();
         }
 
         public async Task<List<SeqnType>> Seqn(string code)
@@ -54,12 +54,12 @@ namespace Core.Services
 
         public async Task<Manifest<BNetLib.Models.Versions[]>> Single(string code, int? seqn)
         {
-            return await _dbContext.Versions.AsNoTracking().OrderByDescending(x => x.Seqn).Where(x => (seqn == null || x.Seqn == seqn) && x.Code.ToLower() == code.ToLower()).FirstOrDefaultAsync();
+            return await _dbContext.Versions.AsNoTracking().Include(x => x.Config).OrderByDescending(x => x.Seqn).Where(x => (seqn == null || x.Seqn == seqn) && x.Code.ToLower() == code.ToLower()).FirstOrDefaultAsync();
         }
 
         public async Task<List<Manifest<BNetLib.Models.Versions[]>>> Take(string code, int amount)
         {
-            return await _dbContext.Versions.AsNoTracking().OrderByDescending(x => x.Seqn).Where(x => x.Code.ToLower() == code.ToLower()).Take(amount).ToListAsync();
+            return await _dbContext.Versions.AsNoTracking().Include(x => x.Config).OrderByDescending(x => x.Seqn).Where(x => x.Code.ToLower() == code.ToLower()).Take(amount).ToListAsync();
         }
     }
 }
