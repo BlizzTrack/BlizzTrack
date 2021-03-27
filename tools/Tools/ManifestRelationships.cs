@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Tooling.Tools
 {
-    [Tool(Name = "Manifest Relationships", Order = 1, Disabled = false)]
+    [Tool(Name = "Manifest Relationships", Order = 1, Disabled = true)]
     public class ManifestRelationships : ITool
     {
         private readonly DBContext _dbContext;

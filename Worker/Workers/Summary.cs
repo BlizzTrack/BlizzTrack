@@ -13,6 +13,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Core.Extensions;
 using Worker.Events;
 
 namespace Worker.Workers
@@ -76,7 +77,29 @@ namespace Worker.Workers
                 {
                     foreach (var item in latest.Content)
                     {
+                        var parent = await parents.Get(item.Product) ?? await parents.Get("unknown");
+
+                        var gameChildData =
+                            await dbContext.GameChildren.FirstOrDefaultAsync(x => x.Code == item.Product, cancellationToken: cancellationToken);
+                        
                         await AddItemToData(item, latest.Seqn, dbContext, cancellationToken);
+                        
+                        if (gameChildData == null)
+                        {
+                            var config = await dbContext.GameConfigs.FirstOrDefaultAsync(
+                                x => x.Code == item.Product, cancellationToken: cancellationToken);
+                            var name = string.IsNullOrEmpty(config?.Name) ? BNetLib.Helpers.GameName.Get(item.Product) : config?.Name;
+
+                            await dbContext.GameChildren.AddAsync(new GameChildren
+                            {
+                                Code = item.Product,
+                                ParentCode = parent.Code,
+                                Name = name,
+                                GameConfig = config,
+                                Slug = name.Slugify()
+                            }, cancellationToken);
+                        }
+                        
                     }
 
                     await dbContext.SaveChangesAsync(cancellationToken);
@@ -114,11 +137,17 @@ namespace Worker.Workers
                                 
                                 if (gameChildData == null)
                                 {
+                                    var config = await dbContext.GameConfigs.FirstOrDefaultAsync(
+                                        x => x.Code == item.Product, cancellationToken: cancellationToken);
+                                    var name = string.IsNullOrEmpty(config?.Name) ? BNetLib.Helpers.GameName.Get(item.Product) : config?.Name;
+
                                     await dbContext.GameChildren.AddAsync(new GameChildren
                                     {
                                         Code = item.Product,
                                         ParentCode = parent.Code,
-                                        GameConfig =  await dbContext.GameConfigs.FirstOrDefaultAsync(x => x.Code == item.Product, cancellationToken: cancellationToken),
+                                        Name = name,
+                                        GameConfig = config,
+                                        Slug = name.Slugify()
                                     }, cancellationToken);
                                 }
                             }

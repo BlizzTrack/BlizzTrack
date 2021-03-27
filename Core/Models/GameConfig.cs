@@ -25,9 +25,7 @@ namespace Core.Models
 
         public string GetName()
         {
-            if (string.IsNullOrEmpty(Name)) return BNetLib.Helpers.GameName.Get(Code);
-
-            return Name;
+            return string.IsNullOrEmpty(Name) ? BNetLib.Helpers.GameName.Get(Code) : Name;
         }
     }
 
@@ -47,7 +45,18 @@ namespace Core.Models
 
     public class ConfigItems
     {
-        public bool Encrypted { get; set; } = false;
-        public string EncryptedKey { get; set; } = string.Empty;
+        public bool Encrypted { get; set; }
+        public string EncryptedKey { get; set; }
+
+        public ConfigItems()
+        {
+            EncryptedKey = string.Empty;
+        }
+        
+        public ConfigItems(bool encrypted, string encryptedKey)
+        {
+            Encrypted = encrypted;
+            EncryptedKey = encryptedKey;
+        }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using Core.Extensions;
 using Core.Models;
 using Core.Services;
 using Microsoft.EntityFrameworkCore;
@@ -9,7 +10,7 @@ using GameChildren = Core.Models.GameChildren;
 
 namespace Tooling.Tools
 {
-    [Tool(Name =  "Game Childern Importer", Order = 1, Disabled = true)]
+    [Tool(Name =  "Game Childern Importer", Order = 1, Disabled = false)]
     public class GameChildrenLoader : ITool
     {
         private readonly IGameParents _gameParents;
@@ -42,12 +43,15 @@ namespace Tooling.Tools
 
                     Debugger.Break();
 
+                    var name = string.IsNullOrEmpty(config?.Name) ? BNetLib.Helpers.GameName.Get(item) : config?.Name;
                     var f = new GameChildren
                     {
                         Code = item,
                         ParentCode = parent.Code,
                         Parent = parent,
-                        GameConfig = config
+                        GameConfig = config,
+                        Name = name,
+                        Slug = name.Slugify()
                     };
                     if (parent.Children.FirstOrDefault(x => x.Code == f.Code) == null)
                     {
@@ -58,6 +62,8 @@ namespace Tooling.Tools
                         var child = await _dbContext.GameChildren.FirstOrDefaultAsync(x => x.Code == f.Code);
                         child.Parent = parent;
                         child.GameConfig = config;
+                        child.Name = name;
+                        child.Slug = name.Slugify();
                     }
 
                     // parent.Children.Add(f);

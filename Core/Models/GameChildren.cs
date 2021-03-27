@@ -15,6 +15,10 @@ namespace Core.Models
         [Required]
         public string ParentCode { get; set; }
         
+        public string Name { get; set; }
+        
+        public string Slug { get; set; }
+        
         public GameParents Parent { get; set; }
         
         public GameConfig GameConfig { get; set; }

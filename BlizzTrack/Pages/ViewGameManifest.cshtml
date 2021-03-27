@@ -2,7 +2,7 @@
 @model BlizzTrack.Pages.ViewGameModel
 
 @{
-    ViewData["Title"] = $"{(string.IsNullOrEmpty(Model.Self.GameConfig.Name) ? Model.Meta.GetName() : Model.Self.GameConfig.Name )} // {GameTypeFixer.Fix(Model.Meta.Flags)}";
+    ViewData["Title"] = $"{Model.Self.Name} // {GameTypeFixer.Fix(Model.Meta.Flags)}";
     
     ViewData["Description"] = "A powerful website which lets you view the versions of all the games that Blizzard Entertainment has on Battle.net!";
 }
@@ -29,7 +29,7 @@
                     All Games
                 </a>
             </li>
-            <li class="breadcrumb-item active" aria-current="page">@(string.IsNullOrEmpty(Model.Self.GameConfig.Name) ? Model.Meta.GetName() : Model.Self.GameConfig.Name )</li>
+            <li class="breadcrumb-item active" aria-current="page">@Model.Self.Name</li>
             <li class="breadcrumb-item active" aria-current="page">@GameTypeFixer.Fix(Model.Meta.Flags)</li>
         </ol>
     </div>

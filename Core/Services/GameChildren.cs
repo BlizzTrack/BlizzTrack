@@ -23,7 +23,7 @@ namespace Core.Services
             return await _dbContext.GameChildren
                 .Include(x => x.Parent)
                 .Include(x => x.GameConfig)
-                .FirstOrDefaultAsync(x => x.Code == code);
+                .FirstOrDefaultAsync(x => x.Code.ToLower() == code.ToLower() || x.Slug.ToLower() == code.ToLower());
         }
     }
 }

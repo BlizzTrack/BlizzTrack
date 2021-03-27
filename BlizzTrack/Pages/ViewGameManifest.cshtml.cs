@@ -14,16 +14,19 @@ namespace BlizzTrack.Pages
         private readonly IVersions _versions;
         private readonly IBGDL _bgdl;
         private readonly ISummary _summary;
-        private readonly IGameConfig _gameConfig;
         private readonly IBlizzardAlerts _blizzardAlerts;
         private readonly IGameChildren _children;
 
-        public ViewGameModel(ISummary summary, IBGDL bgdl, IVersions versions, IGameConfig gameConfig, IBlizzardAlerts blizzardAlerts, IGameChildren children)
+        public ViewGameModel(
+            ISummary summary, 
+            IBGDL bgdl, 
+            IVersions versions, 
+            IBlizzardAlerts blizzardAlerts,
+            IGameChildren children)
         {
             _summary = summary;
             _bgdl = bgdl;
             _versions = versions;
-            _gameConfig = gameConfig;
             _blizzardAlerts = blizzardAlerts;
             _children = children;
         }
@@ -50,21 +53,26 @@ namespace BlizzTrack.Pages
 
         public async Task<IActionResult> OnGetAsync()
         {
-            var summary = await _summary.Latest();
-            var exist = summary.Content.FirstOrDefault(x => x.Product.Equals(Code, System.StringComparison.OrdinalIgnoreCase) && x.Flags.Equals(File, System.StringComparison.OrdinalIgnoreCase));
-            if (exist == null) return NotFound();
-        
-            Self = await _children.Get(Code);
-            
-            Self.GameConfig ??= new Core.Models.GameConfig()
+            Self = await _children.Get(Code) ?? new Core.Models.GameChildren()
             {
-                Config = new ConfigItems()
-                {
-                    Encrypted = true,
-                },
+                Code = Code
+            };
+
+            var summary = await _summary.Latest();
+            var exist = summary.Content.FirstOrDefault(x => x.Product.Equals(Self.Code, System.StringComparison.OrdinalIgnoreCase) && x.Flags.Equals(File, System.StringComparison.OrdinalIgnoreCase));
+            if (exist == null) return NotFound();
+            
+            Self.GameConfig ??= new Core.Models.GameConfig
+            {
+                Config = new ConfigItems(true, string.Empty),
                 Code = Code.ToLower(),
                 Name = exist.GetName()
             };
+
+            if (string.IsNullOrEmpty(Self.Name))
+            {
+                Self.Name = Self.GameConfig.Name;
+            } 
             
             if (!string.IsNullOrEmpty(Self.GameConfig.ServiceURL))
                 Alert = await _blizzardAlerts.Get(Self.GameConfig.ServiceURL);
@@ -74,7 +82,7 @@ namespace BlizzTrack.Pages
             Manifest = exist.Flags switch
             {
                 "versions" or "version" => await GetVersions(exist.Product),
-                "bgdl" => await GetBGDL(exist.Product),
+                "bgdl" => await GetBgdl(exist.Product),
                 _ => null
             };
 
@@ -105,7 +113,7 @@ namespace BlizzTrack.Pages
             return data;
         }
 
-        private async Task<List<Manifest<BNetLib.Models.BGDL[]>>> GetBGDL(string product)
+        private async Task<List<Manifest<BNetLib.Models.BGDL[]>>> GetBgdl(string product)
         {
             var data = await _bgdl.Take(product, 2);
             if (LatestSeqn != null)
