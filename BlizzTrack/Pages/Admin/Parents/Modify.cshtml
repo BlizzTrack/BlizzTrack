@@ -1,5 +1,6 @@
 ﻿@page "/admin/game-parents/modify"
 
+@using System.Diagnostics
 @model BlizzTrack.Pages.Admin.Parents.ModifyModel
 @{
     ViewData["Page"] = "Game Parents";
@@ -7,220 +8,238 @@
 }
 
 <div class="row">
-    <div class="col-12" aria-label="breadcrumb col-12" role="navigation">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item">
-                <a asp-page="/Admin/Index">All Games</a>
-            </li>
-            <li class="breadcrumb-item">
-                <a asp-page="/Admin/Parents/Index">All Parents</a>
-            </li>
-            <li class="breadcrumb-item active">@ViewData["Title"]</li>
-        </ol>
-    </div>
+<div class="col-12" aria-label="breadcrumb col-12" role="navigation">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+            <a asp-page="/Admin/Index">All Games</a>
+        </li>
+        <li class="breadcrumb-item">
+            <a asp-page="/Admin/Parents/Index">All Parents</a>
+        </li>
+        <li class="breadcrumb-item active">@ViewData["Title"]</li>
+    </ol>
+</div>
 
-    <div class="col-sm-12 col-md-4">
-        <div class="row">
-            <div class="col-12">
-                <div class="card card-user">
-                    <div class="card-body">
-                        <p class="card-text">
-                        </p><div class="author">
-                            <div class="block block-one"></div>
-                            <div class="block block-two"></div>
-                            <div class="block block-three"></div>
-                            <div class="block block-four"></div>
-                            @if (handler.Equals("new", StringComparison.OrdinalIgnoreCase))
-                            {
-                                <a href="javascript:void(0)">
-                                    <img class="avatar" src="https://via.placeholder.com/150" alt="...">
-                                </a>
-                                <p class="description">
-                                    Creating New Parent
-                                </p>
-                            }
-                            else
-                            {
-                                <a href="javascript:void(0)">
-                                    <img class="avatar" src="@(Model.GameInfo.Logos?.Count == 0 || Model.GameInfo.Logos?.Where(x => x.Type == "image/png").FirstOrDefault() == null ? "https://via.placeholder.com/150" : Model.GameInfo.Logos.Where(x => x.Type == "image/png").FirstOrDefault().URL)" alt="...">
-                                </a>
-                                <p class="description">
-                                    @Model.GameInfo.Name
-                                </p>
-                            }
-                        </div>
-                    </div>
-                </div>
-            </div>
-            @if (!handler.Equals("new", StringComparison.OrdinalIgnoreCase))
-            {
-                <div class="col-12">
-                    <div class="card ">
-                        <div class="card-header">
-                            <div class="col-sm-12 text-left">
-                                <h2 class="card-title">All Assets</h2>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <div class="table-responsive ps">
-                                <table class="table tablesorter table-hover" id="">
-                                    <thead class=" text-primary">
-                                        <tr>
-                                            <th>
-                                                Type
-                                            </th>
-                                            <th>
-                                                Name
-                                            </th>
-                                            <th style="width: 25px;" class="text-reset"></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @if (Model.GameInfo.Logos != null)
-                                        {
-                                            @foreach (var item in Model.GameInfo.Logos?.ToArray())
-                                            {
-                                                <tr>
-                                                    <td>
-                                                        @System.IO.Path.GetExtension(item.URL)?.TrimStart('.')
-                                                    </td>
-                                                    <td>
-                                                        <a href="@item.URL" target="_blank">@item.GetName()</a>
-                                                    </td>
-                                                    <td class="text-reset">
-                                                        <form method="post" asp-page-handler="DeleteAsset" asp-route-code="@Model.ParentCode">
-                                                            <input type="hidden" value="@item.URL" name="asset_url"/>
-                                                            <input type="hidden" value="@item.Type" name="asset_type"/>
-                                                            <button class="btn btn-sm btn-link" type="submit">
-                                                                <i class="fa fa-times text-danger font-weight-bold"></i>
-                                                            </button>
-                                                        </form>
-                                                    </td>
-                                                </tr>
-                                            }
-                                        }
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            }
-        </div>
-    </div>
-
-    <div class="colsm-12 col-md-8">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="title">@ViewData["Title"]</h5>
-            </div>
-            <form method="post" asp-page-handler="@handler" asp-route-code="@Model.ParentCode" enctype="multipart/form-data">
+<div class="col-sm-12 col-md-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card card-user">
                 <div class="card-body">
-                    <div class="row">
-                        <div class="col-sm-12">
-                            <div class="form-group">
-                                @Html.LabelFor(x => x.GameInfoModel.GameName)
-                                @Html.TextBoxFor(x => x.GameInfoModel.GameName, new { placeholder = "Parent Name", @class = "form-control mb-1" })
-                                @Html.ValidationMessageFor(x => x.GameInfoModel.GameName, "", new { @class = "text-danger" })
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-sm-12">
-                            <div class="form-group">
-                                @Html.LabelFor(x => x.GameInfoModel.GameSlug)
-                                @Html.TextBoxFor(x => x.GameInfoModel.GameSlug, new { placeholder = "Game Slug", @class = "form-control mb-1" })
-                                @Html.ValidationMessageFor(x => x.GameInfoModel.GameSlug, "", new { @class = "text-danger" })
-                            </div>
-                        </div>
-                    </div>
-                                        <div class="row">
-                                            <div class="col-sm-12">
-                                                <div class="form-group">
-                                                    @Html.LabelFor(x => x.GameInfoModel.GameAbout)
-                                                    @Html.TextBoxFor(x => x.GameInfoModel.GameAbout, new { placeholder = "Parent Name", @class = "form-control mb-1" })
-                                                    @Html.ValidationMessageFor(x => x.GameInfoModel.GameAbout, "", new { @class = "text-danger" })
-                                                </div>
-                                            </div>
-                                        </div>
-                    <div class="row">
-                        <div class="col-sm-12">
-                            <div class="form-group">
-                                @Html.LabelFor(x => x.GameInfoModel.CatalogManifestID)
-                                @Html.DropDownListFor(x => x.GameInfoModel.CatalogManifestID, new SelectList(Model.ManifestIDs), "Select Manfest ID",
-                                    new { placeholder = "Catalog Manfest ID", @class = "form-control mb-1", style = "color: black !important" })
-                                @Html.ValidationMessageFor(x => x.GameInfoModel.CatalogManifestID, "", new { @class = "text-danger" })
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-sm-12">
-                            <div class="form-group">
-                                @Html.LabelFor(x => x.GameInfoModel.GameCode)
-                                @Html.TextBoxFor(x => x.GameInfoModel.GameCode, new { placeholder = "Parent Starts with code (ex: pro)", @class = "form-control mb-1" })
-                                @Html.ValidationMessageFor(x => x.GameInfoModel.GameCode, "", new { @class = "text-danger" })
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-sm-12">
-                            <div class="form-group">
-                                @Html.LabelFor(x => x.GameInfoModel.GameWebsite)
-                                @Html.TextBoxFor(x => x.GameInfoModel.GameWebsite, new { placeholder = "Parent Game Website", @class = "form-control mb-1" })
-                                @Html.ValidationMessageFor(x => x.GameInfoModel.GameWebsite, "", new { @class = "text-danger" })
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-sm-12">
-                            <div class="form-group">
-                                @Html.LabelFor(x => x.GameInfoModel.GameChildOverride)
-                                @Html.TextBoxFor(x => x.GameInfoModel.GameChildOverride, new { placeholder = "Children of this game (Override)", @class = "form-control mb-1" })
-                                @Html.ValidationMessageFor(x => x.GameInfoModel.GameChildOverride, "", new { @class = "text-danger" })
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-sm-12">
-                            <div class="form-group">
-                                @Html.LabelFor(x => x.GameInfoModel.Icon)
-                                @Html.TextBoxFor(x => x.GameInfoModel.Icon, new { type = "file", @class = "form-control-file", accept = ".png,.svg" })
-                                @Html.ValidationMessageFor(x => x.GameInfoModel.Icon, "", new { @class = "text-danger" })
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-sm-12">
-                            <div class="form-group">
-                                @Html.LabelFor(x => x.GameInfoModel.PatchNoteCode)
-                                @Html.TextBoxFor(x => x.GameInfoModel.PatchNoteCode, new { placeholder = "Patch note game code (optional)", @class = "form-control mb-1" })
-                                @Html.ValidationMessageFor(x => x.GameInfoModel.PatchNoteCode, "", new { @class = "text-danger" })
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-sm-12">
-                            <div class="form-group">
-                                @Html.LabelFor(x => x.GameInfoModel.PatchNoteTool)
-                                @Html.TextBoxFor(x => x.GameInfoModel.PatchNoteTool, new { placeholder = "Tool name in worker (don't change if you don't know)", @class = "form-control mb-1" })
-                                @Html.ValidationMessageFor(x => x.GameInfoModel.PatchNoteTool, "", new { @class = "text-danger" })
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-sm-12">
-                            <div class="form-group">
-                                @Html.LabelFor(x => x.GameInfoModel.PatchNoteTypes)
-                                @Html.TextBoxFor(x => x.GameInfoModel.PatchNoteTypes, new { placeholder = "Patch note types (ex: live, retail, ptr, experimental)", @class = "form-control mb-1" })
-                                @Html.ValidationMessageFor(x => x.GameInfoModel.PatchNoteTypes, "", new { @class = "text-danger" })
-                            </div>
-                        </div>
+                    <p class="card-text">
+                    </p>
+                    <div class="author">
+                        <div class="block block-one"></div>
+                        <div class="block block-two"></div>
+                        <div class="block block-three"></div>
+                        <div class="block block-four"></div>
+                        @if (handler.Equals("new", StringComparison.OrdinalIgnoreCase))
+                        {
+                            <a href="javascript:void(0)">
+                                <img class="avatar" src="https://via.placeholder.com/150" alt="...">
+                            </a>
+                            <p class="description">
+                                Creating New Parent
+                            </p>
+                        }
+                        else
+                        {
+                            <a href="javascript:void(0)">
+                                <img class="avatar" src="@(Model.GameInfo.Logos?.Count == 0 || Model.GameInfo.Logos?.Where(x => x.Type == "image/png").FirstOrDefault() == null ? "https://via.placeholder.com/150" : Model.GameInfo.Logos.Where(x => x.Type == "image/png").FirstOrDefault().URL)" alt="...">
+                            </a>
+                            <p class="description">
+                                @Model.GameInfo.Name
+                            </p>
+                        }
                     </div>
                 </div>
-                <div class="card-footer">
-                    <button type="submit" class="btn btn-fill btn-primary">Save</button>
-                </div>
-            </form>
+            </div>
         </div>
+        @if (!handler.Equals("new", StringComparison.OrdinalIgnoreCase))
+        {
+            <div class="col-12">
+                <div class="card ">
+                    <div class="card-header">
+                        <div class="col-sm-12 text-left">
+                            <h2 class="card-title">All Assets</h2>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive ps">
+                            <table class="table tablesorter table-hover" id="">
+                                <thead class=" text-primary">
+                                <tr>
+                                    <th>
+                                        Type
+                                    </th>
+                                    <th>
+                                        Name
+                                    </th>
+                                    <th style="width: 25px;" class="text-reset"></th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                @if (Model.GameInfo.Logos != null)
+                                {
+                                    @foreach (var item in Model.GameInfo.Logos?.ToArray())
+                                    {
+                                        <tr>
+                                            <td>
+                                                @System.IO.Path.GetExtension(item.URL)?.TrimStart('.')
+                                            </td>
+                                            <td>
+                                                <a href="@item.URL" target="_blank">@item.GetName()</a>
+                                            </td>
+                                            <td class="text-reset">
+                                                <form method="post" asp-page-handler="DeleteAsset" asp-route-code="@Model.ParentCode">
+                                                    <input type="hidden" value="@item.URL" name="asset_url"/>
+                                                    <input type="hidden" value="@item.Type" name="asset_type"/>
+                                                    <button class="btn btn-sm btn-link" type="submit">
+                                                        <i class="fa fa-times text-danger font-weight-bold"></i>
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
     </div>
+</div>
+
+<div class="colsm-12 col-md-8">
+    <div class="card">
+        <div class="card-header">
+            <h5 class="title">@ViewData["Title"]</h5>
+        </div>
+        <form method="post" asp-page-handler="@handler" asp-route-code="@Model.ParentCode" enctype="multipart/form-data">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="form-group">
+                            @Html.LabelFor(x => x.GameInfoModel.GameName)
+                            @Html.TextBoxFor(x => x.GameInfoModel.GameName, new {placeholder = "Parent Name", @class = "form-control mb-1"})
+                            @Html.ValidationMessageFor(x => x.GameInfoModel.GameName, "", new {@class = "text-danger"})
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="form-group">
+                            @Html.LabelFor(x => x.GameInfoModel.GameSlug)
+                            @Html.TextBoxFor(x => x.GameInfoModel.GameSlug, new {placeholder = "Game Slug", @class = "form-control mb-1"})
+                            @Html.ValidationMessageFor(x => x.GameInfoModel.GameSlug, "", new {@class = "text-danger"})
+                        </div>
+                    </div>
+                </div>
+                @{
+                    var items = Model.GameCompanies?.Select(x => new SelectListItem
+                    {
+                        Value = x.Id.ToString(),
+                        Text = x.Name
+                    });
+                }
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="form-group">
+                            @Html.LabelFor(x => x.GameInfoModel.GameCompany)
+                            @Html.DropDownListFor(x => x.GameInfoModel.GameCompany, items, "Select Game Comapny ID",
+                                new {placeholder = "Game Company", @class = "form-control mb-1", style = "color: black !important"})
+                            @Html.ValidationMessageFor(x => x.GameInfoModel.GameCompany, "", new {@class = "text-danger"})
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="form-group">
+                            @Html.LabelFor(x => x.GameInfoModel.GameAbout)
+                            @Html.TextBoxFor(x => x.GameInfoModel.GameAbout, new {placeholder = "Parent Name", @class = "form-control mb-1"})
+                            @Html.ValidationMessageFor(x => x.GameInfoModel.GameAbout, "", new {@class = "text-danger"})
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="form-group">
+                            @Html.LabelFor(x => x.GameInfoModel.CatalogManifestID)
+                            @Html.DropDownListFor(x => x.GameInfoModel.CatalogManifestID, new SelectList(Model.ManifestIDs), "Select Manfest ID",
+                                new {placeholder = "Catalog Manfest ID", @class = "form-control mb-1", style = "color: black !important"})
+                            @Html.ValidationMessageFor(x => x.GameInfoModel.CatalogManifestID, "", new {@class = "text-danger"})
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="form-group">
+                            @Html.LabelFor(x => x.GameInfoModel.GameCode)
+                            @Html.TextBoxFor(x => x.GameInfoModel.GameCode, new {placeholder = "Parent Starts with code (ex: pro)", @class = "form-control mb-1"})
+                            @Html.ValidationMessageFor(x => x.GameInfoModel.GameCode, "", new {@class = "text-danger"})
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="form-group">
+                            @Html.LabelFor(x => x.GameInfoModel.GameWebsite)
+                            @Html.TextBoxFor(x => x.GameInfoModel.GameWebsite, new {placeholder = "Parent Game Website", @class = "form-control mb-1"})
+                            @Html.ValidationMessageFor(x => x.GameInfoModel.GameWebsite, "", new {@class = "text-danger"})
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="form-group">
+                            @Html.LabelFor(x => x.GameInfoModel.GameChildOverride)
+                            @Html.TextBoxFor(x => x.GameInfoModel.GameChildOverride, new {placeholder = "Children of this game (Override)", @class = "form-control mb-1"})
+                            @Html.ValidationMessageFor(x => x.GameInfoModel.GameChildOverride, "", new {@class = "text-danger"})
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="form-group">
+                            @Html.LabelFor(x => x.GameInfoModel.Icon)
+                            @Html.TextBoxFor(x => x.GameInfoModel.Icon, new {type = "file", @class = "form-control-file", accept = ".png,.svg"})
+                            @Html.ValidationMessageFor(x => x.GameInfoModel.Icon, "", new {@class = "text-danger"})
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="form-group">
+                            @Html.LabelFor(x => x.GameInfoModel.PatchNoteCode)
+                            @Html.TextBoxFor(x => x.GameInfoModel.PatchNoteCode, new {placeholder = "Patch note game code (optional)", @class = "form-control mb-1"})
+                            @Html.ValidationMessageFor(x => x.GameInfoModel.PatchNoteCode, "", new {@class = "text-danger"})
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="form-group">
+                            @Html.LabelFor(x => x.GameInfoModel.PatchNoteTool)
+                            @Html.TextBoxFor(x => x.GameInfoModel.PatchNoteTool, new {placeholder = "Tool name in worker (don't change if you don't know)", @class = "form-control mb-1"})
+                            @Html.ValidationMessageFor(x => x.GameInfoModel.PatchNoteTool, "", new {@class = "text-danger"})
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="form-group">
+                            @Html.LabelFor(x => x.GameInfoModel.PatchNoteTypes)
+                            @Html.TextBoxFor(x => x.GameInfoModel.PatchNoteTypes, new {placeholder = "Patch note types (ex: live, retail, ptr, experimental)", @class = "form-control mb-1"})
+                            @Html.ValidationMessageFor(x => x.GameInfoModel.PatchNoteTypes, "", new {@class = "text-danger"})
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <button type="submit" class="btn btn-fill btn-primary">Save</button>
+            </div>
+        </form>
+    </div>
+</div>
 </div>

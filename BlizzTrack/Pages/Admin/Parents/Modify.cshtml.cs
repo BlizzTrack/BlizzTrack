@@ -9,9 +9,11 @@ using Minio;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Core.Models;
 
 namespace BlizzTrack.Pages.Admin.Parents
 {
@@ -23,6 +25,10 @@ namespace BlizzTrack.Pages.Admin.Parents
 
         [Display(Name = "Game Slug")]
         public string GameSlug { get; set; }
+        
+        [Display(Name =  "Company of Game")]
+        [Required]
+        public int GameCompany { get; set; }
 
         [Required]
         [Display(Name = "Game Starts With Code (ex: pro)")]
@@ -56,7 +62,7 @@ namespace BlizzTrack.Pages.Admin.Parents
         [Display(Name =  "About this game")]
         public string GameAbout { get; set; }
 
-        public Core.Models.GameParents ToGameParents => new Core.Models.GameParents()
+        public Core.Models.GameParents ToGameParents => new()
         {
             Name = GameName,
             Code = GameCode?.ToLower(),
@@ -72,14 +78,16 @@ namespace BlizzTrack.Pages.Admin.Parents
         private readonly IGameParents _gameParents;
         private readonly MinioClient _minioClient;
         private readonly string _bucket;
-        private readonly Core.Models.DBContext _dbContext;
+        private readonly DBContext _dbContext;
+        private readonly IGameCompanies _gameCompanies;
 
-        public ModifyModel(IGameParents gameParents, MinioClient minioClient, IConfiguration config, Core.Models.DBContext dbContext)
+        public ModifyModel(IGameParents gameParents, MinioClient minioClient, IConfiguration config, DBContext dbContext, IGameCompanies gameCompanies)
         {
             _gameParents = gameParents;
             _minioClient = minioClient;
             _bucket = config.GetValue("AWS:BucketName", "");
             _dbContext = dbContext;
+            _gameCompanies = gameCompanies;
         }
 
         [BindProperty]
@@ -91,6 +99,8 @@ namespace BlizzTrack.Pages.Admin.Parents
         public Core.Models.GameParents GameInfo;
 
         public List<string> ManifestIDs { get; set; }
+        
+        public List<GameCompany> GameCompanies { get; set; }
 
         public async Task OnGetNewAsync()
         {
@@ -99,34 +109,36 @@ namespace BlizzTrack.Pages.Admin.Parents
             if (GameInfoModel == null) GameInfoModel = new GameInfoModel();
             GameInfo = new Core.Models.GameParents
             {
-                Logos = new List<Core.Models.Icons>(),
+                Logos = new List<Icons>(),
                 Visible = true
             };
 
             ManifestIDs = await _dbContext.Catalogs.Where(x => x.Type == Core.Models.CatalogType.Fragment).GroupBy(x => x.Name).Select(x => x.Key).ToListAsync();
+            GameCompanies = await _dbContext.GameCompanies.AsNoTracking().ToListAsync();
         }
 
         public async Task<IActionResult> OnPostNewAsync()
         {
             ViewData["Title"] = "Add New Parent";
 
+            ManifestIDs = await _dbContext.Catalogs.Where(x => x.Type == CatalogType.Fragment).GroupBy(x => x.Name).Select(x => x.Key).ToListAsync();
+            GameCompanies = await _dbContext.GameCompanies.AsNoTracking().ToListAsync();
+            
             if (!ModelState.IsValid)
             {
-                ManifestIDs = await _dbContext.Catalogs.Where(x => x.Type == Core.Models.CatalogType.Fragment).GroupBy(x => x.Name).Select(x => x.Key).ToListAsync();
                 return Page();
             }
 
             var exist = await _gameParents.Get(GameInfoModel.GameCode);
             if (exist?.Code == GameInfoModel.GameCode.ToLower())
             {
-                ManifestIDs = await _dbContext.Catalogs.Where(x => x.Type == Core.Models.CatalogType.Fragment).GroupBy(x => x.Name).Select(x => x.Key).ToListAsync();
                 return Page();
             }
 
             var parent = GameInfoModel.ToGameParents;
             parent.ManifestID = GameInfoModel.CatalogManifestID;
 
-            parent.Logos = new List<Core.Models.Icons>();
+            parent.Logos = new List<Icons>();
 
             if (GameInfoModel.Icon != null)
             {
@@ -142,7 +154,7 @@ namespace BlizzTrack.Pages.Admin.Parents
 
                 await _minioClient.PutObjectAsync(_bucket, dest, ms, ms.Length, GameInfoModel.Icon.ContentType, new Dictionary<string, string> { { "x-amz-acl", "public-read" } });
 
-                parent.Logos.Add(new Core.Models.Icons()
+                parent.Logos.Add(new Icons()
                 {
                     Type = GameInfoModel.Icon.ContentType,
                     URL = $"https://cdn.blizztrack.com/{dest}",
@@ -188,7 +200,7 @@ namespace BlizzTrack.Pages.Admin.Parents
 
         public async Task OnGetEditAsync()
         {
-            GameInfo = await _dbContext.GameParents.AsNoTracking().FirstOrDefaultAsync(x => x.Code == ParentCode); //_gameParents.Get(ParentCode);
+            GameInfo = await _dbContext.GameParents.AsNoTracking().Include(x => x.Owner).FirstOrDefaultAsync(x => x.Code == ParentCode); //_gameParents.Get(ParentCode);
             if (GameInfo == null)
             {
                 NotFound();
@@ -196,34 +208,43 @@ namespace BlizzTrack.Pages.Admin.Parents
             }
 
             ManifestIDs = await _dbContext.Catalogs.GroupBy(x => x.Name).Select(x => x.Key).ToListAsync();
+            GameCompanies = await _dbContext.GameCompanies.AsNoTracking().ToListAsync();
 
             ViewData["Title"] = $"Editing {GameInfo.Name}";
 
-            if (GameInfoModel == null)
-                GameInfoModel = new GameInfoModel()
-                {
-                    GameName = GameInfo.Name,
-                    GameSlug = GameInfo.Slug ?? GameInfo.Name.Slugify(),
-                    GameCode = GameInfo.Code,
-                    GameWebsite = GameInfo.Website,
-                    GameChildOverride = string.Join(", ", GameInfo.ChildrenOverride ?? new List<string>()),
-                    PatchNoteTypes = string.Join(", ", GameInfo.PatchNoteAreas ?? new List<string>()),
-                    PatchNoteTool = GameInfo.PatchNoteTool,
-                    PatchNoteCode = GameInfo.PatchNoteCode,
-                    CatalogManifestID = GameInfo.ManifestID ?? GameInfo.Code,
-                    GameAbout = GameInfo.About,
-                    Visible = true
-                };
+            GameInfoModel ??= new GameInfoModel()
+            {
+                GameName = GameInfo.Name,
+                GameSlug = GameInfo.Slug ?? GameInfo.Name.Slugify(),
+                GameCode = GameInfo.Code,
+                GameWebsite = GameInfo.Website,
+                GameChildOverride = string.Join(", ", GameInfo.ChildrenOverride ?? new List<string>()),
+                PatchNoteTypes = string.Join(", ", GameInfo.PatchNoteAreas ?? new List<string>()),
+                PatchNoteTool = GameInfo.PatchNoteTool,
+                PatchNoteCode = GameInfo.PatchNoteCode,
+                CatalogManifestID = GameInfo.ManifestID ?? GameInfo.Code,
+                GameAbout = GameInfo.About,
+                GameCompany = GameInfo.Owner.Id,
+                Visible = GameInfo.Visible ?? true,
+            };
         }
 
         public async Task<IActionResult> OnPostEditAsync()
         {
             GameInfo = await _dbContext.GameParents.AsNoTracking().FirstOrDefaultAsync(x => x.Code == ParentCode); //_gameParents.Get(ParentCode);
+            GameCompanies = await _dbContext.GameCompanies.AsNoTracking().ToListAsync();
+
             if (GameInfo == null)
             {
                 return NotFound();
             }
 
+            var company = GameCompanies.FirstOrDefault(x => x.Id == GameInfoModel.GameCompany);
+            if (company == null)
+            {
+                return Page();
+            }
+            
             if (!ModelState.IsValid)
             {
                 return Page();
@@ -277,6 +298,7 @@ namespace BlizzTrack.Pages.Admin.Parents
             GameInfo.ManifestID = GameInfoModel.CatalogManifestID;
             GameInfo.Visible = true;
             GameInfo.About = GameInfoModel.GameAbout;
+            GameInfo.Owner = company;
 
             if (!string.IsNullOrWhiteSpace(GameInfoModel.GameChildOverride))
                 foreach (var item in GameInfoModel.GameChildOverride.Split(','))

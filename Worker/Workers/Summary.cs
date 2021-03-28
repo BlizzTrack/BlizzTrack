@@ -87,8 +87,10 @@ namespace Worker.Workers
                         if (gameChildData == null)
                         {
                             var config = await dbContext.GameConfigs.FirstOrDefaultAsync(
-                                x => x.Code == item.Product, cancellationToken: cancellationToken);
-                            var name = string.IsNullOrEmpty(config?.Name) ? BNetLib.Helpers.GameName.Get(item.Product) : config?.Name;
+                                x => x.Code == item.Product, cancellationToken);
+                            var name = string.IsNullOrEmpty(config?.Name)
+                                ? BNetLib.Helpers.GameName.Get(item.Product)
+                                : config?.Name;
 
                             await dbContext.GameChildren.AddAsync(new GameChildren
                             {
@@ -275,14 +277,13 @@ namespace Worker.Workers
                             };
 
                             if (config is not null)
-                                await CheckifEncrypted(msg, config.Productconfig, db, _logger, cancellationToken);
+                                await CheckIfEncrypted(msg, config.Productconfig, db, _logger, cancellationToken);
                         }
 
                         var f = Manifest<BNetLib.Models.Versions[]>.Create(seqn, code, ver.ToArray());
                         f.Raw = raw;
                         f.Parent = parentSeqn;
-                        var cfg = await db.GameConfigs.FirstOrDefaultAsync(x => x.Code == f.Code,
-                            cancellationToken: cancellationToken);
+                        var cfg = await db.GameConfigs.FirstOrDefaultAsync(x => x.Code == f.Code, cancellationToken);
                         if(cfg != null)
                             f.ConfigId = cfg.Code;
                         
@@ -295,8 +296,7 @@ namespace Worker.Workers
                         f.Raw = raw;
                         f.Parent = parentSeqn;
                         
-                        var cfg = await db.GameConfigs.FirstOrDefaultAsync(x => x.Code == f.Code,
-                            cancellationToken: cancellationToken);
+                        var cfg = await db.GameConfigs.FirstOrDefaultAsync(x => x.Code == f.Code, cancellationToken);
                         if(cfg != null)
                             f.ConfigId = cfg.Code;
                         
@@ -309,8 +309,7 @@ namespace Worker.Workers
                         f.Raw = raw;
                         f.Parent = parentSeqn;
                         
-                        var cfg = await db.GameConfigs.FirstOrDefaultAsync(x => x.Code == f.Code,
-                            cancellationToken: cancellationToken);
+                        var cfg = await db.GameConfigs.FirstOrDefaultAsync(x => x.Code == f.Code, cancellationToken);
                         if(cfg != null)
                             f.ConfigId = cfg.Code;
                         
@@ -362,22 +361,19 @@ namespace Worker.Workers
                     return (null, -1, null);
             }
 
-            if (seqn != msg.Seqn)
-            {
-                await Task.Delay(TimeSpan.FromSeconds(1));
-                return await GetMetaData<T>(msg);
-            }
+            if (seqn == msg.Seqn) return (data, seqn, raw);
+            await Task.Delay(TimeSpan.FromSeconds(1));
+            return await GetMetaData<T>(msg);
 
-            return (data, seqn, raw);
         }
 
-        private async Task CheckifEncrypted(BNetLib.Models.Summary msg, string productConfig, DBContext dbContext, ILogger<Summary> logger, CancellationToken cancellationToken)
+        private async Task CheckIfEncrypted(BNetLib.Models.Summary msg, string productConfig, DBContext dbContext, ILogger<Summary> logger, CancellationToken cancellationToken)
         {
             var (product, _, flags) = msg;
             if (flags == "cdn" || flags == "bgdl") return;
 
           
-            var currentGameConfig = await dbContext.GameConfigs.FirstOrDefaultAsync(x => x.Code == product, cancellationToken: cancellationToken);
+            var currentGameConfig = await dbContext.GameConfigs.FirstOrDefaultAsync(x => x.Code == product, cancellationToken);
 
             string file;
 
@@ -399,10 +395,7 @@ namespace Worker.Workers
                     await dbContext.GameConfigs.AddAsync(new GameConfig()
                     {
                         Code = product,
-                        Config = new ConfigItems()
-                        {
-                            Encrypted = false,
-                        }
+                        Config = new ConfigItems(false, string.Empty)
                     }, cancellationToken);
                 }
                 else
@@ -420,14 +413,10 @@ namespace Worker.Workers
 
                 if (currentGameConfig == null)
                 {
-                    await dbContext.GameConfigs.AddAsync(new GameConfig()
+                    await dbContext.GameConfigs.AddAsync(new GameConfig
                     {
                         Code = product,
-                        Config = new ConfigItems()
-                        {
-                            Encrypted = true,
-                            EncryptedKey = f.all.config.decryption_key_name,
-                        }
+                        Config = new ConfigItems(true,  f.all.config.decryption_key_name)
                     }, cancellationToken);
                 }
                 else
@@ -440,13 +429,10 @@ namespace Worker.Workers
             {
                 if (currentGameConfig == null)
                 {
-                    await dbContext.GameConfigs.AddAsync(new GameConfig()
+                    await dbContext.GameConfigs.AddAsync(new GameConfig
                     {
                         Code = product,
-                        Config = new ConfigItems()
-                        {
-                            Encrypted = false,
-                        }
+                        Config = new ConfigItems(false, string.Empty),
                     }, cancellationToken);
                 }
                 else

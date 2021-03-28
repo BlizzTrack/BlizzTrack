@@ -2,6 +2,7 @@
 @model BlizzTrack.Pages.IndexModel
 
 @using static Core.Extensions.ListExtensions
+@using System.Diagnostics
 
 @{
     ViewData["Title"] = "All Games";
@@ -62,69 +63,74 @@
                                         @flags
                                     </li>
                                     <li class="breadcrumb-item active">
-                                        @if (flags == "versions")
-                                        {
-                                            var ver = Model.Versions.FirstOrDefault(x => x.Code == product);
-                                            if (ver == null)
-                                            {
-                                                @("N/A")
-                                            }
-                                            else if (product == "catalogs")
-                                            {
-                                                @(ver.Content.Last().Versionsname)
-                                            }
-                                            else if (product == "bts")
-                                            {
-                                                @("N/A")
-                                            }
-                                            else if (ver.Content != null)
-                                            {
-                                                var verF = ver.Content.FirstOrDefault(x => x.Region == "us");
-                                                if (verF == null)
-                                                {
-                                                    @("N/A")
-                                                }
-                                                else
-                                                {
-                                                    @(verF.Versionsname)
-                                                }
-                                            }
-                                            else
-                                            {
-                                                @("N/A")
-                                            }
-                                        }
-                                        else if (flags == "bgdl")
-                                        {
-                                            var ver = Model.BgdLs.FirstOrDefault(x => x.Code == product);
 
-                                            if (ver == null)
+                                        @switch (flags)
+                                        {
+                                            case "versions":
                                             {
-                                                @("N/A")
-                                            }
-                                            else if (product == "catalogs")
-                                            {
-                                                @(ver.Content.Last().Versionsname)
-                                            }
-                                            else if (product == "bts")
-                                            {
-                                                @("N/A")
-                                            }
-                                            else if (ver.Content != null)
-                                            {
-                                                var verF = ver.Content.FirstOrDefault(x => x.Region == "us");
-                                                if (verF == null)
+                                                var ver = Model.Versions.FirstOrDefault(x => x.Code == product);
+                                                if (ver == null)
+                                                {
+                                                    @("N/A")
+                                                } else if (product == "catalogs")
+                                                {
+                                                    @ver.Content.Last().Versionsname
+                                                }
+                                                else if (product == "bts")
                                                 {
                                                     @("N/A")
                                                 }
+                                                else if (ver.Content != null)
+                                                {
+                                                    var verF = ver.Content.FirstOrDefault(x => x.Region == "us");
+                                                    if (verF == null)
+                                                    {
+                                                        @("N/A")
+                                                    }
+                                                    else
+                                                    {
+                                                        @verF.Versionsname
+                                                    }
+                                                }
                                                 else
                                                 {
-                                                    @(verF.Versionsname)
+                                                    @("N/A")
                                                 }
+                                                break;
                                             }
-                                            else
+                                            case "bgdl":
                                             {
-                                                @("N/A")
+                                                var ver = Model.BgdLs.FirstOrDefault(x => x.Code == product);
+
+                                                if (ver == null)
+                                                {
+                                                    @("N/A")
+                                                }
+                                                else if (product == "catalogs")
+                                                {
+                                                    @ver.Content.Last().Versionsname
+                                                }
+                                                else if (product == "bts")
+                                                {
+                                                    @("N/A")
+                                                }
+                                                else if (ver.Content != null)
+                                                {
+                                                    var verF = ver.Content.FirstOrDefault(x => x.Region == "us");
+                                                    if (verF == null)
+                                                    {
+                                                        @("N/A")
+                                                    }
+                                                    else
+                                                    {
+                                                        @verF.Versionsname
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    @("N/A")
+                                                }
+                                                break;
                                             }
                                         }
                                     </li>
@@ -263,11 +269,23 @@
 }
 @{
     var latestCodes = Model.Manifests.First().Content.ToList();
-    latestCodes.Remove(latestCodes.FirstOrDefault(x => x.Product == "storm"));
 }
 
 @foreach (var company in Model.Companies.Where(x => x.Parents.Count > 0))
 {
+    var parents = company.Parents.OrderBy(x => x.Code).ToList();
+    
+    // Storm as a CDN config even though it's depricated in battle.net so we need to check it exist
+    if (parents.Select(x => x.Children.ToList()).ToList().Exists(x => x.Exists(x => x.Code == "storm")))
+    {
+        continue;
+    }
+
+    if (parents.Count <= 0)
+    {
+        continue;
+    }
+    
     <div class="card bg-transparent mb-2 section-title" style="box-shadow: none;">
         <div class="card-header">
             <div class="col-sm-12 text-left">
@@ -277,8 +295,9 @@
             </div>
         </div>
     </div>
+    
 
-    @foreach (var parent in company.Parents.OrderBy(x => x.Code))
+    @foreach (var parent in parents)
     {
         var parentCodes = parent.Children.Select(x => x.Code).ToList();
         var gameCodes = latestCodes.Where(x => parentCodes.Contains(x.Product)).ToArray();
@@ -359,7 +378,7 @@
                         var child = parent.Children.FirstOrDefault(x => x.Code == product);
                         var config = child?.GameConfig;
 
-                        if (flags == "cdn")
+                        if (flags == "cdn" || flags == "cdns")
                         {
                             continue;
                         }

@@ -26,9 +26,6 @@ namespace BlizzTrack.Pages.Admin
         [Url]
         public string GameWebsite { get; set; }
 
-        [Display(Name = "Game Asset (Images)")]
-        public IFormFile Icon { get; set; }
-
         [Display(Name = "Service Alert Icon Path")]
         public string ServiceAlertPath { get; set; }
     }
@@ -85,79 +82,12 @@ namespace BlizzTrack.Pages.Admin
                 return Page();
             }
 
-            if (GameInfoModel.Icon != null)
-            {
-                if (!GameInfoModel.Icon.ContentType.StartsWith("image/"))
-                {
-                    ModelState.AddModelError("GameInfoModel.Icon", "Must be an image");
-                    return Page();
-                }
-
-                var dest = Path.Join("bt", "logos", "games", $"{Guid.NewGuid()}{Path.GetExtension(GameInfoModel.Icon.FileName)}").Replace("\\", "/").TrimStart('/');
-
-                using var ms = GameInfoModel.Icon.OpenReadStream();
-
-                await _minioClient.PutObjectAsync(_bucket, dest, ms, ms.Length, GameInfoModel.Icon.ContentType, new Dictionary<string, string> { { "x-amz-acl", "public-read" } });
-
-                if (GameInfo.Logos == null) GameInfo.Logos = new List<Core.Models.Icons>();
-
-                var exist = GameInfo.Logos.FirstOrDefault(x => x.Type == GameInfoModel.Icon.ContentType);
-                if (exist == null)
-                {
-                    GameInfo.Logos.Add(new Core.Models.Icons()
-                    {
-                        Type = GameInfoModel.Icon.ContentType,
-                        URL = $"https://cdn.blizztrack.com/{dest}",
-                        OriginalName = GameInfoModel.Icon.FileName
-                    });
-                }
-                else
-                {
-                    // Delete old image then set URL to the new one
-                    var path = new Uri(exist.URL);
-                    var filePath = path.AbsolutePath.TrimStart('/');
-                    await _minioClient.RemoveObjectAsync(_bucket, filePath);
-
-                    exist.URL = $"https://cdn.blizztrack.com/{dest}";
-                    exist.OriginalName = GameInfoModel.Icon.FileName;
-                }
-            }
-
             GameInfo.Name = GameInfoModel.GameName;
             GameInfo.Website = GameInfoModel.GameWebsite;
             GameInfo.ServiceURL = GameInfoModel.ServiceAlertPath;
 
             _dbContext.GameConfigs.Update(GameInfo);
             await _dbContext.SaveChangesAsync();
-
-            return Redirect(HttpContext.Request.Path);
-        }
-
-        public async Task<IActionResult> OnPostDeleteAssetAsync(string asset_url, string asset_type)
-        {
-            GameInfo = await _gameConfig.Get(GameCode);
-            if (GameInfo.Logos != null)
-            {
-                var asset = GameInfo.Logos.FirstOrDefault(x => x.URL == asset_url && x.Type == asset_type);
-                GameInfo.Logos.Remove(asset);
-
-                if (asset != null)
-                {
-                    var path = new Uri(asset.URL);
-                    var filePath = path.AbsolutePath.TrimStart('/');
-                    await _minioClient.RemoveObjectAsync(_bucket, filePath);
-                }
-
-                await _gameConfig.Update(GameInfo);
-            }
-
-            if (GameInfoModel == null)
-                GameInfoModel = new GameInfoModel
-                {
-                    GameName = GameInfo.GetName(),
-                    GameWebsite = GameInfo.Website,
-                    ServiceAlertPath = GameInfo.ServiceURL
-                };
 
             return Redirect(HttpContext.Request.Path);
         }

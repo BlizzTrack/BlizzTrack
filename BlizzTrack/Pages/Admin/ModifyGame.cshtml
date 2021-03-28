@@ -13,83 +13,8 @@
             <li class="breadcrumb-item active">@ViewData["Title"]</li>
         </ol>
     </div>
-
-    <div class="col-sm-12 col-md-4">
-        <div class="row">
-            <div class="col-12">
-                <div class="card card-user">
-                    <div class="card-body">
-                        <p class="card-text">
-                        </p><div class="author">
-                            <div class="block block-one"></div>
-                            <div class="block block-two"></div>
-                            <div class="block block-three"></div>
-                            <div class="block block-four"></div>
-                            <a href="javascript:void(0)">
-                                <img class="avatar" src="@(Model.GameInfo.Logos?.Count == 0 || Model.GameInfo.Logos?.Where(x => x.Type == "image/png").FirstOrDefault() == null ? "https://via.placeholder.com/150" : Model.GameInfo.Logos.FirstOrDefault(x => x.Type == "image/png")?.URL)" alt="...">
-                            </a>
-                            <p class="description">
-                                @Model.GameInfo.GetName()
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-12">
-                <div class="card ">
-                    <div class="card-header">
-                        <div class="col-sm-12 text-left">
-                            <h2 class="card-title">All Assets</h2>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive ps">
-                            <table class="table tablesorter table-hover" id="">
-                                <thead class=" text-primary">
-                                    <tr>
-                                        <th>
-                                            Type
-                                        </th>
-                                        <th>
-                                            Name
-                                        </th>
-                                        <th style="width: 25px;" class="text-reset"></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @if (Model.GameInfo.Logos != null)
-                                    {
-                                        @foreach (var item in Model.GameInfo.Logos?.ToArray())
-                                        {
-                                            <tr>
-                                                <td>
-                                                    @System.IO.Path.GetExtension(item.URL)?.TrimStart('.')
-                                                </td>
-                                                <td>
-                                                    <a href="@item.URL" target="_blank">@item.GetName()</a>
-                                                </td>
-                                                <td class="text-reset">
-                                                    <form method="post" asp-page-handler="DeleteAsset">
-                                                        <input type="hidden" value="@item.URL" name="asset_url"/>
-                                                        <input type="hidden" value="@item.Type" name="asset_type"/>
-                                                        <button class="btn btn-sm btn-link" type="submit">
-                                                            <i class="fa fa-times text-danger font-weight-bold"></i>
-                                                        </button>
-                                                    </form>
-                                                </td>
-                                            </tr>
-                                        }
-                                    }
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="colsm-12 col-md-8">
+    
+    <div class="col-sm-12 col-md-12">
         <div class="card">
             <div class="card-header">
                 <h5 class="title">Edit Game Info</h5>
@@ -120,15 +45,6 @@
                                 @Html.LabelFor(x => x.GameInfoModel.ServiceAlertPath)
                                 @Html.TextBoxFor(x => x.GameInfoModel.ServiceAlertPath, new { placeholder = "Game Service Alert Path (not full URL)", @class = "form-control mb-1" })
                                 @Html.ValidationMessageFor(x => x.GameInfoModel.ServiceAlertPath, "", new { @class = "text-danger" })
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-sm-12">
-                            <div class="form-group">
-                                @Html.LabelFor(x => x.GameInfoModel.Icon)
-                                @Html.TextBoxFor(x => x.GameInfoModel.Icon, new { type = "file", @class = "form-control-file", accept = ".png,.svg" })
-                                @Html.ValidationMessageFor(x => x.GameInfoModel.Icon, "", new { @class = "text-danger" })
                             </div>
                         </div>
                     </div>
