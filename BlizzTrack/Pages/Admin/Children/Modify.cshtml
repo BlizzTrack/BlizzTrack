@@ -1,0 +1,71 @@
+﻿@page "/admin/game-children/modify"
+
+@model BlizzTrack.Pages.Admin.Children.ModifyModel
+@{
+    ViewData["Page"] = "Game Children";
+    var handler = HttpContext.Request.Query["handler"].ToString();
+}
+
+<div class="row">
+    <div class="col-12" aria-label="breadcrumb col-12" role="navigation">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a asp-page="/Admin/Index">All Games</a>
+            </li>
+            <li class="breadcrumb-item">
+                <a asp-page="/Admin/Parents/Index">All Children</a>
+            </li>
+            <li class="breadcrumb-item active">@ViewData["Title"]</li>
+        </ol>
+    </div>
+    
+    <div class="col-sm-12 col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="title">@ViewData["Title"]</h5>
+            </div>
+            <form method="post" asp-page-handler="@handler" asp-route-code="@Model.ParentCode" enctype="multipart/form-data">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="form-group">
+                                @Html.LabelFor(x => x.GameInfoModel.GameName)
+                                @Html.TextBoxFor(x => x.GameInfoModel.GameName, new {placeholder = "Parent Name", @class = "form-control mb-1"})
+                                @Html.ValidationMessageFor(x => x.GameInfoModel.GameName, "", new {@class = "text-danger"})
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="form-group">
+                                @Html.LabelFor(x => x.GameInfoModel.GameSlug)
+                                @Html.TextBoxFor(x => x.GameInfoModel.GameSlug, new {placeholder = "Game Slug", @class = "form-control mb-1"})
+                                @Html.ValidationMessageFor(x => x.GameInfoModel.GameSlug, "", new {@class = "text-danger"})
+                            </div>
+                        </div>
+                    </div>
+                    @{
+                        var items = Model.GameParents?.Select(x => new SelectListItem
+                        {
+                            Value = x.Code,
+                            Text = x.Name
+                        });
+                    }
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="form-group">
+                                @Html.LabelFor(x => x.GameInfoModel.ParentCode)
+                                @Html.DropDownListFor(x => x.GameInfoModel.ParentCode, items, "Select Game Parent ID",
+                                    new {placeholder = "Game Company", @class = "form-control mb-1", style = "color: black !important"})
+                                @Html.ValidationMessageFor(x => x.GameInfoModel.ParentCode, "", new {@class = "text-danger"})
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <button type="submit" class="btn btn-fill btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

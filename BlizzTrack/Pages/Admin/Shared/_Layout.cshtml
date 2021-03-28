@@ -90,6 +90,12 @@
                             <p class="nav-item-title">Game Parents</p>
                         </a>
                     </li>
+                    <li class="@(string.Equals(ViewData["Page"] as string, "Game Children") ? "active" : "")">
+                        <a asp-page="/Admin/Children/Index" style="display: inline-flex">
+                            <i class="tim-icons fa fa-child"></i>
+                            <p class="nav-item-title">Game Children</p>
+                        </a>
+                    </li>
                     <li class="@(string.Equals(ViewData["Page"] as string, "Events") ? "active" : "")">
                         <a asp-page="/Admin/SystemEvents" style="display: inline-flex">
                             <i class="tim-icons fa fa-bug"></i>
@@ -125,12 +131,6 @@
                     </button>
                     <div class="collapse navbar-collapse" id="navigation">
                         <ul class="navbar-nav ml-auto">
-                            <li class="search-bar input-group" style="width: auto !important;">
-                                <button class="btn btn-link" id="search-button" data-toggle="modal" data-target="#searchModal">
-                                    <i class="tim-icons fa fa-search"></i>
-                                    <span class="d-lg-none d-md-block">Search</span>
-                                </button>
-                            </li>
                             <feature name="@nameof(FeatureFlags.UserAuth)">
                                 @if (Context.User.Identity.IsAuthenticated)
                                 {

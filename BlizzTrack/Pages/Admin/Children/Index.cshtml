@@ -1,0 +1,90 @@
+﻿@page "/admin/game-children"
+
+@using Core.Extensions
+@model BlizzTrack.Pages.Admin.Children.IndexModel
+@{
+    ViewData["Title"] = "Game Children";
+    ViewData["Page"] = "Game Children";
+}
+
+<div class="row">
+    <div class="col-12" aria-label="breadcrumb col-12" role="navigation">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a asp-page="/Admin/Index">All Games</a>
+            </li>
+            <li class="breadcrumb-item active">All Children</li>
+        </ol>
+    </div>
+
+    <div class="col-12">
+        <div class="card ">
+            <div class="card-header">
+                <div class="col-sm-12 text-left">
+                    <h2 class="card-title">All games indexed games</h2>
+                    <h5 class="card-category">This is the games from the current manifest</h5>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive ps">
+                    <table class="table tablesorter table-hover" id="">
+                        <thead class=" text-primary">
+                        <tr>
+                            <th>
+                                Icon
+                            </th>
+                            <th>
+                                Name
+                            </th>
+                                                        <th>
+                                                            Parent
+                                                        </th>
+                            <th>
+                                Code
+                            </th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var game in Model.Children.OrderByAlphaNumeric(x => x.Code))
+                            {
+                                <tr>
+                                    <td style="width: 55px">
+                                        @if (game.Parent.Logos?.Count > 0)
+                                        {
+                                            var logo = game.Parent.Logos.FirstOrDefault(x => x.Type.Contains("svg"));
+                                            if (logo != null)
+                                            {
+                                                <img src="@logo.URL" class="align-self-start mr-3" width="45">
+                                            }
+                                            else
+                                            {
+                                                <img src="~/images/logos/bt.svg" class="align-self-start mr-3" width="45">
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <img src="~/images/logos/bt.svg" class="align-self-start mr-3" width="45">
+                                        }
+                                    </td>
+                                    <td>
+                                        @game.Name
+                                    </td>
+                                    <td>
+                                        @($"{game.Parent.Name} ({game.Parent.Code})")
+                                    </td>
+                                    <td>
+                                        @(game.Code)
+                                    </td>
+                                    <td class="text-right">
+                                        <a asp-page="/Admin/Children/Modify" asp-route-handler="Edit" asp-route-code="@game.Code">Modify Child Config</a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

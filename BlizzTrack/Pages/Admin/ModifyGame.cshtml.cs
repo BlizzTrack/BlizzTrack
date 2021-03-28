@@ -64,13 +64,12 @@ namespace BlizzTrack.Pages.Admin
                 return;
             }
 
-            if (GameInfoModel == null)
-                GameInfoModel = new GameInfoModel
-                {
-                    GameName = GameInfo.GetName(),
-                    GameWebsite = GameInfo.Website,
-                    ServiceAlertPath = GameInfo.ServiceURL
-                };
+            GameInfoModel ??= new GameInfoModel
+            {
+                GameName = GameInfo.GetName(),
+                GameWebsite = GameInfo.Website,
+                ServiceAlertPath = GameInfo.ServiceURL
+            };
         }
 
         public async Task<IActionResult> OnPostUpdateGameAsync()

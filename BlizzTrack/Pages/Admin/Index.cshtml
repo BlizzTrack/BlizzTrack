@@ -8,68 +8,9 @@
     <div class="col-12" aria-label="breadcrumb col-12" role="navigation">
         <ol class="breadcrumb">
             <li class="breadcrumb-item active">All Games</li>
-            @if (!string.IsNullOrEmpty(Model.Search))
-            {
-                <li class="breadcrumb-item">
-                    <a asp-page="/Admin/Index">Reset Search</a>
-                </li>
-            }
         </ol>
     </div>
-
-    @if (!string.IsNullOrEmpty(Model.Search))
-    {
-        <div class="col-12">
-            <div class="card ">
-                <div class="card-header">
-                    <div class="col-sm-12 text-left">
-                        <h2 class="card-title">All games indexed games</h2>
-                        <h5 class="card-category">This is the games from the current manifest</h5>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive ps">
-                        <table class="table tablesorter table-hover" id="">
-                            <thead class=" text-primary">
-                                <tr>
-                                    <th style="width: 25px;" data-toggle="tooltip" data-placement="right" title="Is game encrypted">
-                                        <i class="fa fa-lock"></i>
-                                    </th>
-                                    <th>
-                                        Name
-                                    </th>
-                                    <th>
-                                        Code
-                                    </th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var game in Model.Configs.Where(x => x.Code.Contains(Model.Search, StringComparison.OrdinalIgnoreCase) || x.GetName().Contains(Model.Search, StringComparison.OrdinalIgnoreCase)))
-                                {
-                                    <tr>
-                                        <td>
-                                            <i class="fa fa-@(game.Config.Encrypted ? "lock" : "lock-open")"></i>
-                                        </td>
-                                        <td>
-                                            @(game.GetName())
-                                        </td>
-                                        <td>
-                                            @(game.Code)
-                                        </td>
-                                        <td class="text-right">
-                                            <a asp-page="/Admin/ModifyGame" asp-route-game="@game.Code">Modify Game Config</a>
-                                        </td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-    }
-
+    
     <div class="col-12">
         <div class="card ">
             <div class="card-header">

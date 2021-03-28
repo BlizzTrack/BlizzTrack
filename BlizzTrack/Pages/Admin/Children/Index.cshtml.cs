@@ -1,30 +1,32 @@
 using BlizzTrack.Helpers;
 using Core.Services;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.FeatureManagement.Mvc;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using Summary = BNetLib.Models.Summary;
 
-namespace BlizzTrack.Pages.Admin
+namespace BlizzTrack.Pages.Admin.Children
 {
     [FeatureGate(nameof(FeatureFlags.AdminPanel))]
     [Authorize(Roles = "Admin")]
     public class IndexModel : PageModel
     {
-        private readonly IGameConfig _gameConfig;
+        private readonly IGameChildren _gameChildren;
 
-        public IndexModel(IGameConfig gameConfig)
+        public IndexModel(IGameChildren gameChildren)
         {
-            _gameConfig = gameConfig;
+            _gameChildren = gameChildren;
         }
 
-        public List<Core.Models.GameConfig> Configs;
-
+        public List<Core.Models.GameChildren> Children;
+        
         public async Task OnGetAsync()
         {
-            Configs = await _gameConfig.All();
+            Children = await _gameChildren.All();
+            Children = Children.OrderBy(x => x.Code).ToList();
         }
     }
 }
