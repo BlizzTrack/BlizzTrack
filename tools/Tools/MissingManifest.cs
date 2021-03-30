@@ -34,7 +34,7 @@ namespace Tooling.Tools
         public async Task MissingSummary()
         {
             var files = Directory.EnumerateFiles("D:\\blizzard\\ribbit_data\\summary", "*.bmime", SearchOption.AllDirectories);
-            var eFiles = files.GetEnumerator();
+            using var eFiles = files.GetEnumerator();
 
             int updateCycle = 1;
 

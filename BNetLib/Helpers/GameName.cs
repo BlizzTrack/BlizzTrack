@@ -9,7 +9,7 @@ namespace BNetLib.Helpers
     */
     public static class GameName
     {
-        public static readonly Dictionary<string, string> Suffix = new Dictionary<string, string>()
+        private static readonly Dictionary<string, string> Suffix = new()
         {
             {"t", "PTR"},
             {"ptr", "PTR"},
@@ -84,7 +84,7 @@ namespace BNetLib.Helpers
             {"cdlstaff", "League Staff" }
         };
 
-        public static Dictionary<string, string> Prefix { get; } = new Dictionary<string, string>()
+        private static Dictionary<string, string> Prefix { get; } = new()
         {
             {"pro", "Overwatch"},
             {"wowclassic", "World of Warcraft Classic"},

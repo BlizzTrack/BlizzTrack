@@ -28,7 +28,7 @@ namespace Core.Services
 
         public async Task Add(Models.GameParents config)
         {
-            _dbContext.GameParents.Add(config);
+            await _dbContext.GameParents.AddAsync(config);
             await _dbContext.SaveChangesAsync();
         }
 

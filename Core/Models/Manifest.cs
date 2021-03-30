@@ -30,7 +30,7 @@ namespace Core.Models
 
         public static Manifest<T> Create(int seqn, string code, T content)
         {
-            return new Manifest<T>()
+            return new()
             {
                 Seqn = seqn,
                 Code = code,

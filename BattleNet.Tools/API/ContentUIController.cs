@@ -3,26 +3,23 @@ using BattleNet.Tools.Services;
 using Core.Attributes;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 
 namespace BattleNet.Tools.API
 {
-    [GameToolRoute(typeof(ContentUIController), "[Controller]")]
+    [GameToolRoute(typeof(ContentUiController), "[Controller]")]
     [ApiController]
     [ApiExplorerSettings(GroupName = "Battle.net Content UI")]
     [Produces("application/json")]
-    public class ContentUIController : ControllerBase
+    public class ContentUiController : ControllerBase
     {
-        private readonly IContentUIService _contentUIService;
+        private readonly IContentUiService _contentUiService;
 
-        public ContentUIController(IContentUIService contentUIService)
+        public ContentUiController(IContentUiService contentUiService)
         {
-            _contentUIService = contentUIService;
+            _contentUiService = contentUiService;
         }
 
         /// <summary>
@@ -35,7 +32,7 @@ namespace BattleNet.Tools.API
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<ContentUINextModel.Root>))]
         public async Task<IActionResult> ListGames()
         {
-            var data = await _contentUIService.GetNextData();
+            var data = await _contentUiService.GetNextData();
             var stringJson = JsonConvert.SerializeObject(data.props.initialState.products.products);
             var exp = JsonConvert.DeserializeObject<List<ContentUINextModel.Root>>(stringJson);
 

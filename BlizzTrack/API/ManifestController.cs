@@ -343,10 +343,7 @@ namespace BlizzTrack.API
 
         private string Scheme()
         {
-            if (HttpContext.Request.Host.Host.Contains("blizztrack", StringComparison.OrdinalIgnoreCase))
-                return "https";
-
-            return "http";
+            return HttpContext.Request.Host.Host.Contains("blizztrack", StringComparison.OrdinalIgnoreCase) ? "https" : "http";
         }
 
         public class Results

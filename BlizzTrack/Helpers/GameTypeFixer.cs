@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace BlizzTrack.Helpers
 {
     public static class GameTypeFixer
     {
-        private readonly static Dictionary<string, string> Names = new Dictionary<string, string>
+        private static readonly Dictionary<string, string> Names = new()
         {
             { "version", "Version" },
             { "versions", "Versions" },
@@ -24,12 +20,7 @@ namespace BlizzTrack.Helpers
 
         public static string Fix(string type)
         {
-            if(Names.ContainsKey(type.ToLower()))
-            {
-                return Names[type.ToLower()];
-            }
-
-            return type;
+            return Names.ContainsKey(type.ToLower()) ? Names[type.ToLower()] : type;
         }
     }
 }

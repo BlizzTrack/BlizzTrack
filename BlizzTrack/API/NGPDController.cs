@@ -198,8 +198,7 @@ namespace BlizzTrack.API
                     }
                 case "seqn":
                     {
-                        cmd = null;
-                        object data = null;
+                        object data;
                         switch (filter?.ToString().ToLower())
                         {
                             case "version" or "versions":
@@ -208,11 +207,11 @@ namespace BlizzTrack.API
                                     if (ver == null) return NotFound(new { error = "Not found" });
                                     var config = await _gameConfig.Get(code);
 
-                                    var f = ver.Select(data => new
+                                    var f = ver.Select(seqnType => new
                                     {
-                                        data.Seqn,
-                                        data.Indexed,
-                                        view = Url.Action("Get", "ngpd", new { code, file_type = "versions", seqn = data.Seqn }, scheme),
+                                        seqnType.Seqn,
+                                        seqnType.Indexed,
+                                        view = Url.Action("Get", "ngpd", new { code, file_type = "versions", seqn = seqnType.Seqn }, scheme),
                                     }).ToList();
 
                                     data = new
@@ -233,11 +232,11 @@ namespace BlizzTrack.API
                                         return NotFound(new { error = "Not found" });
                                     var config = await _gameConfig.Get(code);
 
-                                    var f = cdn.Select(data => new
+                                    var f = cdn.Select(seqnType => new
                                     {
-                                        data.Seqn,
-                                        data.Indexed,
-                                        view = Url.Action("Get", "ngpd", new { code, file_type = "cdn", seqn = data.Seqn }, scheme),
+                                        seqnType.Seqn,
+                                        seqnType.Indexed,
+                                        view = Url.Action("Get", "ngpd", new { code, file_type = "cdn", seqn = seqnType.Seqn }, scheme),
                                     }).ToList();
 
                                     data = new
@@ -258,11 +257,11 @@ namespace BlizzTrack.API
                                         return NotFound(new { error = "Not found" });
                                     var config = await _gameConfig.Get(code);
 
-                                    var f = bgdl.Select(data => new
+                                    var f = bgdl.Select(seqnType => new
                                     {
-                                        data.Seqn,
-                                        data.Indexed,
-                                        view = Url.Action("Get", "ngpd", new { code, file_type = "bdgl", seqn = data.Seqn }, scheme),
+                                        seqnType.Seqn,
+                                        seqnType.Indexed,
+                                        view = Url.Action("Get", "ngpd", new { code, file_type = "bdgl", seqn = seqnType.Seqn }, scheme),
                                     }).ToList();
 
                                     data = new

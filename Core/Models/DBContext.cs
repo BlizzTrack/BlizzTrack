@@ -71,10 +71,6 @@ namespace Core.Models
             builder.Entity<Manifest<BNetLib.Models.Summary[]>>().Ignore(x => x.Config);
             builder.Entity<Manifest<BNetLib.Models.Summary[]>>().ToTable("summary");
 
-            builder.Entity<GameParents>().Property(x => x.PatchNoteTool).HasDefaultValue("legacy");
-            builder.Entity<GameParents>().Property(x => x.Visible).HasDefaultValue(true);
-
-            
             builder.Entity<Catalog>().Property(x => x.Indexed).HasDefaultValueSql("CURRENT_TIMESTAMP");
 
             builder.Entity<GameChildren>()
@@ -83,8 +79,9 @@ namespace Core.Models
                 .HasPrincipalKey<GameChildren>(x => x.Code)
                 .HasForeignKey<GameConfig>(x => x.Code);
             
+            builder.Entity<GameParents>().Property(x => x.PatchNoteTool).HasDefaultValue("legacy");
+            builder.Entity<GameParents>().Property(x => x.Visible).HasDefaultValue(true);
             builder.Entity<GameParents>().Property("OwnerId").HasDefaultValue(3);
-
             builder.Entity<GameParents>()
                 .HasMany(c => c.Children)
                 .WithOne(x => x.Parent)

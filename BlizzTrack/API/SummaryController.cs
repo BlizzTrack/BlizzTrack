@@ -211,13 +211,13 @@ namespace BlizzTrack.API
                         x.Product.StartsWith(z.Code) || z.ChildrenOverride.Contains(x.Product));
                     return new SummaryResults.SummaryItem
                     {
-                        Name = string.IsNullOrEmpty(config?.Name) ? x.GetName() : config?.Name,
+                        Name = string.IsNullOrEmpty(config?.Name) ? x.GetName() : config.Name,
                         Product = x.Product,
                         Flags = x.Flags,
                         Seqn = x.Seqn,
                         Encrypted = config?.Config.Encrypted,
                         Logos = parent?.Logos,
-                        Relations = new Dictionary<SharedResults.RelationTypes, string>()
+                        Relations = new Dictionary<SharedResults.RelationTypes, string>
                         {
                             {
                                 SharedResults.RelationTypes.View,
@@ -229,7 +229,7 @@ namespace BlizzTrack.API
                             }
                         }
                     };
-                }).Where(x => gameFilter == default || x.Product.Contains(gameFilter?.ToString(), StringComparison.OrdinalIgnoreCase)).ToList()
+                }).Where(x => gameFilter == default || x.Product.Contains(gameFilter, StringComparison.OrdinalIgnoreCase)).ToList()
             };
 
             return Ok(result);

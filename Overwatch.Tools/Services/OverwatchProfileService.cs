@@ -16,7 +16,7 @@ namespace Overwatch.Tools.Services
 
     public class OverwatchProfileService : IOverwatchProfileService
     {
-        private readonly HtmlParser _parser = new HtmlParser();
+        private readonly HtmlParser _parser = new();
 
         public async Task<Player<Endorsements>> GetEndorsements(string player, Platform platform)
         {

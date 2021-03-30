@@ -16,22 +16,22 @@ namespace Tooling.Tools
     [Tool(Name = "Legacy Patch Notes", Disabled = true)]
     public class LegacyPatchNotes : ITool
     {
-        private readonly IGameParents gameParents;
-        private readonly ILogger<LegacyPatchNotes> logger;
-        private readonly DBContext dbContext;
+        private readonly IGameParents _gameParents;
+        private readonly ILogger<LegacyPatchNotes> _logger;
+        private readonly DBContext _dbContext;
 
         public LegacyPatchNotes(IGameParents gameParents, ILogger<LegacyPatchNotes> logger, DBContext dbContext)
         {
-            this.gameParents = gameParents;
-            this.logger = logger;
-            this.dbContext = dbContext;
+            _gameParents = gameParents;
+            _logger = logger;
+            _dbContext = dbContext;
         }
 
         public async Task Start()
         {
             var stopWatch = Stopwatch.StartNew();
 
-            var games = await gameParents.All();
+            var games = await _gameParents.All();
             games = games.Where(x => x.PatchNoteAreas?.Count > 0).ToList();
 
             var dataItems = new List<PatchNote>();
@@ -40,7 +40,7 @@ namespace Tooling.Tools
             {
                 foreach (var parent in games)
                 {
-                    List<PatchNote> data = parent.PatchNoteTool switch
+                    var data = parent.PatchNoteTool switch
                     {
                         "overwatch" => await OverwatchPatchNotes(parent, langauge),
                         "legacy" => await OldPatchNotes(parent, langauge),
@@ -81,7 +81,7 @@ namespace Tooling.Tools
 
                 // logger.LogInformation($"Processing: {item.Code} {item.Type} {item.Created}");
 
-                var exist = await dbContext.PatchNotes.FirstOrDefaultAsync(x => x.Code == item.Code && x.Type == item.Type && x.Created == item.Created && x.Language == item.Language);
+                var exist = await _dbContext.PatchNotes.FirstOrDefaultAsync(x => x.Code == item.Code && x.Type == item.Type && x.Created == item.Created && x.Language == item.Language);
                 if (exist != null)
                 {
                     if (exist.Updated != item.Updated)
@@ -89,13 +89,13 @@ namespace Tooling.Tools
                         exist.Updated = item.Updated;
                         exist.Body = item.Body;
                         exist.Language = item.Language;
-                        dbContext.Update(exist);
+                        _dbContext.Update(exist);
                         hasChanges = true;
                     }
                 }
                 else
                 {
-                    dbContext.Add(item);
+                    _dbContext.Add(item);
                     hasChanges = true;
                 }
 
@@ -104,12 +104,12 @@ namespace Tooling.Tools
 
             if (hasChanges)
             {
-                await dbContext.SaveChangesAsync();
+                await _dbContext.SaveChangesAsync();
             }
 
             TimeSpan ts = stopWatch.Elapsed;
             string elapsedTime = $"{ts.Hours:00}:{ts.Minutes:00}:{ts.Seconds:00}.{ts.Milliseconds / 10:00}";
-            logger.LogInformation($"Patch Notes took {elapsedTime}");
+            _logger.LogInformation($"Patch Notes took {elapsedTime}");
         }
 
         private static async Task<List<PatchNote>> OverwatchPatchNotes(Core.Models.GameParents parent, string locale)
@@ -164,14 +164,14 @@ namespace Tooling.Tools
 
                 Console.WriteLine(url);
                 
-                var data = await BNetLib.Http.RemoteJson.Get<BNetLib.Models.Patchnotes.Legacy.Root>(url);
+                var (item1, item2) = await BNetLib.Http.RemoteJson.Get<BNetLib.Models.Patchnotes.Legacy.Root>(url);
             
-                if(data.Item1.PatchNotes == null || data.Item2 == null)
+                if(item1.PatchNotes == null || item2 == null)
                 {
                     continue;
                 }
 
-                foreach (var item in data.Item1?.PatchNotes) {
+                foreach (var item in item1?.PatchNotes) {
                     var f = item;
 
                     var note = PatchNote.Create(JsonConvert.SerializeObject(f));

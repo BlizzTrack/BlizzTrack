@@ -77,9 +77,7 @@ namespace BlizzTrack.Pages.Admin
             GameInfo = await _gameConfig.Get(GameCode);
 
             if (!ModelState.IsValid)
-            {
                 return Page();
-            }
 
             GameInfo.Name = GameInfoModel.GameName;
             GameInfo.Website = GameInfoModel.GameWebsite;

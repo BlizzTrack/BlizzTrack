@@ -10,7 +10,7 @@ namespace BattleNet.Tools
     {
         public void ConfigureServices(ref IServiceCollection services)
         {
-            services.AddSingleton<IContentUIService, ContentUIService>();
+            services.AddSingleton<IContentUiService, ContentUiService>();
         }
 
         public void MapEndpoints(IEndpointRouteBuilder endpoints)

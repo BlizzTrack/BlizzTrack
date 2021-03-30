@@ -1,20 +1,20 @@
-﻿using Core.Models;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Threading.Tasks;
+using Core.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Minio.AspNetCore;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Threading.Tasks;
 using Tooling.Attributes;
 using Tooling.Tools;
 
-namespace tools
+namespace Tooling
 {
     class Program
     {
@@ -63,7 +63,7 @@ namespace tools
             return results;
         }
 
-        public static IHost CreateHostBuilder(string[] args)
+        private static IHost CreateHostBuilder(string[] args)
         {
             var app = new HostBuilder()
                 .ConfigureHostConfiguration(configHost => configHost.AddEnvironmentVariables())
@@ -85,7 +85,7 @@ namespace tools
                                 o.UseTrigrams();
                             }).EnableSensitiveDataLogging());
 
-                    services.AddSingleton(x => new BNetLib.Networking.BNetClient(BNetLib.Networking.ServerRegion.US));
+                    services.AddSingleton(_ => new BNetLib.Networking.BNetClient());
                     services.AddSingleton<BNetLib.Http.ProductConfig>();
 
                     services.AddScoped<Core.Services.ISummary, Core.Services.Summary>();

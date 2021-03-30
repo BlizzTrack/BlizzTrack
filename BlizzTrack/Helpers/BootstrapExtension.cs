@@ -44,7 +44,7 @@ namespace BlizzTrack.Helpers
                 }
                 else if (node is Inline)
                 {
-                    if (node is LinkInline link && link.IsImage)
+                    if (node is LinkInline {IsImage: true} link)
                     {
                         link.GetAttributes().AddClass("img-fluid");
                     }

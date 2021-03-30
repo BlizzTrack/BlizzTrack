@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace BlizzTrack.Attributes
 {
-    [AttributeUsage(validOn: AttributeTargets.Class | AttributeTargets.Method)]
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
     public class ApiKeyAttribute : Attribute, IAsyncActionFilter
     {
         private const string APIKEYNAME = "x-api-key";

@@ -2,7 +2,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MimeKit;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -36,7 +35,6 @@ namespace Tooling.Tools
 
             foreach(var summary in summeries)
             {
-                var code = summary.Code;
                 var seqn = summary.Seqn;
 
                 File.WriteAllText(tempFile, summary.Raw);
@@ -46,8 +44,11 @@ namespace Tooling.Tools
                 var manifest = mail.BodyParts.OfType<MimePart>().LastOrDefault();
                 var body = mail.BodyParts.OfType<TextPart>().LastOrDefault();
 
-                using StreamReader reader = new StreamReader(manifest.Content.Stream);
-                string text = reader.ReadToEnd().Replace("\n", "");
+                if (manifest != null)
+                {
+                    using var reader = new StreamReader(manifest.Content.Stream);
+                    var replace = (await reader.ReadToEndAsync()).Replace("\n", "");
+                }
 
                 var payload = body.Text.Split("\n").ToList();
                 payload.Insert(0, "## Nothing");

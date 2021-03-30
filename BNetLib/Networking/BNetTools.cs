@@ -8,9 +8,9 @@ namespace BNetLib.Networking
 {
     internal enum KeyTypeEnum
     {
-        DEC,
-        STRING,
-        HEX
+        Dec,
+        String,
+        Hex
     }
 
     /// <summary>
@@ -81,11 +81,11 @@ namespace BNetLib.Networking
 
                     switch (key.Type)
                     {
-                        case KeyTypeEnum.DEC:
+                        case KeyTypeEnum.Dec:
                             _ = int.TryParse(item, out var seqn1);
                             lineItem[key.Key] = seqn1;
                             continue;
-                        case KeyTypeEnum.HEX or KeyTypeEnum.STRING:
+                        case KeyTypeEnum.Hex or KeyTypeEnum.String:
                             if (key.Key.ToLower() == "flags")
                             {
                                 lineItem[key.Key] = item == "" ? "versions" : item.Trim();

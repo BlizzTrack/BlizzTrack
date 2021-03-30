@@ -1,5 +1,4 @@
 ﻿using BNetLib.Catalogs;
-using BNetLib.Http;
 using Core.Models;
 using Core.Services;
 using Microsoft.EntityFrameworkCore;
@@ -23,23 +22,15 @@ namespace Tooling.Tools
     {
         private readonly IVersions _versions;
         private readonly ICDNs _cdns;
-        private readonly IGameConfig _gameConfig;
-        private readonly ProductConfig _productConfig;
         private readonly DBContext _dbContext;
         private readonly ILogger<CatalogsImport> _logger;
-        private readonly MinioClient _minioClient;
-        private readonly string _bucket;
 
-        public CatalogsImport(IVersions versions, ICDNs cdns, ProductConfig productConfig, ILogger<CatalogsImport> logger, DBContext dbContext, IGameConfig gameConfig, MinioClient minioClient, IConfiguration config)
+        public CatalogsImport(IVersions versions, ICDNs cdns, ILogger<CatalogsImport> logger, DBContext dbContext)
         {
             _versions = versions;
             _cdns = cdns;
-            _productConfig = productConfig;
             _logger = logger;
             _dbContext = dbContext;
-            _gameConfig = gameConfig;
-            _minioClient = minioClient;
-            _bucket = config.GetValue("AWS:BucketName", "");
         }
 
         public async Task Start()

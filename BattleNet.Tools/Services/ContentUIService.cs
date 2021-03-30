@@ -4,14 +4,14 @@ using System.Threading.Tasks;
 
 namespace BattleNet.Tools.Services
 {
-    public interface IContentUIService
+    public interface IContentUiService
     {
         Task<dynamic> GetNextData();
     }
 
-    public class ContentUIService : IContentUIService
+    public class ContentUiService : IContentUiService
     {
-        private readonly HtmlParser _parser = new HtmlParser();
+        private readonly HtmlParser _parser = new();
 
         public async Task<dynamic> GetNextData()
         {
@@ -24,7 +24,7 @@ namespace BattleNet.Tools.Services
 
             var data = doc.QuerySelector("script#__NEXT_DATA__");
 
-            return Newtonsoft.Json.JsonConvert.DeserializeObject<dynamic>(data?.TextContent);
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<dynamic>(data?.TextContent ?? string.Empty);
         }
     }
 }

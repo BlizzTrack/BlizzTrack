@@ -99,8 +99,11 @@ namespace BlizzTrack.API
                     await _userManager.AddToRoleAsync(user, "Admin");
             }
 
-            var identity = new ClaimsIdentity(CookieAuthenticationDefaults.AuthenticationScheme, ClaimTypes.Name,
-                ClaimTypes.Role);
+            var identity = new ClaimsIdentity(
+                CookieAuthenticationDefaults.AuthenticationScheme,
+                ClaimTypes.Name,
+                ClaimTypes.Role
+            );
 
             identity.AddClaim(new Claim(ClaimTypes.NameIdentifier, user.Id));
             identity.AddClaim(new Claim(ClaimTypes.Name, user.UserName));
@@ -113,11 +116,14 @@ namespace BlizzTrack.API
 
             var f = new ClaimsPrincipal(identity);
 
-            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, f,
+            await HttpContext.SignInAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme, 
+                f,
                 new AuthenticationProperties
                 {
                     IsPersistent = true
-                });
+                }
+            );
 
             return Redirect("/");
         }
