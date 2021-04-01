@@ -35,11 +35,13 @@ namespace BlizzTrack.API
         [AllowAnonymous, HttpGet("Login")]
         public async Task Login()
         {
-            await HttpContext.ChallengeAsync(BattleNetAuthenticationDefaults.AuthenticationScheme,
-                new AuthenticationProperties()
+            await HttpContext.ChallengeAsync(
+                BattleNetAuthenticationDefaults.AuthenticationScheme,
+                new AuthenticationProperties
                 {
                     RedirectUri = new PathString("/Auth/ExternalAuthLogin")
-                });
+                }
+            );
         }
 
         [HttpGet("Logout")]

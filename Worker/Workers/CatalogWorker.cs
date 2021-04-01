@@ -260,8 +260,7 @@ namespace Worker.Workers
         {
             var exist = await dbContext.Catalogs.FirstOrDefaultAsync(x => x.Hash == hash);
 
-            if (exist == null) return false;
-            return true;
+            return exist != null;
         }
 
         private async Task<JsonDocument> GetRaw(string hash, string url = "level3.blizzard.com/tpr/configs/data", int count = 1)

@@ -133,14 +133,14 @@ namespace Worker.Workers
                                 var parent = await parents.Get(item.Product) ?? await parents.Get("unknown");
 
                                 var gameChildData =
-                                    await dbContext.GameChildren.FirstOrDefaultAsync(x => x.Code == item.Product, cancellationToken: cancellationToken);
+                                    await dbContext.GameChildren.FirstOrDefaultAsync(x => x.Code == item.Product, cancellationToken);
 
                                 await AddItemToData(item, latest.Seqn, dbContext, cancellationToken);
                                 
                                 if (gameChildData == null)
                                 {
                                     var config = await dbContext.GameConfigs.FirstOrDefaultAsync(
-                                        x => x.Code == item.Product, cancellationToken: cancellationToken);
+                                        x => x.Code == item.Product, cancellationToken);
                                     var name = string.IsNullOrEmpty(config?.Name) ? BNetLib.Helpers.GameName.Get(item.Product) : config?.Name;
 
                                     await dbContext.GameChildren.AddAsync(new GameChildren
@@ -163,10 +163,9 @@ namespace Worker.Workers
                     }
                 }
 
-                TimeSpan ts = stopWatch.Elapsed;
-                string elapsedTime = $"{ts.Hours:00}:{ts.Minutes:00}:{ts.Seconds:00}.{ts.Milliseconds / 10:00}";
+                var ts = stopWatch.Elapsed;
+                var elapsedTime = $"{ts.Hours:00}:{ts.Minutes:00}:{ts.Seconds:00}.{ts.Milliseconds / 10:00}";
                 _logger.LogDebug($"Version Tracking took {elapsedTime}");
-
 
                 // Check every 5 seconds, at some point this might need to be proxied again, but until this i realllllllllllllllllllllllllly don't care
                 await Task.Delay(TimeSpan.FromSeconds(5), cancellationToken);
@@ -254,7 +253,7 @@ namespace Worker.Workers
                         if(ver.Count > 0) {
                             if (msg.Product == "catalogs")
                             {
-                                _channelWriter.Enqueue(new ConfigUpdate()
+                                _channelWriter.Enqueue(new ConfigUpdate
                                 {
                                     Code = msg.Product,
                                     Hash = ver.Last().Buildconfig,
@@ -262,11 +261,15 @@ namespace Worker.Workers
                             }
                             else
                             {
-                                _channelWriter.Enqueue(new ConfigUpdate()
+                                // Skip bootstrapper for product config validation as it doesn't have one
+                                if (msg.Product != "bts")
                                 {
-                                    Code = msg.Product,
-                                    Hash = ver.Last().Productconfig,
-                                });
+                                    _channelWriter.Enqueue(new ConfigUpdate
+                                    {
+                                        Code = msg.Product,
+                                        Hash = ver.Last().Productconfig,
+                                    });
+                                }
                             }
 
                             var config = msg.Product switch
@@ -324,55 +327,55 @@ namespace Worker.Workers
 
         private async Task<(object Value, int Seqn, string Raw)> GetMetaData<T>(BNetLib.Models.Summary msg) where T : class, new()
         {
-            IList<T> data;
-            int seqn;
-            string raw;
-
-            switch (typeof(T))
+            while (true)
             {
-                case { } versionType when versionType == typeof(BNetLib.Models.Versions):
+                IList<T> data;
+                int seqn;
+                string raw;
+
+                switch (typeof(T))
+                {
+                    case { } versionType when versionType == typeof(BNetLib.Models.Versions):
                     {
                         var payload = await _bNetClient.Versions(msg.Product);
-                        data = (IList<T>)payload.Payload;
+                        data = (IList<T>) payload.Payload;
                         seqn = payload.Seqn;
                         raw = payload.Raw;
                     }
-                    break;
+                        break;
 
-                case { } bgdlType when bgdlType == typeof(BNetLib.Models.BGDL):
+                    case { } bgdlType when bgdlType == typeof(BNetLib.Models.BGDL):
                     {
                         var payload = await _bNetClient.Bgdl(msg.Product);
-                        data = (IList<T>)payload.Payload;
+                        data = (IList<T>) payload.Payload;
                         seqn = payload.Seqn;
                         raw = payload.Raw;
                     }
-                    break;
+                        break;
 
-                case { } cdnType when cdnType == typeof(BNetLib.Models.CDN):
+                    case { } cdnType when cdnType == typeof(BNetLib.Models.CDN):
                     {
                         var payload = await _bNetClient.Cdn(msg.Product);
-                        data = (IList<T>)payload.Payload;
+                        data = (IList<T>) payload.Payload;
                         seqn = payload.Seqn;
                         raw = payload.Raw;
                     }
-                    break;
+                        break;
 
-                default:
-                    return (null, -1, null);
+                    default:
+                        return (null, -1, null);
+                }
+
+                if (seqn == msg.Seqn) return (data, seqn, raw);
+                await Task.Delay(TimeSpan.FromSeconds(1));
             }
-
-            if (seqn == msg.Seqn) return (data, seqn, raw);
-            await Task.Delay(TimeSpan.FromSeconds(1));
-            return await GetMetaData<T>(msg);
-
         }
 
-        private async Task CheckIfEncrypted(BNetLib.Models.Summary msg, string productConfig, DBContext dbContext, ILogger<Summary> logger, CancellationToken cancellationToken)
+        private static async Task CheckIfEncrypted(BNetLib.Models.Summary msg, string productConfig, DBContext dbContext, ILogger<Summary> logger, CancellationToken cancellationToken)
         {
             var (product, _, flags) = msg;
             if (flags == "cdn" || flags == "bgdl") return;
-
-          
+            
             var currentGameConfig = await dbContext.GameConfigs.FirstOrDefaultAsync(x => x.Code == product, cancellationToken);
 
             string file;
@@ -382,27 +385,35 @@ namespace Worker.Workers
                 return;
             }
 
-            try
+            if (msg.Product == "bts")
             {
-                file = await ProductConfig.GetRaw(productConfig);
+                file = string.Empty;
             }
-            catch
+            else
             {
-                // Add missing game even if it's 404, this is for a later feature
-                logger.LogCritical($"{product} product config doesn't exist");
-                if (currentGameConfig == null)
+                try
                 {
-                    await dbContext.GameConfigs.AddAsync(new GameConfig()
+                    file = await ProductConfig.GetRaw(productConfig);
+                }
+                catch
+                {
+                    // Add missing game even if it's 404, this is for a later feature
+                    logger.LogCritical($"{product} product config doesn't exist");
+                    if (currentGameConfig == null)
                     {
-                        Code = product,
-                        Config = new ConfigItems(false, string.Empty)
-                    }, cancellationToken);
+                        await dbContext.GameConfigs.AddAsync(new GameConfig()
+                        {
+                            Code = product,
+                            Config = new ConfigItems(false, string.Empty)
+                        }, cancellationToken);
+                    }
+                    else
+                    {
+                        currentGameConfig.Config.Encrypted = false;
+                    }
+
+                    return;
                 }
-                else
-                {
-                    currentGameConfig.Config.Encrypted = false;
-                }
-                return;
             }
 
             logger.LogDebug($"checking {product} if encrypted or not ");

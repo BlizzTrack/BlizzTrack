@@ -9,7 +9,7 @@ namespace Core.Extensions
     {
         public static T ToObject<T>(this IDictionary<string, object> source, BindingFlags bindingAttr = BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance) where T : class, new()
         {
-            T someObject = new T();
+            var someObject = new T();
             Assert.IsTrue(someObject != null, $"{nameof(someObject)} was null");
 
             var someObjectType = someObject.GetType();

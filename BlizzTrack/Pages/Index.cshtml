@@ -2,7 +2,6 @@
 @model BlizzTrack.Pages.IndexModel
 
 @using static Core.Extensions.ListExtensions
-@using System.Diagnostics
 
 @{
     ViewData["Title"] = "All Games";
@@ -37,9 +36,20 @@
                     Model.Manifests.First().Content
                         .Where(x => x.GetName().Contains(Model.Search, StringComparison.OrdinalIgnoreCase) || x.Product.Contains(Model.Search, StringComparison.OrdinalIgnoreCase)).OrderByAlphaNumeric(x => x.Product))
                 {
-                    if (flags == "cdn")
+                    switch (flags)
                     {
-                        continue;
+                        case "cdn":
+                            continue;
+                        // Skip empty BGDL
+                        case "bgdl":
+                        {
+                            var ver = Model.BgdLs.FirstOrDefault(x => x.Code == product);
+                            if (ver?.Content?.Length <= 0)
+                            {
+                                continue;
+                            }
+                            break;
+                        }
                     }
 
                     var config = Model.Configs.FirstOrDefault(x => x.Code == product) ?? new Core.Models.GameConfig()
@@ -163,21 +173,32 @@
                 </div>
             </div>
             <div class="card-body pt-0 px-0 pb-0">
-                @foreach (var (newest, _) in Model.SummaryDiff.OrderByAlphaNumeric(x => x.newest.Product))
+                @foreach (var ((product, seqn, flags), _) in Model.SummaryDiff.OrderByAlphaNumeric(x => x.newest.Product))
                 {
-                    if (newest.Flags == "cdn")
+                    switch (flags)
                     {
-                        continue;
+                        case "cdn":
+                            continue;
+                        // Skip empty BGDL
+                        case "bgdl":
+                        {
+                            var ver = Model.BgdLs.FirstOrDefault(x => x.Code == product);
+                            if (ver?.Content?.Length <= 0)
+                            {
+                                continue;
+                            }
+                            break;
+                        }
                     }
 
-                    var config = Model.Configs.FirstOrDefault(x => x.Code == newest.Product) ?? new Core.Models.GameConfig
+                    var config = Model.Configs.FirstOrDefault(x => x.Code == product) ?? new Core.Models.GameConfig
                     {
                         Config = new Core.Models.ConfigItems(true, string.Empty),
-                        Code = newest.Product
+                        Code = product
                     };
 
                     <div class="game-item-link p-2 px-3">
-                        <a class="d-flex" asp-page="/ViewGameManifest" asp-route-code="@(config.Owner == null ? newest.Product : config.Owner.Slug)" asp-route-file="@(string.IsNullOrEmpty(newest.Flags) ? "versions" : newest.Flags)" asp-route-latest-seqn="@newest.Seqn">
+                        <a class="d-flex" asp-page="/ViewGameManifest" asp-route-code="@(config.Owner == null ? product : config.Owner.Slug)" asp-route-file="@(string.IsNullOrEmpty(flags) ? "versions" : flags)" asp-route-latest-seqn="@seqn">
                             <div class="flex-fill">
                                 <h3 class="mt-0 mb-1">@config.GetName()</h3>
                                 <ol class="breadcrumb p-0 m-0 bg-transparent">
@@ -185,25 +206,25 @@
                                         <i class="fa fa-@(config.Config.Encrypted ? "lock" : "lock-open")"></i>
                                     </li>
                                     <li class="breadcrumb-item active">
-                                        @newest.Product
+                                        @product
                                     </li>
                                     <li class="breadcrumb-item active">
-                                        @newest.Flags
+                                        @flags
                                     </li>
                                     <li class="breadcrumb-item active">
-                                        @if (newest.Flags == "versions")
+                                        @if (flags == "versions")
                                         {
-                                            var ver = Model.Versions.FirstOrDefault(x => x.Code == newest.Product);
+                                            var ver = Model.Versions.FirstOrDefault(x => x.Code == product);
 
                                             if (ver == null)
                                             {
                                                 @("N/A")
                                             }
-                                            else if (newest.Product == "catalogs")
+                                            else if (product == "catalogs")
                                             {
                                                 @(ver.Content.Last().Versionsname)
                                             }
-                                            else if (newest.Product == "bts")
+                                            else if (product == "bts")
                                             {
                                                 @("N/A")
                                             }
@@ -220,19 +241,19 @@
                                                 }
                                             }
                                         }
-                                        else if (newest.Flags == "bgdl")
+                                        else if (flags == "bgdl")
                                         {
-                                            var ver = Model.BgdLs.FirstOrDefault(x => x.Code == newest.Product);
+                                            var ver = Model.BgdLs.FirstOrDefault(x => x.Code == product);
 
                                             if (ver == null)
                                             {
                                                 @("N/A")
                                             }
-                                            else if (newest.Product == "catalogs")
+                                            else if (product == "catalogs")
                                             {
                                                 @(ver.Content.Last().Versionsname)
                                             }
-                                            else if (newest.Product == "bts")
+                                            else if (product == "bts")
                                             {
                                                 @("N/A")
                                             }
@@ -252,7 +273,7 @@
                                     </li>
                                     <li class="breadcrumb-item active">
                                         <time>
-                                            @Model.GameVersions.FirstOrDefault(x => x.Code == newest.Product && x.Type == newest.Flags)?.Updated.ToString("MMMM dd, yyyy hh:mm tt")
+                                            @Model.GameVersions.FirstOrDefault(x => x.Code == product && x.Type == flags)?.Updated.ToString("MMMM dd, yyyy hh:mm tt")
                                         </time>
                                     </li>
                                 </ol>
@@ -377,10 +398,21 @@
                     {
                         var child = parent.Children.FirstOrDefault(x => x.Code == product);
                         var config = child?.GameConfig;
-
-                        if (flags == "cdn" || flags == "cdns")
+                        
+                        switch (flags)
                         {
-                            continue;
+                            case "cdn" or "cdns":
+                                continue;
+                            // Skip empty BGDL
+                            case "bgdl":
+                            {
+                                var ver = Model.BgdLs.FirstOrDefault(x => x.Code == product);
+                                if (ver?.Content?.Length <= 0)
+                                {
+                                    continue;
+                                }
+                                break;
+                            }
                         }
 
                         config ??= new Core.Models.GameConfig()
