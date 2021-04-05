@@ -1,0 +1,42 @@
+﻿@page
+@using Core.Extensions
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+}
+<div class="box content">
+    @foreach (var child in Model.Children)
+    {
+        foreach (var item in Model.Manifests.Content.Where(x => x.Product == child.Code))
+        {
+            var indexItem = item.Flags switch {
+                "cdns" or "cdn" => Model.Cdns.FirstOrDefault(x => x.Code == item.Product)?.Indexed,
+                "versions" or "versions" => Model.Versions.FirstOrDefault(x => x.Code == item.Product)?.Indexed,
+                "bgdl" => Model.Bgdls.FirstOrDefault(x => x.Code == item.Product)?.Indexed,
+                _ => throw new ArgumentOutOfRangeException() 
+            };
+
+
+            <a data-filter-file="@item.Flags" data-filter-parent="@child.Parent.Code" asp-page="/ViewGameSeqnList" asp-route-code="@item.Product" asp-route-file="@item.Flags" class="is-flex is-justify-content-start is-align-items-center is-mobile is-centered is-vcentered mb-3 p-1 game-item">
+                <figure class="image is-center is-64x64 mr-4 mb-0 m-1 has-shadow p-0 is-rounded">
+                    <img class="has-background-black is-rounded p-2 has-shadow-image" 
+                         src="@(child.Parent?.Logos?.FirstOrDefault(x => x.Type.Contains("svg"))?.URL ?? "/images/bt.svg")" alt="" style="width: 100%; height: 100%">
+                </figure>
+                <div>
+                    <div class="title is-size-4">@item.GetName()</div>
+                    <div class="subtitle is-size-6 has-text-grey">
+                        <span class="has-text-weight-bold">
+                            @item.Flags.ToTitle()
+                        </span>&nbsp;last updated&nbsp;
+                        <span class="has-text-weight-bold">
+                            @(indexItem?.ToString("MMMM dd, yyyy hh:mm tt") ?? "N/A")
+                        </span>
+                    </div>
+                </div>
+                <div style="margin-left: auto" class="mr-1 is-size-4">
+                    >
+                </div>
+            </a>
+        }
+    }
+</div>

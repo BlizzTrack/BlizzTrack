@@ -7,8 +7,7 @@ namespace Core.Services
 {
     public interface IGameChildren
     {
-        Task<List<Core.Models.GameChildren>> All();
-        
+        Task<List<Core.Models.GameChildren>> All(); 
         Task<Models.GameChildren> Get(string code);
         Task Add(Models.GameChildren child);
     }

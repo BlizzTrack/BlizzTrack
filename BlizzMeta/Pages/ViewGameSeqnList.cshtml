@@ -1,0 +1,55 @@
+﻿@page "/v1/products/{code}/{file}"
+
+@{
+    ViewData["Title"] = $"{Model.Children.Name} > {Model.File.ToTitle()}";
+
+    ViewData["Page_Title"] = $"{Model.Children.Name}";
+}
+
+@using BNetLib.Models
+@using Core.Extensions
+@using Core.Models
+@model BlizzMeta.Pages.ViewGameSeqnList
+
+<div class="columns">
+    <div class="column is-3">
+        <div class="box content">
+            @foreach (var seqn in Model.Seqns)
+            {
+                <a asp-page="/ViewGameSeqnList" asp-route-seqn="@seqn.Seqn"
+                   class="@(seqn.Seqn == Model.Seqn ? "is-active" : "") is-flex is-justify-content-start is-align-items-center is-mobile is-centered is-vcentered mb-3 p-1 game-item">
+                    <div>
+                        <div class="title is-size-4">@seqn.Seqn</div>
+                        <div class="subtitle is-size-6 has-text-grey">
+                            <span class="has-text-weight-bold">
+                                @(seqn.Indexed.ToString("MMMM dd, yyyy hh:mm tt"))
+                            </span>
+                        </div>
+                    </div>
+                    <div style="margin-left: auto" class="mr-1 is-size-4">
+                        >
+                    </div>
+                </a>
+            }
+        </div>
+    </div>
+    <div class="rows is-9">
+        <div class="column is-12">
+            <div class="box content">
+            </div>
+        </div>
+        <div class="column is-12">
+            <div class="box content p-0">
+                @{
+                    var content = Model.Content switch {
+                        Manifest<Versions[]> x => x.Raw,
+                        Manifest<BGDL[]> x => x.Raw,
+                        Manifest<CDN[]> x => x.Raw,
+                        _ => throw new NotSupportedException(),
+                    };
+                }
+                <pre style="border-radius: 6px;" class="has-background-dark has-text-light">@content</pre>
+            </div>
+        </div>
+    </div>
+</div>

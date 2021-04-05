@@ -18,6 +18,8 @@ namespace Core.Services
         Task<Manifest<CDN[]>> Single(string code, int? seqn);
 
         Task<List<SeqnType>> Seqn(string code);
+        
+        Task<List<Manifest<CDN[]>>> MultiBySeqn(List<int> toList);
     }
 
     public class CDNs : ICDNs
@@ -44,6 +46,11 @@ namespace Core.Services
             var data = await _dbContext.CDN.AsNoTracking().Select(x => new { x.Seqn, x.Code, x.Indexed }).OrderByDescending(x => x.Seqn).Where(x => x.Code.ToLower() == code.ToLower()).ToListAsync();
 
             return data.Select(x => new SeqnType(x.Code, x.Seqn, x.Indexed)).ToList();
+        }
+
+        public async Task<List<Manifest<CDN[]>>> MultiBySeqn(List<int> seqns)
+        {
+            return await _dbContext.CDN.AsNoTracking().Include(x => x.Config).Where(x => seqns.Contains(x.Seqn)).ToListAsync();
         }
 
         public async Task<Manifest<CDN[]>> Single(string code, int? seqn)

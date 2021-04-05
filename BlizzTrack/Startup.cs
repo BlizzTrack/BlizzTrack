@@ -91,6 +91,11 @@ namespace BlizzTrack
             services.Configure<MvcNewtonsoftJsonOptions>(x =>
                 x.SerializerSettings.NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore);
 
+            services.AddDbContext<DBContext>(options =>
+                options.UseNpgsql(
+                        Configuration.GetConnectionString("ConnectionString"), o => { o.UseTrigrams(); })
+                    .EnableSensitiveDataLogging());
+            
             services.AddDefaultIdentity<User>(options =>
                 {
                     options.SignIn.RequireConfirmedAccount = false;
@@ -98,12 +103,7 @@ namespace BlizzTrack
                 })
                 .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<DBContext>();
-
-            services.AddDbContext<DBContext>(options =>
-                options.UseNpgsql(
-                        Configuration.GetConnectionString("ConnectionString"), o => { o.UseTrigrams(); })
-                    .EnableSensitiveDataLogging());
-
+            
             services.AddDataProtection().PersistKeysToDbContext<DBContext>();
             
             services.AddMvc(options => options.EnableEndpointRouting = false)

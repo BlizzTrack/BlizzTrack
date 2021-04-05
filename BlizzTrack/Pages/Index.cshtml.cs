@@ -26,7 +26,7 @@ namespace BlizzTrack.Pages
         private readonly IGameCompanies _gameCompanies;
         private readonly DBContext _dbContext;
 
-        public IndexModel(ISummary summary, IGameConfig gameConfig, IVersions versions,DBContext dbContext, IBGDL bgdl, IGameCompanies gameCompanies)
+        public IndexModel(ISummary summary, IGameConfig gameConfig, IVersions versions, DBContext dbContext, IBGDL bgdl, IGameCompanies gameCompanies)
         {
             _summary = summary;
             _gameConfig = gameConfig;

@@ -15,7 +15,7 @@ namespace Core.Models
         public string Name { get; set; } = string.Empty;
 
         [Column(TypeName = "jsonb")]
-        public List<Icons> Logos { get; set; } = new List<Icons>();
+        public List<Icons> Logos { get; set; } = new();
 
         public string Website { get; set; }
 
@@ -37,9 +37,7 @@ namespace Core.Models
 
         public string GetName()
         {
-            if (!string.IsNullOrEmpty(OriginalName)) return OriginalName;
-
-            return System.IO.Path.GetFileName(URL);
+            return !string.IsNullOrEmpty(OriginalName) ? OriginalName : System.IO.Path.GetFileName(URL);
         }
     }
 

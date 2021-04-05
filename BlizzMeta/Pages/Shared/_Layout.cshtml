@@ -1,0 +1,66 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - BlizzMeta</title>
+    <link rel="stylesheet" href="~/lib/bulma/css/bulma.min.css" asp-append-version="true"  />
+    <link rel="stylesheet" href="~/lib/overlayscrollbars/css/OverlayScrollbars.min.css" asp-append-version="true">
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+<header class="hero is-primary">
+    <div class="hero-body">
+        <div class="columns">
+            <div class="column is-12">
+                <div class="container content">
+                    <h1 class="title">
+                        @(ViewData["Page_Title"] ?? "Welcome To BlizzMeta")
+                    </h1>
+                    <h3 class="subtitle">
+                        @(ViewData["Page_Subtitle"] ?? "List of all indexed Battle.net game manifest")
+                    </h3>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<section class="section">
+    <div class="container">
+        <div class="columns">
+            <div class="column is-12">
+                <div class="content is-medium">
+                    @RenderBody()
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<footer class="footer">
+    <hr>
+    <div class="columns is-mobile is-centered">
+        <div class="field is-grouped is-grouped-multiline">
+            <div class="control">
+                <div class="tags has-addons">
+                    <a class="tag is-link" href="https://twitter.com/helba_the_ai" rel="nofollow">Created By</a>
+                    <span class="tag is-info">Helba_The_AI</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>
+
+@await RenderSectionAsync("Scripts", required: false)
+
+<script src="~/lib/overlayscrollbars/js/OverlayScrollbars.min.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+	//The first argument are the elements to which the plugin shall be initialized
+	//The second argument has to be at least a empty object or a object with your desired options
+	OverlayScrollbars(document.querySelectorAll("body"), { });
+});
+</script>
+</body>
+</html>

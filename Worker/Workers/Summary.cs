@@ -80,28 +80,27 @@ namespace Worker.Workers
                         var parent = await parents.Get(item.Product) ?? await parents.Get("unknown");
 
                         var gameChildData =
-                            await dbContext.GameChildren.FirstOrDefaultAsync(x => x.Code == item.Product, cancellationToken: cancellationToken);
-                        
-                        await AddItemToData(item, latest.Seqn, dbContext, cancellationToken);
-                        
-                        if (gameChildData == null)
-                        {
-                            var config = await dbContext.GameConfigs.FirstOrDefaultAsync(
-                                x => x.Code == item.Product, cancellationToken);
-                            var name = string.IsNullOrEmpty(config?.Name)
-                                ? BNetLib.Helpers.GameName.Get(item.Product)
-                                : config?.Name;
+                            await dbContext.GameChildren.FirstOrDefaultAsync(x => x.Code == item.Product,
+                                cancellationToken);
 
-                            await dbContext.GameChildren.AddAsync(new GameChildren
-                            {
-                                Code = item.Product,
-                                ParentCode = parent.Code,
-                                Name = name,
-                                GameConfig = config,
-                                Slug = name.Slugify()
-                            }, cancellationToken);
-                        }
-                        
+                        await AddItemToData(item, latest.Seqn, dbContext, cancellationToken);
+
+                        if (gameChildData != null) continue;
+
+                        var config = await dbContext.GameConfigs.FirstOrDefaultAsync(
+                            x => x.Code == item.Product, cancellationToken);
+                        var name = string.IsNullOrEmpty(config?.Name)
+                            ? BNetLib.Helpers.GameName.Get(item.Product)
+                            : config?.Name;
+
+                        await dbContext.GameChildren.AddAsync(new GameChildren
+                        {
+                            Code = item.Product,
+                            ParentCode = parent.Code,
+                            Name = name,
+                            GameConfig = config,
+                            Slug = name.Slugify()
+                        }, cancellationToken);
                     }
 
                     await dbContext.SaveChangesAsync(cancellationToken);
@@ -226,7 +225,6 @@ namespace Worker.Workers
                             _logger.LogDebug($"Skipping {code}:{msg.Seqn}:{msg.Flags}");
                             return;
                         }
-
 
                         var (value, s, r) = await GetMetaData<BNetLib.Models.BGDL>(msg);
 
