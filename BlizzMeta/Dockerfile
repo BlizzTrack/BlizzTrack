@@ -6,16 +6,16 @@ EXPOSE 80
 
 FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build
 WORKDIR /src
-COPY ["RawTrack/RawTrack.csproj", "RawTrack/"]
-RUN dotnet restore "RawTrack/RawTrack.csproj"
+COPY ["BlizzMeta/BlizzMeta.csproj", "BlizzMeta/"]
+RUN dotnet restore "BlizzMeta/BlizzMeta.csproj"
 COPY . .
-WORKDIR "/src/RawTrack"
-RUN dotnet build "RawTrack.csproj" -c Release -o /app/build
+WORKDIR "/src/BlizzMeta"
+RUN dotnet build "BlizzMeta.csproj" -c Release -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "RawTrack.csproj" -c Release -o /app/publish
+RUN dotnet publish "BlizzMeta.csproj" -c Release -o /app/publish
 
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "RawTrack.dll"]
+ENTRYPOINT ["dotnet", "BlizzMeta.dll"]
