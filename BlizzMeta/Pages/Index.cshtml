@@ -4,6 +4,7 @@
 @{
     ViewData["Title"] = "Home page";
 }
+
 <div class="box content">
     @foreach (var child in Model.Children)
     {
@@ -15,8 +16,7 @@
                 "bgdl" => Model.Bgdls.FirstOrDefault(x => x.Code == item.Product)?.Indexed,
                 _ => throw new ArgumentOutOfRangeException() 
             };
-
-
+            
             <a data-filter-file="@item.Flags" data-filter-parent="@child.Parent.Code" asp-page="/ViewGameSeqnList" asp-route-code="@item.Product" asp-route-file="@item.Flags" class="is-flex is-justify-content-start is-align-items-center is-mobile is-centered is-vcentered mb-3 p-1 game-item">
                 <figure class="image is-center is-64x64 mr-4 mb-0 m-1 has-shadow p-0 is-rounded">
                     <img class="has-background-black is-rounded p-2 has-shadow-image" 

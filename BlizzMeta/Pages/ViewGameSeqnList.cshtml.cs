@@ -33,6 +33,9 @@ namespace BlizzMeta.Pages
         [BindProperty(SupportsGet = true, Name = "seqn")]
         public int? Seqn { get; set; }
 
+        [BindProperty(SupportsGet = true, Name = "view")]
+        public string View { get; set; } = "full";
+
         public GameChildren Children;
 
         public List<SeqnType> Seqns;
@@ -46,8 +49,9 @@ namespace BlizzMeta.Pages
                 "versions" or "version" => await _versions.Seqn(Code),
                 "cdns" or "cdn" => await _cdns.Seqn(Code),
                 "bgdl" => await _bgdl.Seqn(Code),
-                _ => throw new NotSupportedException()
+                _ => null
             };
+            if (Seqns == null) return NotFound();
 
             Seqn ??= Seqns.First().Seqn;
             
@@ -56,8 +60,9 @@ namespace BlizzMeta.Pages
                 "versions" or "version" => await _versions.Single(Code, Seqn),
                 "cdns" or "cdn" => await _cdns.Single(Code, Seqn),
                 "bgdl" => await _bgdl.Single(Code, Seqn),
-                _ => throw new NotSupportedException()
+                _ => null
             };
+            if (Content == null) return NotFound();
             
             Children = await _gameChildren.Get(Code);
             if (Children == null)

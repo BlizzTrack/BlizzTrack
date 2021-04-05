@@ -3,12 +3,13 @@
 @{
     ViewData["Title"] = $"{Model.Children.Name} > {Model.File.ToTitle()}";
 
-    ViewData["Page_Title"] = $"{Model.Children.Name}";
+    ViewData["Page_Title"] = "Viewing manifest history";
 }
 
 @using BNetLib.Models
 @using Core.Extensions
 @using Core.Models
+@using Newtonsoft.Json
 @model BlizzMeta.Pages.ViewGameSeqnList
 
 <div class="columns">
@@ -33,22 +34,101 @@
             }
         </div>
     </div>
-    <div class="rows is-9">
+    <div class="column rows is-9">
         <div class="column is-12">
-            <div class="box content">
+            <div class="box content p-2">
+                <div class="is-flex is-justify-content-start is-align-items-center is-mobile is-centered is-vcentered mb-0 p-1 game-item">
+                    <figure class="image is-center is-64x64 mr-4 mb-0 m-1 has-shadow p-0 is-rounded">
+                        <img class="has-background-black is-rounded p-2 has-shadow-image" 
+                             src="@(Model.Children.Parent?.Logos?.FirstOrDefault(x => x.Type.Contains("svg"))?.URL ?? "/images/bt.svg")" alt="" style="width: 100%; height: 100%">
+                    </figure>
+                    <div>
+                        <div class="title is-size-4">@Model.Children.Name</div>
+                        <div class="subtitle is-size-6 has-text-grey">
+                            Last updated&nbsp;
+                            <span class="has-text-weight-bold">
+                                @{
+                                    var indexItem = Model.Content switch {
+                                        Manifest<Versions[]> x => x.Indexed,
+                                        Manifest<BGDL[]> x => x.Indexed,
+                                        Manifest<CDN[]> x => x.Indexed,
+                                        _ => throw new NotSupportedException(),
+                                        };
+                                }
+                                @(indexItem.ToString("MMMM dd, yyyy hh:mm tt") ?? "N/A")
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="column is-12 py-0">
+            <div class="tabs p-0 is-toggle is-fullwidth">
+              <ul class="m-0">
+                  <li class="@(Model.View == "full" ? "is-active" : "") m-0">
+                      <a asp-page="/ViewGameSeqnList"
+                         asp-route-code="@Model.Code"
+                         asp-route-file="@Model.File"
+                         asp-route-seqn="@Model.Seqn">
+                          Full Manifest
+                      </a>
+                  </li>
+                  <li class="@(Model.View == "simple" ? "is-active" : "") m-0">
+                      <a asp-page="/ViewGameSeqnList"
+                         asp-route-code="@Model.Code"
+                         asp-route-file="@Model.File"
+                         asp-route-seqn="@Model.Seqn"
+                         asp-route-view="simple">
+                          Simple Manifest
+                      </a>
+                  </li>
+                  <li class="@(Model.View == "json" ? "is-active" : "") m-0">
+                      <a asp-page="/ViewGameSeqnList"
+                         asp-route-code="@Model.Code"
+                         asp-route-file="@Model.File"
+                         asp-route-seqn="@Model.Seqn"
+                         asp-route-view="json">
+                          Json Manifest
+                      </a>
+                  </li>
+              </ul>
             </div>
         </div>
         <div class="column is-12">
             <div class="box content p-0">
-                @{
+                @if (Model.View.ToLower() != "json")
+                {
                     var content = Model.Content switch {
                         Manifest<Versions[]> x => x.Raw,
                         Manifest<BGDL[]> x => x.Raw,
-                        Manifest<CDN[]> x => x.Raw,
-                        _ => throw new NotSupportedException(),
+                        Manifest<CDN[]> x => x.Raw
                         };
+
+                    <pre style = "border-radius: 6px; margin: 0; max-width: 100%" class="has-background-dark has-text-light p-3">
+@if (Model.View.ToLower() == "simple")
+{
+    var text = content.Split("\n");
+    var boundary = text.FirstOrDefault(x => x.Trim().StartsWith("Content-Type:"))?.Split(';').FirstOrDefault(x => x.Trim().StartsWith("boundary="))?.Split('"')[1].Trim();
+    var data = text.SkipWhile(x => x.Trim() != "--" + boundary).Skip(1).TakeWhile(x => x.Trim() != "--" + boundary).Skip(1);
+
+    @string.Join("\n", data).Trim()
+}
+else
+{
+    @content
+}
+</pre>
                 }
-                <pre style="border-radius: 6px;" class="has-background-dark has-text-light p-3">@content</pre>
+                else
+                {
+                    object content = Model.Content switch {
+                        Manifest<Versions[]> x => x.Content,
+                        Manifest<BGDL[]> x => x.Content,
+                        Manifest<CDN[]> x => x.Content
+                        };
+                    
+                    <pre style = "border-radius: 6px; margin: 0; max-width: 100%" class="has-background-dark has-text-light p-3">@JsonConvert.SerializeObject(content, Formatting.Indented)</pre>
+                }
             </div>
         </div>
     </div>
