@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.IO;
+using System.Threading.Channels;
 using System.Threading.Tasks;
 using Core.Models;
 using Microsoft.EntityFrameworkCore;
@@ -64,8 +65,13 @@ namespace Notifications
                         )
                     );
 
+                    var channel = Channel.CreateUnbounded<Notification>();
+                    services.AddSingleton(x => channel.Writer);
+                    services.AddSingleton(x => channel.Reader);
+                    
                     services.AddSingleton<Twitter>();
                     services.AddHostedService<Notify>();
+                    services.AddHostedService<Sender>();
                 })
                 .ConfigureLogging((hostingContext, logging) =>
                 {

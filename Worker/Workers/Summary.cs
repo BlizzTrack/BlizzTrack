@@ -88,12 +88,14 @@ namespace Worker.Workers
                         var gameChildData =
                             await dbContext.GameChildren.FirstOrDefaultAsync(x => x.Code == item.Product,
                                 cancellationToken);
-
+                        
+                        /*
                         if (await AddItemToData(item, latest.Seqn, dbContext, cancellationToken, gameChildData))
                         {
                             updated.Add((item.Product, item.Flags, item.Seqn));
                         }
-
+                        */
+                        
                         if (gameChildData == null)
                         {
 
