@@ -34,7 +34,7 @@ namespace Notifications.services
                 }
                 
                 _logger.LogInformation($"Got channel event: {arg.NotificationType}");
-
+                
                 switch (arg.NotificationType)
                 {
                     case NotificationType.Versions:
@@ -42,6 +42,8 @@ namespace Notifications.services
                         break;
                     case NotificationType.PatchNotes:
                         await _twitter.PublishPatchNotes(arg.Payload);
+                        break;
+                    case NotificationType.Ping:
                         break;
                     default:
                         throw new ArgumentOutOfRangeException($"{arg.NotificationType} doesn't exist");

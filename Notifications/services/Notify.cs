@@ -38,7 +38,7 @@ namespace Notifications.services
                         }
                     }, cancellationToken);
                     
-                    await Task.Delay(TimeSpan.FromSeconds(5), cancellationToken);
+                    await Task.Delay(TimeSpan.FromSeconds(15), cancellationToken);
                 }
             }, cancellationToken);
             

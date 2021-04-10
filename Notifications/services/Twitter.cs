@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Core.Models;
 using Core.Services;
 using Microsoft.Extensions.Logging;
 using Tweetinvi;
@@ -17,7 +16,6 @@ namespace Notifications.services
         private readonly IBGDL _bgdl;
         private readonly IGameChildren _gameChildren;
         private readonly IGameParents _gameParents;
-        private readonly DBContext _dbContext;
 
         public Twitter(TwitterClient twitterClient, ILogger<Twitter> logger, IVersions versions, IBGDL bgdl, IGameChildren gameChildren, IGameParents gameParents)
         {
@@ -42,20 +40,29 @@ namespace Notifications.services
                 "bgdl" => (await _bgdl.Previous(code))?.Seqn,
                 _ => -1
             };
-    
-            ITweet tweet;
-            if (previousSeqn != null)
-            {
-                if (previousSeqn == -1) return;
-                
-                tweet = await _twitterClient.Tweets.PublishTweetAsync(
-                    $"{child.Name} updated from seqn {previousSeqn} to seqn {data["seqn"]}\nhttps://blizztrack.com/v/{child.Slug}/{flag.ToLower()}?latest-seqn={data["seqn"]}");
-            } else {
-                tweet = await _twitterClient.Tweets.PublishTweetAsync(
-                    $"{child.Name} was just updated to seqn {data["seqn"]}\nhttps://blizztrack.com/v/{child.Slug}/{flag.ToLower()}?latest-seqn={data["seqn"]}");
-            }
 
-            _logger.LogInformation($"Sent new tweet for {code}: {tweet.IdStr}");
+            try
+            {
+                ITweet tweet;
+                if (previousSeqn != null)
+                {
+                    if (previousSeqn == -1) return;
+
+                    tweet = await _twitterClient.Tweets.PublishTweetAsync(
+                        $"{child.Name} updated from seqn {previousSeqn} to seqn {data["seqn"]}\nhttps://blizztrack.com/v/{child.Slug}/{flag.ToLower()}?latest-seqn={data["seqn"]}");
+                }
+                else
+                {
+                    tweet = await _twitterClient.Tweets.PublishTweetAsync(
+                        $"{child.Name} was just updated to seqn {data["seqn"]}\nhttps://blizztrack.com/v/{child.Slug}/{flag.ToLower()}?latest-seqn={data["seqn"]}");
+                }
+
+                _logger.LogInformation($"Sent new tweet for {code}: {tweet.IdStr}");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogCritical($"Failed to send to twitter: {ex}");
+            }
         }
 
         public async Task PublishPatchNotes(Dictionary<string, object> data)
@@ -63,15 +70,22 @@ namespace Notifications.services
             var code = (string) data["code"];
             var flag = (string) data["flags"];
             var time = (long) data["index_time"];
-            
+
             var child = await _gameChildren.Get(code);
 
             var parent = await _gameParents.Get(code);
-            
-            var tweet = await _twitterClient.Tweets.PublishTweetAsync(
-                $"{child.Name} has new patch notes\nhttps://blizztrack.com/patch-notes/{parent.Slug}/{flag.ToLower()}?build_time={time}");
 
-            _logger.LogInformation($"Sent new tweet for {code}: {tweet.IdStr}");
+            try
+            {
+                var tweet = await _twitterClient.Tweets.PublishTweetAsync(
+                    $"{child.Name} has new patch notes\nhttps://blizztrack.com/patch-notes/{parent.Slug}/{flag.ToLower()}?build_time={time}");
+
+                _logger.LogInformation($"Sent new tweet for {code}: {tweet.IdStr}");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogCritical($"Failed to send to twitter: {ex}");
+            }
         }
     }
 }
