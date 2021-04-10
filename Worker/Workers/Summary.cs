@@ -122,7 +122,8 @@ namespace Worker.Workers
                         
                         if (await AddItemToData(item, latest.Seqn, dbContext, cancellationToken, gameChildData))
                         {
-                            updated.Add((item.Product, item.Flags, item.Seqn));
+                            if(!updated.Exists(x => x.code == item.Product && x.seqn == item.Seqn && x.file == item.Flags))
+                                updated.Add((item.Product, item.Flags, item.Seqn));
                         }
                     }
 
@@ -185,9 +186,9 @@ namespace Worker.Workers
                                 
                                 if (await AddItemToData(item, latest.Seqn, dbContext, cancellationToken, gameChildData))
                                 {
-                                    updated.Add((item.Product, item.Flags, item.Seqn));
+                                    if(!updated.Exists(x => x.code == item.Product && x.seqn == item.Seqn && x.file == item.Flags))
+                                        updated.Add((item.Product, item.Flags, item.Seqn));
                                 }
-
                             }
                             
                             await dbContext.SaveChangesAsync(cancellationToken);
@@ -209,6 +210,8 @@ namespace Worker.Workers
                 _logger.LogDebug($"Version Tracking took {elapsedTime}");
 
                 // Check every 5 seconds, at some point this might need to be proxied again, but until this i realllllllllllllllllllllllllly don't care
+                updated.Clear();
+                
                 await Task.Delay(TimeSpan.FromSeconds(5), cancellationToken);
             }
         }

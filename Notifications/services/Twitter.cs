@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using Core.Models;
 using Core.Services;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Tweetinvi;
 using Tweetinvi.Models;
@@ -16,8 +19,9 @@ namespace Notifications.services
         private readonly IBGDL _bgdl;
         private readonly IGameChildren _gameChildren;
         private readonly IGameParents _gameParents;
+        private readonly DBContext _dbContext;
 
-        public Twitter(TwitterClient twitterClient, ILogger<Twitter> logger, IVersions versions, IBGDL bgdl, IGameChildren gameChildren, IGameParents gameParents)
+        public Twitter(TwitterClient twitterClient, ILogger<Twitter> logger, IVersions versions, IBGDL bgdl, IGameChildren gameChildren, IGameParents gameParents, DBContext dbContext)
         {
             _twitterClient = twitterClient;
             _logger = logger;
@@ -25,13 +29,32 @@ namespace Notifications.services
             _bgdl = bgdl;
             _gameChildren = gameChildren;
             _gameParents = gameParents;
+            _dbContext = dbContext;
         }
 
         public async Task Publish(Dictionary<string, object> data)
         {
             var code = (string) data["code"];
             var flag = (string) data["flags"];
+            var seqn = (long) data["seqn"];
 
+            if (await _dbContext.NotificationHistories.Where(x =>
+                x.Seqn == seqn.ToString() && x.NotificationType == NotificationType.Versions && x.Code == code &&
+                x.File == flag).FirstOrDefaultAsync() != null)
+            {
+                return;
+            }
+
+            await _dbContext.NotificationHistories.AddAsync(new NotificationHistory()
+            {
+                NotificationType = NotificationType.Versions,
+                Code = code,
+                Sent = DateTime.UtcNow,
+                File = flag,
+                Seqn = $"{seqn}",
+            });
+            await _dbContext.SaveChangesAsync();
+            
             var child = await _gameChildren.Get(code);
             
             var previousSeqn = flag switch
@@ -70,6 +93,23 @@ namespace Notifications.services
             var code = (string) data["code"];
             var flag = (string) data["flags"];
             var time = (long) data["index_time"];
+            
+            if (await _dbContext.NotificationHistories.Where(x =>
+                x.Seqn == time.ToString() && x.NotificationType == NotificationType.PatchNotes && x.Code == code &&
+                x.File == flag).FirstOrDefaultAsync() != null)
+            {
+                return;
+            }
+
+            await _dbContext.NotificationHistories.AddAsync(new NotificationHistory()
+            {
+                NotificationType = NotificationType.PatchNotes,
+                Code = code,
+                Sent = DateTime.UtcNow,
+                File = flag,
+                Seqn = $"{time}",
+            });
+            await _dbContext.SaveChangesAsync();
 
             var child = await _gameChildren.Get(code);
 

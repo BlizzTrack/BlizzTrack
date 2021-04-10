@@ -13,7 +13,7 @@ namespace Notifications.services
         private readonly Twitter _twitter;
         private readonly ILogger<Sender> _logger;
         private readonly ChannelReader<Notification> _reader;
-
+        
         public Sender(Twitter twitter, ILogger<Sender> logger, ChannelReader<Notification> reader)
         {
             _twitter = twitter;
@@ -25,7 +25,7 @@ namespace Notifications.services
         {
             while (!cancellationToken.IsCancellationRequested)
             {
-                _logger.LogInformation($"Waiting for channel events");
+                _logger.LogInformation("Waiting for channel events");
                 var arg = await _reader.ReadAsync(cancellationToken);
                 if (arg.NotificationType == NotificationType.Ping)
                 {

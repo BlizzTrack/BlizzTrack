@@ -19,6 +19,7 @@ namespace Core.Models
         public DbSet<Assets> Assets { get; set; }
         
         public DbSet<DataProtectionKey> DataProtectionKeys { get; set; }
+        public DbSet<NotificationHistory> NotificationHistories { get; set; }
 
         public DBContext(DbContextOptions<DBContext> options) : base(options)
         {
