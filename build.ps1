@@ -16,6 +16,10 @@ Switch ($param2) {
 		docker build --file '.\BlizzMeta\Dockerfile' . --tag registry.gitlab.com/blizztrack/blizztrack-v2/meta:$param1
 		docker push registry.gitlab.com/blizztrack/blizztrack-v2/meta:$param1
 	}
+	"notify" {
+		docker build --file '.\Notifications\Dockerfile' . --tag registry.gitlab.com/blizztrack/blizztrack-v2/notify:$param1
+		docker push registry.gitlab.com/blizztrack/blizztrack-v2/notify:$param1
+	}
 	default {
 		docker build --file '.\Worker\Dockerfile' . --tag registry.gitlab.com/blizztrack/blizztrack-v2/worker:$param1
 		docker push registry.gitlab.com/blizztrack/blizztrack-v2/worker:$param1
@@ -23,5 +27,7 @@ Switch ($param2) {
 		docker push registry.gitlab.com/blizztrack/blizztrack-v2:$param1
 		docker build --file '.\BlizzMeta\Dockerfile' . --tag registry.gitlab.com/blizztrack/blizztrack-v2/meta:$param1
 		docker push registry.gitlab.com/blizztrack/blizztrack-v2/meta:$param1
+		docker build --file '.\Notifications\Dockerfile' . --tag registry.gitlab.com/blizztrack/blizztrack-v2/notify:$param1
+		docker push registry.gitlab.com/blizztrack/blizztrack-v2/notify:$param1
 	}
 }

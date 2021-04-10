@@ -6,7 +6,7 @@ namespace BlizzTrack.Helpers
     {
         public static string PrettyJson(string unPrettyJson)
         {
-            var options = new JsonSerializerOptions()
+            var options = new JsonSerializerOptions
             {
                 WriteIndented = true
             };

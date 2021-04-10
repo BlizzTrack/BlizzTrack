@@ -23,30 +23,34 @@ namespace BlizzTrack.Helpers
         {
             foreach (var node in document.Descendants())
             {
-                if (node is Block)
+                switch (node)
                 {
-                    if (node is Markdig.Extensions.Tables.Table)
-                    {
+                    case Markdig.Extensions.Tables.Table:
                         node.GetAttributes().AddClass("table");
-                    }
-                    else if (node is QuoteBlock)
-                    {
+                        break;
+                    case QuoteBlock:
                         node.GetAttributes().AddClass("blockquote");
-                    }
-                    else if (node is Markdig.Extensions.Figures.Figure)
-                    {
+                        break;
+                    case Markdig.Extensions.Figures.Figure:
                         node.GetAttributes().AddClass("figure");
-                    }
-                    else if (node is Markdig.Extensions.Figures.FigureCaption)
+                        break;
+                    case Block:
                     {
-                        node.GetAttributes().AddClass("figure-caption");
+                        if (node is Markdig.Extensions.Figures.FigureCaption)
+                        {
+                            node.GetAttributes().AddClass("figure-caption");
+                        }
+
+                        break;
                     }
-                }
-                else if (node is Inline)
-                {
-                    if (node is LinkInline {IsImage: true} link)
+                    case Inline:
                     {
-                        link.GetAttributes().AddClass("img-fluid");
+                        if (node is LinkInline {IsImage: true} link)
+                        {
+                            link.GetAttributes().AddClass("img-fluid");
+                        }
+
+                        break;
                     }
                 }
             }

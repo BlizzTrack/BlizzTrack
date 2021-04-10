@@ -10,6 +10,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using StackExchange.Redis.Extensions.Core.Abstractions;
 
 namespace Worker.Workers
 {
@@ -42,12 +43,14 @@ namespace Worker.Workers
     public class PatchNotes
     {
         private readonly ILogger<PatchNotes> _logger;
+        private readonly IRedisDatabase _redisDatabase;
         private readonly IServiceScopeFactory _serviceScope;
 
-        public PatchNotes(IServiceScopeFactory serviceScope, ILogger<PatchNotes> logger)
+        public PatchNotes(IServiceScopeFactory serviceScope, ILogger<PatchNotes> logger, IRedisDatabase redisDatabase)
         {
             _serviceScope = serviceScope;
             _logger = logger;
+            _redisDatabase = redisDatabase;
         }
 
         internal async void Run(CancellationToken cancellationToken)
@@ -87,7 +90,7 @@ namespace Worker.Workers
                         x.Type == item.Type && 
                         x.Created == item.Created && 
                         item.Language == x.Language,
-                    cancellationToken: cancellationToken);
+                    cancellationToken);
 
                     if (exist != null)
                     {
@@ -104,6 +107,20 @@ namespace Worker.Workers
                     {
                         dbContext.Add(item);
                         hasChanges = true;
+                        
+                        if (item.Language == "en-us")
+                        {
+                            await _redisDatabase.PublishAsync("event_notifications", new Notification
+                            {
+                                NotificationType = NotificationType.PatchNotes,
+                                Payload = new Dictionary<string, object>
+                                {
+                                    { "code", item.Code },
+                                    { "flags", item.Type },
+                                    { "index_time", item.Created.Ticks }
+                                }
+                            });
+                        }
                     }
                 }
 

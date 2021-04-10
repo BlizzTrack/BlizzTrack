@@ -14,6 +14,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Core.Extensions;
+using StackExchange.Redis.Extensions.Core.Abstractions;
 using Worker.Events;
 
 namespace Worker.Workers
@@ -50,13 +51,16 @@ namespace Worker.Workers
         private readonly ILogger<Summary> _logger;
         private readonly IServiceScopeFactory _serviceScope;
         private readonly ConcurrentQueue<ConfigUpdate> _channelWriter;
+        private readonly IRedisDatabase _redisDatabase;
 
-        public Summary(BNetClient bNetClient, ILogger<Summary> logger, IServiceScopeFactory scopeFactory, ConcurrentQueue<ConfigUpdate> channelWriter)
+        public Summary(BNetClient bNetClient, ILogger<Summary> logger, IServiceScopeFactory scopeFactory,
+            ConcurrentQueue<ConfigUpdate> channelWriter, IRedisDatabase redisDatabase)
         {
             _bNetClient = bNetClient;
             _logger = logger;
             _serviceScope = scopeFactory;
             _channelWriter = channelWriter;
+            _redisDatabase = redisDatabase;
         }
 
         public async void Run(CancellationToken cancellationToken)
@@ -72,6 +76,8 @@ namespace Worker.Workers
                 
                 var dbContext = sc.ServiceProvider.GetRequiredService<DBContext>();
 
+                var updated = new List<(string code, string file, int seqn)>();
+                
                 var latest = await summary.Latest();
                 if (firstRun)
                 {
@@ -83,7 +89,10 @@ namespace Worker.Workers
                             await dbContext.GameChildren.FirstOrDefaultAsync(x => x.Code == item.Product,
                                 cancellationToken);
 
-                        await AddItemToData(item, latest.Seqn, dbContext, cancellationToken);
+                        if (await AddItemToData(item, latest.Seqn, dbContext, cancellationToken, gameChildData))
+                        {
+                            updated.Add((item.Product, item.Flags, item.Seqn));
+                        }
 
                         if (gameChildData != null) continue;
 
@@ -93,18 +102,26 @@ namespace Worker.Workers
                             ? BNetLib.Helpers.GameName.Get(item.Product)
                             : config?.Name;
 
+                        var slugInUse = await dbContext.GameChildren.Where(x => x.Slug == name.Slugify())
+                            .FirstOrDefaultAsync(cancellationToken);
+                        
                         await dbContext.GameChildren.AddAsync(new GameChildren
                         {
                             Code = item.Product,
                             ParentCode = parent.Code,
                             Name = name,
                             GameConfig = config,
-                            Slug = name.Slugify()
+                            Slug = slugInUse == null ? name.Slugify() : item.Product
                         }, cancellationToken);
                     }
 
                     await dbContext.SaveChangesAsync(cancellationToken);
 
+                    foreach (var (code, file, seqn) in updated)
+                    {
+                        await SendTwitterAlert(file, code, seqn);
+                    }
+                    
                     firstRun = false;
                 }
 
@@ -134,7 +151,10 @@ namespace Worker.Workers
                                 var gameChildData =
                                     await dbContext.GameChildren.FirstOrDefaultAsync(x => x.Code == item.Product, cancellationToken);
 
-                                await AddItemToData(item, latest.Seqn, dbContext, cancellationToken);
+                                if (await AddItemToData(item, latest.Seqn, dbContext, cancellationToken, gameChildData))
+                                {
+                                    updated.Add((item.Product, item.Flags, item.Seqn));
+                                }
                                 
                                 if (gameChildData == null)
                                 {
@@ -142,18 +162,26 @@ namespace Worker.Workers
                                         x => x.Code == item.Product, cancellationToken);
                                     var name = string.IsNullOrEmpty(config?.Name) ? BNetLib.Helpers.GameName.Get(item.Product) : config?.Name;
 
+                                    var slugInUse = await dbContext.GameChildren.Where(x => x.Slug == name.Slugify())
+                                        .FirstOrDefaultAsync(cancellationToken);
+                                    
                                     await dbContext.GameChildren.AddAsync(new GameChildren
                                     {
                                         Code = item.Product,
                                         ParentCode = parent.Code,
                                         Name = name,
                                         GameConfig = config,
-                                        Slug = name.Slugify()
+                                        Slug = slugInUse == null ? name.Slugify() : item.Product
                                     }, cancellationToken);
                                 }
                             }
-
+                            
                             await dbContext.SaveChangesAsync(cancellationToken);
+                            
+                            foreach (var (code, file, seqn) in updated)
+                            {
+                                await SendTwitterAlert(file, code, seqn);
+                            }
                         }
                         catch (Exception ex)
                         {
@@ -171,7 +199,7 @@ namespace Worker.Workers
             }
         }
 
-        private async Task AddItemToData(BNetLib.Models.Summary msg, int parentSeqn, DBContext db, CancellationToken cancellationToken)
+        private async Task<bool> AddItemToData(BNetLib.Models.Summary msg, int parentSeqn, DBContext db, CancellationToken cancellationToken, GameChildren owner)
         {
             var code = msg.Product;
 
@@ -188,7 +216,7 @@ namespace Worker.Workers
                         if (exist != null)
                         {
                             _logger.LogDebug($"Skipping {code}:{msg.Seqn}:{msg.Flags}");
-                            return;
+                            return false;
                         }
 
                         var (value, s, r) = await GetMetaData<BNetLib.Models.Versions>(msg);
@@ -206,7 +234,7 @@ namespace Worker.Workers
                         if (exist != null)
                         {
                             _logger.LogDebug($"Skipping {code}:{msg.Seqn}:{msg.Flags}");
-                            return;
+                            return false;
                         }
 
                         var (value, s, r) = await GetMetaData<BNetLib.Models.CDN>(msg);
@@ -223,7 +251,7 @@ namespace Worker.Workers
                         if (exist != null)
                         {
                             _logger.LogDebug($"Skipping {code}:{msg.Seqn}:{msg.Flags}");
-                            return;
+                            return false;
                         }
 
                         var (value, s, r) = await GetMetaData<BNetLib.Models.BGDL>(msg);
@@ -235,14 +263,14 @@ namespace Worker.Workers
                     }
                 default:
                     _logger.LogCritical($"Unknown flag for {code}:{msg.Seqn}:{msg.Flags}");
-                    return;
+                    return false;
             }
 
             _logger.LogInformation($"We didn't skip: {code}-{msg.Seqn}-{msg.Flags}");
 
             // Update the config for only games we detect changes for
 
-            if (seqn == -1) return;
+            if (seqn == -1) return false;
 
             switch (data)
             {
@@ -276,9 +304,9 @@ namespace Worker.Workers
                                 "bts" => ver.FirstOrDefault(x => x.Region == "launcher"),
                                 _ => ver.FirstOrDefault(x => x.Region == "us")
                             };
-
+                            
                             if (config is not null)
-                                await CheckIfEncrypted(msg, config.Productconfig, db, _logger, cancellationToken);
+                                await CheckIfEncrypted(msg, config.Productconfig, db, _logger, cancellationToken, owner);
                         }
 
                         var f = Manifest<BNetLib.Models.Versions[]>.Create(seqn, code, ver.ToArray());
@@ -289,6 +317,7 @@ namespace Worker.Workers
                             f.ConfigId = cfg.Code;
                         
                         await db.Versions.AddAsync(f, cancellationToken);
+
                         break;
                     }
                 case List<BNetLib.Models.CDN> cdn:
@@ -315,12 +344,15 @@ namespace Worker.Workers
                             f.ConfigId = cfg.Code;
                         
                         await db.BGDL.AddAsync(f, cancellationToken);
+                        
                         break;
                     }
                 default:
                     _logger.LogCritical($"Unhandled type {data.GetType()}");
                     break;
             }
+
+            return true;
         }
 
         private async Task<(object Value, int Seqn, string Raw)> GetMetaData<T>(BNetLib.Models.Summary msg) where T : class, new()
@@ -369,7 +401,7 @@ namespace Worker.Workers
             }
         }
 
-        private static async Task CheckIfEncrypted(BNetLib.Models.Summary msg, string productConfig, DBContext dbContext, ILogger<Summary> logger, CancellationToken cancellationToken)
+        private static async Task CheckIfEncrypted(BNetLib.Models.Summary msg, string productConfig, DBContext dbContext, ILogger<Summary> logger, CancellationToken cancellationToken, GameChildren owner)
         {
             var (product, _, flags) = msg;
             if (flags == "cdn" || flags == "bgdl") return;
@@ -402,7 +434,10 @@ namespace Worker.Workers
                         await dbContext.GameConfigs.AddAsync(new GameConfig()
                         {
                             Code = product,
-                            Config = new ConfigItems(false, string.Empty)
+                            Config = new ConfigItems(false, string.Empty),
+                            Logos = new List<Icons>(),
+                            Name =  product,
+                            Owner = owner
                         }, cancellationToken);
                     }
                     else
@@ -422,16 +457,20 @@ namespace Worker.Workers
 
                 if (currentGameConfig == null)
                 {
+                    var x = f.all.config.decryption_key_name;
                     await dbContext.GameConfigs.AddAsync(new GameConfig
                     {
                         Code = product,
-                        Config = new ConfigItems(true,  f.all.config.decryption_key_name)
+                        Config = new ConfigItems(true, x.ToString()),
+                        Logos = new List<Icons>(),
+                        Name =  product,
+                        Owner = owner              
                     }, cancellationToken);
                 }
                 else
                 {
                     currentGameConfig.Config.Encrypted = true;
-                    currentGameConfig.Config.EncryptedKey = f.all.config.decryption_key_name;
+                    currentGameConfig.Config.EncryptedKey = f.all.config.decryption_key_name.ToString();
                 }
             }
             else
@@ -442,6 +481,9 @@ namespace Worker.Workers
                     {
                         Code = product,
                         Config = new ConfigItems(false, string.Empty),
+                        Logos = new List<Icons>(),
+                        Name =  product,
+                        Owner = owner,
                     }, cancellationToken);
                 }
                 else
@@ -449,6 +491,20 @@ namespace Worker.Workers
                     currentGameConfig.Config.Encrypted = false;
                 }
             }
+        }
+
+        private async Task SendTwitterAlert(string file, string code, int seqn)
+        {
+            await _redisDatabase.PublishAsync("event_notifications", new Notification
+            {
+                NotificationType = NotificationType.Versions,
+                Payload = new Dictionary<string, object>
+                {
+                    { "code", code },
+                    { "seqn", seqn },
+                    { "flags", file }
+                }
+            });
         }
     }
 }

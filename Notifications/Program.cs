@@ -1,20 +1,21 @@
-﻿using Core.Models;
+﻿using System;
+using System.Collections.Concurrent;
+using System.IO;
+using System.Threading.Tasks;
+using Core.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using System.Collections.Concurrent;
-using System.Configuration;
-using System.IO;
-using System.Threading.Tasks;
+using Notifications.services;
 using StackExchange.Redis.Extensions.Core.Configuration;
 using StackExchange.Redis.Extensions.Newtonsoft;
-using Worker.Events;
+using Tweetinvi;
 
-namespace Worker
+namespace Notifications
 {
-    internal class Program
+    class Program
     {
         public static async Task Main(string[] args) => await CreateHostBuilder(args).RunAsync();
 
@@ -48,23 +49,23 @@ namespace Worker
                     };
                     services.AddStackExchangeRedisExtensions<NewtonsoftSerializer>(conf);
 
-                    services.AddSingleton(_ => new BNetLib.Networking.BNetClient());
-                    services.AddSingleton<BNetLib.Http.ProductConfig>();
-
                     services.AddScoped<Core.Services.ISummary, Core.Services.Summary>();
                     services.AddScoped<Core.Services.IVersions, Core.Services.Versions>();
                     services.AddScoped<Core.Services.ICDNs, Core.Services.CDNs>();
                     services.AddScoped<Core.Services.IBGDL, Core.Services.BGDL>();
                     services.AddScoped<Core.Services.IGameParents, Core.Services.GameParents>();
+                    services.AddScoped<Core.Services.IGameChildren, Core.Services.GameChildren>();
                     services.AddScoped<Core.Services.IVersions, Core.Services.Versions>();
+                    services.AddSingleton(x => new TwitterClient(
+                        hostContext.Configuration.GetValue<string>("Twitter:ConsumerKey"),
+                        hostContext.Configuration.GetValue<string>("Twitter:ConsumerKeySecret"),
+                        hostContext.Configuration.GetValue<string>("Twitter:AccessToken"),
+                        hostContext.Configuration.GetValue<string>("Twitter:AccessTokenSecret")
+                        )
+                    );
 
-
-                    services.AddSingleton(x => new ConcurrentQueue<ConfigUpdate>());
-
-                    services.AddHostedService<Workers.PatchnotesHosted>();
-                    services.AddHostedService<Workers.SummaryHosted>();
-                    services.AddHostedService<Workers.CatalogWorkerHosted>();
-
+                    services.AddSingleton<Twitter>();
+                    services.AddHostedService<Notify>();
                 })
                 .ConfigureLogging((hostingContext, logging) =>
                 {

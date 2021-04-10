@@ -52,12 +52,12 @@
                         }
                     }
 
-                    var config = Model.Configs.FirstOrDefault(x => x.Code == product) ?? new Core.Models.GameConfig()
+                    var config = Model.Configs.FirstOrDefault(x => x.Code == product) ?? new Core.Models.GameConfig
                     {
                         Config = new Core.Models.ConfigItems(true, string.Empty),
                         Code = product
                     };
-
+                    
                     <div class="game-item-link p-2 px-3">
                         <a class="d-flex" asp-page="/ViewGameManifest" asp-route-code="@(config.Owner == null ? product : config.Owner.Slug)" asp-route-file="@(string.IsNullOrEmpty(flags) ? "versions" : flags)" asp-route-latest-seqn="@seqn">
                             <div class="flex-fill">
@@ -424,7 +424,7 @@
                         <div class="game-item-link p-2 px-3">
                             <a class="d-flex" asp-page="/ViewGameManifest" asp-route-code="@(child == null ? product : child.Slug)" asp-route-file="@(string.IsNullOrEmpty(flags) ? "versions" : flags)" asp-route-latest-seqn="@seqn">
                                 <div class="flex-fill">
-                                    <h3 class="mt-0 mb-1">@config.GetName()</h3>
+                                    <h3 class="mt-0 mb-1">@(child?.Name ?? config.GetName())</h3>
                                     <ol class="breadcrumb p-0 m-0 bg-transparent">
                                         <li class="breadcrumb-item active">
                                             <i class="fa fa-@(config.Config.Encrypted ? "lock" : "lock-open")"></i>

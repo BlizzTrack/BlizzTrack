@@ -33,6 +33,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BattleNet.Tools", "BattleNe
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlizzMeta", "BlizzMeta\BlizzMeta.csproj", "{D099CE54-CF86-46B3-B5AF-1EFF9C79611D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Notifications", "Notifications\Notifications.csproj", "{4109AE36-33F3-4A06-A769-F5CC2EF9B9D5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -75,6 +77,10 @@ Global
 		{D099CE54-CF86-46B3-B5AF-1EFF9C79611D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D099CE54-CF86-46B3-B5AF-1EFF9C79611D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D099CE54-CF86-46B3-B5AF-1EFF9C79611D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4109AE36-33F3-4A06-A769-F5CC2EF9B9D5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4109AE36-33F3-4A06-A769-F5CC2EF9B9D5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4109AE36-33F3-4A06-A769-F5CC2EF9B9D5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4109AE36-33F3-4A06-A769-F5CC2EF9B9D5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
