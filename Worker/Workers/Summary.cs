@@ -94,25 +94,34 @@ namespace Worker.Workers
                             updated.Add((item.Product, item.Flags, item.Seqn));
                         }
 
-                        if (gameChildData != null) continue;
-
-                        var config = await dbContext.GameConfigs.FirstOrDefaultAsync(
-                            x => x.Code == item.Product, cancellationToken);
-                        var name = string.IsNullOrEmpty(config?.Name)
-                            ? BNetLib.Helpers.GameName.Get(item.Product)
-                            : config?.Name;
-
-                        var slugInUse = await dbContext.GameChildren.Where(x => x.Slug == name.Slugify())
-                            .FirstOrDefaultAsync(cancellationToken);
-                        
-                        await dbContext.GameChildren.AddAsync(new GameChildren
+                        if (gameChildData == null)
                         {
-                            Code = item.Product,
-                            ParentCode = parent.Code,
-                            Name = name,
-                            GameConfig = config,
-                            Slug = slugInUse == null ? name.Slugify() : item.Product
-                        }, cancellationToken);
+
+                            var config = await dbContext.GameConfigs.FirstOrDefaultAsync(
+                                x => x.Code == item.Product, cancellationToken);
+                            var name = string.IsNullOrEmpty(config?.Name)
+                                ? BNetLib.Helpers.GameName.Get(item.Product)
+                                : config?.Name;
+
+                            var slugInUse = await dbContext.GameChildren.Where(x => x.Slug == name.Slugify())
+                                .FirstOrDefaultAsync(cancellationToken);
+
+                            gameChildData = new GameChildren
+                            {
+                                Code = item.Product,
+                                ParentCode = parent.Code,
+                                Name = name,
+                                GameConfig = config,
+                                Slug = slugInUse == null ? name.Slugify() : item.Product
+                            };
+                            
+                            await dbContext.GameChildren.AddAsync(gameChildData, cancellationToken);
+                        }
+                        
+                        if (await AddItemToData(item, latest.Seqn, dbContext, cancellationToken, gameChildData))
+                        {
+                            updated.Add((item.Product, item.Flags, item.Seqn));
+                        }
                     }
 
                     await dbContext.SaveChangesAsync(cancellationToken);
@@ -150,11 +159,6 @@ namespace Worker.Workers
 
                                 var gameChildData =
                                     await dbContext.GameChildren.FirstOrDefaultAsync(x => x.Code == item.Product, cancellationToken);
-
-                                if (await AddItemToData(item, latest.Seqn, dbContext, cancellationToken, gameChildData))
-                                {
-                                    updated.Add((item.Product, item.Flags, item.Seqn));
-                                }
                                 
                                 if (gameChildData == null)
                                 {
@@ -164,16 +168,24 @@ namespace Worker.Workers
 
                                     var slugInUse = await dbContext.GameChildren.Where(x => x.Slug == name.Slugify())
                                         .FirstOrDefaultAsync(cancellationToken);
-                                    
-                                    await dbContext.GameChildren.AddAsync(new GameChildren
+
+                                    gameChildData = new GameChildren
                                     {
                                         Code = item.Product,
                                         ParentCode = parent.Code,
                                         Name = name,
                                         GameConfig = config,
                                         Slug = slugInUse == null ? name.Slugify() : item.Product
-                                    }, cancellationToken);
+                                    };
+
+                                    await dbContext.GameChildren.AddAsync(gameChildData, cancellationToken);
                                 }
+                                
+                                if (await AddItemToData(item, latest.Seqn, dbContext, cancellationToken, gameChildData))
+                                {
+                                    updated.Add((item.Product, item.Flags, item.Seqn));
+                                }
+
                             }
                             
                             await dbContext.SaveChangesAsync(cancellationToken);
@@ -431,12 +443,12 @@ namespace Worker.Workers
                     logger.LogCritical($"{product} product config doesn't exist");
                     if (currentGameConfig == null)
                     {
-                        await dbContext.GameConfigs.AddAsync(new GameConfig()
+                        await dbContext.GameConfigs.AddAsync(new GameConfig
                         {
                             Code = product,
                             Config = new ConfigItems(false, string.Empty),
                             Logos = new List<Icons>(),
-                            Name =  product,
+                            Name =  owner.Name,
                             Owner = owner
                         }, cancellationToken);
                     }
@@ -463,7 +475,7 @@ namespace Worker.Workers
                         Code = product,
                         Config = new ConfigItems(true, x.ToString()),
                         Logos = new List<Icons>(),
-                        Name =  product,
+                        Name =  owner.Name,
                         Owner = owner              
                     }, cancellationToken);
                 }
@@ -482,7 +494,7 @@ namespace Worker.Workers
                         Code = product,
                         Config = new ConfigItems(false, string.Empty),
                         Logos = new List<Icons>(),
-                        Name =  product,
+                        Name =  owner.Name,
                         Owner = owner,
                     }, cancellationToken);
                 }
