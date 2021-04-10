@@ -1,14 +1,12 @@
 ﻿using System;
-using System.Linq;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
 using Core.Models;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using StackExchange.Redis.Extensions.Core.Abstractions;
-using Tweetinvi;
 
 namespace Notifications.services
 {
@@ -27,6 +25,23 @@ namespace Notifications.services
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
+            Task.Run(async () =>
+            {
+                while (!cancellationToken.IsCancellationRequested)
+                {
+                    await _channelWriter.WriteAsync(new Notification()
+                    {
+                        NotificationType = NotificationType.Ping,
+                        Payload = new Dictionary<string, object>
+                        {
+                            {"sent_at", DateTime.Now.Ticks}
+                        }
+                    }, cancellationToken);
+                    
+                    await Task.Delay(TimeSpan.FromSeconds(5), cancellationToken);
+                }
+            }, cancellationToken);
+            
             await _redisDatabase.SubscribeAsync<Notification>("event_notifications", HandleNotifyEvent);
         }
 

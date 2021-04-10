@@ -20,29 +20,33 @@ namespace Notifications.services
             _logger = logger;
             _reader = reader;
         }
-            
+
         public async Task StartAsync(CancellationToken cancellationToken)
         {
-            Task.Run(async () =>
+            while (!cancellationToken.IsCancellationRequested)
             {
-                while (await _reader.WaitToReadAsync(cancellationToken))
+                _logger.LogInformation($"Waiting for channel events");
+                var arg = await _reader.ReadAsync(cancellationToken);
+                if (arg.NotificationType == NotificationType.Ping)
                 {
-                    if (_reader.TryRead(out var arg))
-                    {
-                        switch (arg.NotificationType)
-                        {
-                            case NotificationType.Versions:
-                                await _twitter.Publish(arg.Payload);
-                                break;
-                            case NotificationType.PatchNotes:
-                                await _twitter.PublishPatchNotes(arg.Payload);
-                                break;
-                            default:
-                                throw new ArgumentOutOfRangeException($"{arg.NotificationType} doesn't exist");
-                        }
-                    }
+                    _logger.LogInformation($"Got ping event: {arg.Payload["sent_at"]}");
+                    return;
                 }
-            }, cancellationToken);
+                
+                _logger.LogInformation($"Got channel event: {arg.NotificationType}");
+
+                switch (arg.NotificationType)
+                {
+                    case NotificationType.Versions:
+                        await _twitter.Publish(arg.Payload);
+                        break;
+                    case NotificationType.PatchNotes:
+                        await _twitter.PublishPatchNotes(arg.Payload);
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException($"{arg.NotificationType} doesn't exist");
+                }
+            }
         }
 
         public async Task StopAsync(CancellationToken cancellationToken)

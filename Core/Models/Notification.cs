@@ -5,7 +5,8 @@ namespace Core.Models
     public enum NotificationType
     {
         Versions,
-        PatchNotes
+        PatchNotes,
+        Ping
     }
     
     public class Notification
