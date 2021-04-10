@@ -30,7 +30,7 @@ namespace Notifications.services
                 if (arg.NotificationType == NotificationType.Ping)
                 {
                     _logger.LogInformation($"Got ping event: {arg.Payload["sent_at"]}");
-                    return;
+                    continue;
                 }
                 
                 _logger.LogInformation($"Got channel event: {arg.NotificationType}");
