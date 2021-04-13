@@ -151,7 +151,7 @@
                                 </button>
                             </li>
                             <feature name="@nameof(FeatureFlags.UserAuth)">
-                                @if (Context.User.Identity != null && Context.User.Identity.IsAuthenticated)
+                                @if (Context.User.Identity is { IsAuthenticated: true })
                                 {
                                     <li class="dropdown nav-item">
                                         <a href="#" class="dropdown-toggle nav-link" data-toggle="dropdown">
@@ -296,9 +296,9 @@
     <script src="~/lib/jquery/jquery.min.js" asp-append-version="true"></script>
     <script src="~/lib/popper.js/umd/popper.min.js" asp-append-version="true"></script>
     <script src="~/lib/bootstrap/js/bootstrap.min.js" asp-append-version="true"></script>
-    <!--
-    <script src="~/lib/jquery.perfect-scrollbar/perfect-scrollbar.min.js" asp-append-version="true"></script>
-        -->
+<!--
+<script src="~/lib/jquery.perfect-scrollbar/perfect-scrollbar.min.js" asp-append-version="true"></script>
+-->
     <script src="~/lib/jquery.terminal/js/jquery.terminal.min.js" asp-append-version="true"></script>
 
     <script src="~/lib/feather-icons/feather.min.js" asp-append-version="true"></script>

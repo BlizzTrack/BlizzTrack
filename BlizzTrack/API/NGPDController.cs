@@ -81,11 +81,11 @@ namespace BlizzTrack.API
         /// <returns>Returns latest changes for the given filters</returns>
         /// <response code="200">Returns latest items for given seqn</response>
         /// <param name="code">The game slug (EX: pro)</param>
-        /// <param name="file_type">File Type</param>
+        /// <param name="fileType">File Type</param>
         /// <param name="filter">Filter mode</param>
         /// <param name="seqn">Selected Seqn</param>
-        [HttpGet("{code}/{file_type}"), ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<IActionResult> Get(string code, FileType file_type = FileType.Help, [FromQuery] FileFilter? filter = default, [FromQuery] int? seqn = null)
+        [HttpGet("{code}/{fileType}"), ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<IActionResult> Get(string code, FileType fileType = FileType.Help, [FromQuery] FileFilter? filter = default, [FromQuery] int? seqn = null)
         {
             var scheme = Request.Scheme;
             if (Request.Host.Host.Contains("blizztrack", StringComparison.OrdinalIgnoreCase))
@@ -93,7 +93,7 @@ namespace BlizzTrack.API
                 scheme = "https";
             }
 
-            var file = file_type.ToString().ToLower();
+            var file = fileType.ToString().ToLower();
             AbstractCommand cmd;
             code = code.ToLower();
             object result;

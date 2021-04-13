@@ -38,7 +38,8 @@ namespace Notifications.services
                 switch (arg.NotificationType)
                 {
                     case NotificationType.Versions:
-                        await _twitter.Publish(arg.Payload);
+                        // For sake of twitter lets not send versions, this is causing to much tweet spam
+                        // await _twitter.Publish(arg.Payload);
                         break;
                     case NotificationType.PatchNotes:
                         await _twitter.PublishPatchNotes(arg.Payload);

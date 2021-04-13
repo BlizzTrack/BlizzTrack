@@ -118,6 +118,9 @@ namespace BlizzTrack
                 {
                     options.Cookie.Name = "BT.Auth";
                     options.Cookie.IsEssential = true;
+#if !DEBUG
+                    options.Cookie.Domain = ".blizztrack.com";
+#endif
                     options.ExpireTimeSpan = TimeSpan.FromDays(7);
                     options.SlidingExpiration = true;
 
