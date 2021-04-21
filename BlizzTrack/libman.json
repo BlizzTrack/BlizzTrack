@@ -37,7 +37,7 @@
     },
     {
       "library": "dayjs@1.10.4",
-      "destination": "wwwroot\\lib\\dayjs"
+      "destination": "wwwroot/lib/dayjs"
     }
   ]
 }
