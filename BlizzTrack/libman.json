@@ -31,8 +31,13 @@
       "destination": "wwwroot/lib/jquery.terminal/"
     },
     {
-      "library": "moment.js@2.29.1",
-      "destination": "wwwroot/lib/moment.js/"
+      "provider": "jsdelivr",
+      "library": "date-fns@2.21.1",
+      "destination": "wwwroot/lib/date-fns"
+    },
+    {
+      "library": "dayjs@1.10.4",
+      "destination": "wwwroot\\lib\\dayjs"
     }
   ]
 }

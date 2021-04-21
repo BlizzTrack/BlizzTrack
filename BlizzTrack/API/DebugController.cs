@@ -18,10 +18,7 @@ using StackExchange.Redis.Extensions.Core.Abstractions;
 
 namespace BlizzTrack.API
 {
-    [Route("api/[controller]")]
-    [Authorize(Roles = "Admin")]
-    [FeatureGate("Debug_Mode")]
-    [ApiController]
+    [Route("api/[controller]"), Authorize(Roles = "Admin"), FeatureGate("Debug_Mode"), ApiController]
     public class DebugController : ControllerBase
     {
         private readonly ILogger<DebugController> _logger;

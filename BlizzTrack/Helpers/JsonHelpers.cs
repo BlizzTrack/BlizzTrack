@@ -2,7 +2,7 @@
 
 namespace BlizzTrack.Helpers
 {
-    public class JsonHelpers
+    public static class JsonHelpers
     {
         public static string PrettyJson(string unPrettyJson)
         {
