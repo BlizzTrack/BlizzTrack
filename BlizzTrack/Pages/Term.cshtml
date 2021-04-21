@@ -5,6 +5,10 @@
     ViewData["Page"] = "Terminal";
 }
 
+@section Headers {
+    <link href="~/lib/jquery.terminal/css/jquery.terminal.min.css" rel="stylesheet" asp-append-version="true" />
+}
+
 <div class="row">
 
     <div class="col-12" aria-label="breadcrumb col-12" role="navigation">
@@ -29,6 +33,8 @@
 </div>
 
 @section Scripts {
+    <script src="~/lib/jquery.terminal/js/jquery.terminal.min.js" asp-append-version="true"></script>
+
     <script>
         $(function () {
             $('#terminal').terminal(function (command, term) {

@@ -23,10 +23,8 @@
     <link href="~/css/overrides.css" rel="stylesheet" asp-append-version="true" />
     <link href="~/css/style.css" rel="stylesheet" asp-append-version="true" />
     <link href="~/lib/font-awesome/css/all.min.css" rel="stylesheet" asp-append-version="true" />
-    <link href="~/lib/jquery.terminal/css/jquery.terminal.min.css" rel="stylesheet" asp-append-version="true" />
-    <!--
-    <link href="~/lib/jquery.perfect-scrollbar/css/perfect-scrollbar.min.css" rel="stylesheet" asp-append-version="true" />
-        -->
+    
+    @await RenderSectionAsync("Headers", required: false)
 
     <link rel="manifest" href="/manifest.webmanifest">
 
@@ -289,28 +287,23 @@
         </script>
 </environment>
 
-    <!--   Core JS Files   -->
-    <script src="~/lib/jquery/jquery.min.js" asp-append-version="true"></script>
-    <script src="~/lib/popper.js/umd/popper.min.js" asp-append-version="true"></script>
-    <script src="~/lib/bootstrap/js/bootstrap.min.js" asp-append-version="true"></script>
-<!--
-<script src="~/lib/jquery.perfect-scrollbar/perfect-scrollbar.min.js" asp-append-version="true"></script>
--->
-    <script src="~/lib/jquery.terminal/js/jquery.terminal.min.js" asp-append-version="true"></script>
+<script src="~/lib/jquery/jquery.min.js" asp-append-version="true"></script>
+<script src="~/lib/popper.js/umd/popper.min.js" asp-append-version="true"></script>
+<script src="~/lib/bootstrap/js/bootstrap.min.js" asp-append-version="true"></script>
 
-    <script src="~/lib/feather-icons/feather.min.js" asp-append-version="true"></script>
-    <script>
+<script src="~/lib/feather-icons/feather.min.js" asp-append-version="true"></script>
+<script>
         feather.replace();
     </script>
+<script src="~/js/site.js" asp-append-version="true"></script>
+<script src="~/js/bootstrap-notify.js" asp-append-version="true"></script>
+<script src="~/js/storage.js" asp-append-version="true"></script>
+<script src="~/lib/dayjs/dayjs.min.js" asp-append-version="true"></script>
+<script src="~/js/main.js" asp-append-version="true"></script>
 
-    <script src="~/js/site.js" asp-append-version="true"></script>
-    <script src="~/js/bootstrap-notify.js" asp-append-version="true"></script>
-    <script src="~/js/storage.js" asp-append-version="true"></script>
-    <script src="~/lib/dayjs/dayjs.min.js" asp-append-version="true"></script>
-
-    @await RenderSectionAsync("Scripts", required: false)
-    <script src="~/js/main.js" asp-append-version="true"></script>
-
+@await RenderSectionAsync("Scripts", required: false)
+    
+    
 <script>
         $(function () {
             $("time").each(function () {

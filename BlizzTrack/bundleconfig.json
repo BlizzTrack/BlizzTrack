@@ -1,0 +1,28 @@
+﻿[
+  {
+    "outputFileName": "wwwroot/css/site.min.css",
+    "inputFiles": [
+      "wwwroot/css/overrides.css",
+      "wwwroot/css/style.css"
+    ]
+  },
+  {
+    "outputFileName": "wwwroot/js/site.min.js",
+    "inputFiles": [
+      "wwwroot/lib/jquery/jquery.js",
+      "wwwroot/lib/popper.js/umd/popper.js",
+      "wwwroot/lib/bootstrap/js/bootstrap.js  ",
+      "wwwroot/js/site.js",
+      "wwwroot/js/bootstrap-notify.js",
+      "wwwroot/js/storage.js",
+      "wwwroot/lib/dayjs/dayjs.min.js",
+      "wwwroot/lib/feather-icons/feather.js",
+      "wwwroot/js/main.js"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true
+    },
+    "sourceMap": false
+  }
+]
