@@ -1,5 +1,7 @@
-﻿using AngleSharp.Html.Parser;
+﻿using System.Linq;
+using AngleSharp.Html.Parser;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 
 namespace BattleNet.Tools.Services
@@ -17,14 +19,14 @@ namespace BattleNet.Tools.Services
         {
             using var wc = new HttpClient();
             using var wcRes = await wc.GetAsync("https://content-ui.battle.net/en-us/browse/fenris");
-            if (!wcRes.IsSuccessStatusCode) return null;
             var rsltContent = await wcRes.Content.ReadAsStringAsync();
+            var accessToken = rsltContent.Split("window.blizzard = {accessToken:").Last().Split("}").First().Trim().Replace("'", "");
 
-            using var doc = await _parser.ParseDocumentAsync(rsltContent);
-
-            var data = doc.QuerySelector("script#__NEXT_DATA__");
-
-            return Newtonsoft.Json.JsonConvert.DeserializeObject<dynamic>(data?.TextContent ?? string.Empty);
+            wc.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            using var client = await wc.GetAsync("https://us.api.blizzard.com/content-api/v1/cxpProducts");
+            var data = await client.Content.ReadAsStringAsync();
+            
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<dynamic>(data ?? string.Empty);
         }
     }
 }

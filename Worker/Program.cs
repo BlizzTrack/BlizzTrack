@@ -57,8 +57,7 @@ namespace Worker
                     services.AddScoped<Core.Services.IBGDL, Core.Services.BGDL>();
                     services.AddScoped<Core.Services.IGameParents, Core.Services.GameParents>();
                     services.AddScoped<Core.Services.IVersions, Core.Services.Versions>();
-
-
+                    
                     services.AddSingleton(x => new ConcurrentQueue<ConfigUpdate>());
 
                     services.AddHostedService<Workers.PatchnotesHosted>();

@@ -33,7 +33,7 @@ namespace BattleNet.Tools.API
         public async Task<IActionResult> ListGames()
         {
             var data = await _contentUiService.GetNextData();
-            var stringJson = JsonConvert.SerializeObject(data.props.initialState.products.products);
+            var stringJson = JsonConvert.SerializeObject(data.products);
             var exp = JsonConvert.DeserializeObject<List<ContentUINextModel.Root>>(stringJson);
 
             return Ok(exp);
