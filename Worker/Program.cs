@@ -5,7 +5,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
-using System.Configuration;
 using System.IO;
 using System.Threading.Tasks;
 using StackExchange.Redis.Extensions.Core.Configuration;

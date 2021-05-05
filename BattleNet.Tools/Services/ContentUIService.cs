@@ -13,8 +13,6 @@ namespace BattleNet.Tools.Services
 
     public class ContentUiService : IContentUiService
     {
-        private readonly HtmlParser _parser = new();
-
         public async Task<dynamic> GetNextData()
         {
             using var wc = new HttpClient();
@@ -26,7 +24,7 @@ namespace BattleNet.Tools.Services
             using var client = await wc.GetAsync("https://us.api.blizzard.com/content-api/v1/cxpProducts");
             var data = await client.Content.ReadAsStringAsync();
             
-            return Newtonsoft.Json.JsonConvert.DeserializeObject<dynamic>(data ?? string.Empty);
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<dynamic>(data);
         }
     }
 }

@@ -89,6 +89,7 @@ namespace Worker.Workers
 
         private async Task ProductConfig(ConfigUpdate config, DBContext dbContext)
         {
+            if (string.IsNullOrEmpty(config.Hash)) return;
            
             if(!await ManifestExist(config.Hash, dbContext))
             {

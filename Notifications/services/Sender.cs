@@ -25,11 +25,11 @@ namespace Notifications.services
         {
             while (!cancellationToken.IsCancellationRequested)
             {
-                _logger.LogInformation("Waiting for channel events");
+                _logger.LogDebug("Waiting for channel events");
                 var arg = await _reader.ReadAsync(cancellationToken);
                 if (arg.NotificationType == NotificationType.Ping)
                 {
-                    _logger.LogInformation($"Got ping event: {arg.Payload["sent_at"]}");
+                    _logger.LogDebug($"Got ping event: {arg.Payload["sent_at"]}");
                     continue;
                 }
                 
