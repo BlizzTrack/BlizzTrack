@@ -5,7 +5,7 @@
 @{
     var cdnConfig = await Cdns.Latest(Model.First().Code);
 
-    var cdn = cdnConfig.Content.FirstOrDefault(x => x.Name == "us");
+    var cdn = cdnConfig?.Content.FirstOrDefault(x => x.Name == "us");
 
     var server = cdn?.Hosts.Split(" ").First();
 }
@@ -50,6 +50,21 @@
                                     }
                                 </h3>
                                 <small>Current Version</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="game-item-link p-2 px-3">
+                        <div class="d-flex">
+                            <div class="flex-fill">
+                                <h3 class="mt-0 mb-1">
+                                    @item.Buildid
+                                                        
+                                    @if (item.Buildid != prev?.Buildid)
+                                    {
+                                        <i class="fas fa-not-equal"></i>
+                                    }
+                                </h3>
+                                <small>Current Build Id</small>
                             </div>
                         </div>
                     </div>
@@ -225,7 +240,15 @@
                         <div class="d-flex">
                             <div class="flex-fill">
                                 <h3 class="mt-0 mb-1">@item.Versionsname</h3>
-                                <small>Current Version</small>
+                                <small>Previous Version</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="game-item-link p-2 px-3">
+                        <div class="d-flex">
+                            <div class="flex-fill">
+                                <h3 class="mt-0 mb-1">@item.Buildid</h3>
+                                <small>Previous Build Id</small>
                             </div>
                         </div>
                     </div>
