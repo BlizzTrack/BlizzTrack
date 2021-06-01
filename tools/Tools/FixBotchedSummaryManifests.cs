@@ -28,16 +28,16 @@ namespace Tooling.Tools
 
         public async Task BotchedSummaryManifest()
         {
-            var summeries = await _dbContext.Summary.OrderByDescending(x => x.Seqn).ToListAsync();
+            var summaries = await _dbContext.Summary.OrderByDescending(x => x.Seqn).ToListAsync();
             var tempFile = Path.GetTempFileName();
 
-            int updateCycle = 1;
+            var updateCycle = 1;
 
-            foreach(var summary in summeries)
+            foreach(var summary in summaries)
             {
                 var seqn = summary.Seqn;
 
-                File.WriteAllText(tempFile, summary.Raw);
+                await File.WriteAllTextAsync(tempFile, summary.Raw);
 
                 var mail = await MimeMessage.LoadAsync(tempFile);
 
@@ -50,22 +50,20 @@ namespace Tooling.Tools
                     var replace = (await reader.ReadToEndAsync()).Replace("\n", "");
                 }
 
-                var payload = body.Text.Split("\n").ToList();
-                payload.Insert(0, "## Nothing");
-                var (Value, Seqn) = BNetLib.Networking.BNetTools.Parse<BNetLib.Models.Summary>(payload);
+                var payload = body?.Text.Split("\n").ToList();
+                payload?.Insert(0, "## Nothing");
+                var (value, Seqn) = BNetLib.Networking.BNetTools.Parse<BNetLib.Models.Summary>(payload);
 
                 updateCycle++;
-                summary.Content = Value.ToArray();
+                summary.Content = value.ToArray();
 
                 _dbContext.Update(summary);
 
                 _logger.LogInformation($"Fixed botched summary {seqn}");
 
-                if (updateCycle > 100)
-                {
-                    await _dbContext.SaveChangesAsync();
-                    updateCycle = 1;
-                }
+                if (updateCycle <= 100) continue;
+                await _dbContext.SaveChangesAsync();
+                updateCycle = 1;
             }
 
             await _dbContext.SaveChangesAsync();

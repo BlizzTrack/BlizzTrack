@@ -36,23 +36,23 @@ namespace Tooling.Tools
 
             var dataItems = new List<PatchNote>();
 
-            foreach (var langauge in new[] { "en-us", "fr-fr", "ko-kr", "es-es" })
+            foreach (var language in new[] { "en-us", "fr-fr", "ko-kr", "es-es" })
             {
                 foreach (var parent in games)
                 {
                     var data = parent.PatchNoteTool switch
                     {
-                        "overwatch" => await OverwatchPatchNotes(parent, langauge),
-                        "legacy" => await OldPatchNotes(parent, langauge),
+                        "overwatch" => await OverwatchPatchNotes(parent, language),
+                        "legacy" => await OldPatchNotes(parent, language),
                         _ => null
                     };
 
                     if (parent.PatchNoteTool == "overwatch")
                     {
-                        dataItems.AddRange(await OldPatchNotes(parent, langauge));
+                        dataItems.AddRange(await OldPatchNotes(parent, language));
                     }
 
-                    dataItems.AddRange(data);
+                    dataItems.AddRange(data!);
                 }
             }
 
@@ -171,14 +171,12 @@ namespace Tooling.Tools
                     continue;
                 }
 
-                foreach (var item in item1?.PatchNotes) {
-                    var f = item;
-
-                    var note = PatchNote.Create(JsonConvert.SerializeObject(f));
-                    note.Created = DateTimeOffset.FromUnixTimeMilliseconds(f.Publish).UtcDateTime;
-                    if (f.Updated > 0)
+                foreach (var item in item1.PatchNotes) {
+                    var note = PatchNote.Create(JsonConvert.SerializeObject(item));
+                    note.Created = DateTimeOffset.FromUnixTimeMilliseconds(item.Publish).UtcDateTime;
+                    if (item.Updated > 0)
                     {
-                        note.Updated = DateTimeOffset.FromUnixTimeMilliseconds(f.Updated).UtcDateTime;
+                        note.Updated = DateTimeOffset.FromUnixTimeMilliseconds(item.Updated).UtcDateTime;
                     }
 
                     note.Type = code;

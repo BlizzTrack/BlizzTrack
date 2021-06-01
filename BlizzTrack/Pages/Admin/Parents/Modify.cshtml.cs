@@ -13,7 +13,10 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using BattleNet.Tools.Models;
+using BattleNet.Tools.Services;
 using Core.Models;
+using Newtonsoft.Json;
 
 namespace BlizzTrack.Pages.Admin.Parents
 {
@@ -61,6 +64,9 @@ namespace BlizzTrack.Pages.Admin.Parents
         
         [Display(Name =  "About this game")]
         public string GameAbout { get; set; }
+        
+        [Display(Name =  "Battle.net CxpProduct")]
+        public string CxpProduct { get; set; }
 
         public Core.Models.GameParents ToGameParents => new()
         {
@@ -80,14 +86,16 @@ namespace BlizzTrack.Pages.Admin.Parents
         private readonly string _bucket;
         private readonly DBContext _dbContext;
         private readonly IGameCompanies _gameCompanies;
+        private readonly IContentUiService _contentUiService;
 
-        public ModifyModel(IGameParents gameParents, MinioClient minioClient, IConfiguration config, DBContext dbContext, IGameCompanies gameCompanies)
+        public ModifyModel(IGameParents gameParents, MinioClient minioClient, IConfiguration config, DBContext dbContext, IGameCompanies gameCompanies, IContentUiService contentUiService)
         {
             _gameParents = gameParents;
             _minioClient = minioClient;
             _bucket = config.GetValue("AWS:BucketName", "");
             _dbContext = dbContext;
             _gameCompanies = gameCompanies;
+            _contentUiService = contentUiService;
         }
 
         [BindProperty]
@@ -99,6 +107,8 @@ namespace BlizzTrack.Pages.Admin.Parents
         public Core.Models.GameParents GameInfo;
 
         public List<string> ManifestIDs { get; set; }
+        
+        public List<string> CxpProducts { get; set; }
         
         public List<GameCompany> GameCompanies { get; set; }
 
@@ -114,6 +124,11 @@ namespace BlizzTrack.Pages.Admin.Parents
             };
 
             ManifestIDs = await _dbContext.Catalogs.Where(x => x.Type == Core.Models.CatalogType.Fragment).GroupBy(x => x.Name).Select(x => x.Key).ToListAsync();
+            
+            var stringJson = JsonConvert.SerializeObject((await _contentUiService.GetNextData()).products);
+            List<ContentUINextModel.Root> exp = JsonConvert.DeserializeObject<List<ContentUINextModel.Root>>(stringJson);
+            CxpProducts = exp.Select(x => x.Segment).ToList();
+            
             GameCompanies = await _dbContext.GameCompanies.AsNoTracking().ToListAsync();
         }
 
@@ -122,6 +137,11 @@ namespace BlizzTrack.Pages.Admin.Parents
             ViewData["Title"] = "Add New Parent";
 
             ManifestIDs = await _dbContext.Catalogs.Where(x => x.Type == CatalogType.Fragment).GroupBy(x => x.Name).Select(x => x.Key).ToListAsync();
+            
+            var stringJson = JsonConvert.SerializeObject((await _contentUiService.GetNextData()).products);
+            List<ContentUINextModel.Root> exp = JsonConvert.DeserializeObject<List<ContentUINextModel.Root>>(stringJson);
+            CxpProducts = exp.Select(x => x.Segment).ToList();
+            
             GameCompanies = await _dbContext.GameCompanies.AsNoTracking().ToListAsync();
             
             if (!ModelState.IsValid)
@@ -208,6 +228,11 @@ namespace BlizzTrack.Pages.Admin.Parents
             }
 
             ManifestIDs = await _dbContext.Catalogs.GroupBy(x => x.Name).Select(x => x.Key).ToListAsync();
+            
+            var stringJson = JsonConvert.SerializeObject((await _contentUiService.GetNextData()).products);
+            List<ContentUINextModel.Root> exp = JsonConvert.DeserializeObject<List<ContentUINextModel.Root>>(stringJson);
+            CxpProducts = exp.Select(x => x.Segment).ToList();            
+            
             GameCompanies = await _dbContext.GameCompanies.AsNoTracking().ToListAsync();
 
             ViewData["Title"] = $"Editing {GameInfo.Name}";
@@ -226,6 +251,7 @@ namespace BlizzTrack.Pages.Admin.Parents
                 GameAbout = GameInfo.About,
                 GameCompany = GameInfo.Owner.Id,
                 Visible = GameInfo.Visible ?? true,
+                CxpProduct = GameInfo.CxpProductId,
             };
         }
 
@@ -299,6 +325,7 @@ namespace BlizzTrack.Pages.Admin.Parents
             GameInfo.Visible = true;
             GameInfo.About = GameInfoModel.GameAbout;
             GameInfo.Owner = company;
+            GameInfo.CxpProductId = GameInfoModel.CxpProduct;
 
             if (!string.IsNullOrWhiteSpace(GameInfoModel.GameChildOverride))
                 foreach (var item in GameInfoModel.GameChildOverride.Split(','))
@@ -338,17 +365,19 @@ namespace BlizzTrack.Pages.Admin.Parents
         public async Task<IActionResult> OnPostDeleteAssetAsync(string asset_url, string asset_type)
         {
             GameInfo = await _gameParents.Get(ParentCode);
-            if (GameInfo.Logos != null)
-            {
-                var asset = GameInfo.Logos.FirstOrDefault(x => x.URL == asset_url && x.Type == asset_type);
-                GameInfo.Logos.Remove(asset);
+            if (GameInfo.Logos == null)
+                return Redirect($"/admin/game-parents/modify?handler=Edit&code={GameInfo.Code}");
+            var asset = GameInfo.Logos.FirstOrDefault(x => x.URL == asset_url && x.Type == asset_type);
+            GameInfo.Logos.Remove(asset);
 
+            if (asset != null)
+            {
                 var path = new Uri(asset.URL);
                 var filePath = path.AbsolutePath.TrimStart('/');
                 await _minioClient.RemoveObjectAsync(_bucket, filePath);
-
-                await _gameParents.Update(GameInfo);
             }
+
+            await _gameParents.Update(GameInfo);
 
             return Redirect($"/admin/game-parents/modify?handler=Edit&code={GameInfo.Code}");
         }

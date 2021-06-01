@@ -37,5 +37,7 @@ namespace Core.Models
         public ICollection<GameChildren> Children { get; set; }
 
         public GameCompany Owner { get; set; }
+        
+        public string CxpProductId { get; set; }
     }
 }

@@ -10,7 +10,7 @@ using GameChildren = Core.Models.GameChildren;
 
 namespace Tooling.Tools
 {
-    [Tool(Name =  "Game Childern Importer", Order = 1, Disabled = false)]
+    [Tool(Name =  "Game Childern Importer", Order = 1, Disabled = true)]
     public class GameChildrenLoader : ITool
     {
         private readonly IGameParents _gameParents;

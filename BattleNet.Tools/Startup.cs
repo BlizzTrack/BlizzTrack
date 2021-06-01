@@ -11,6 +11,8 @@ namespace BattleNet.Tools
         public void ConfigureServices(ref IServiceCollection services)
         {
             services.AddSingleton<IContentUiService, ContentUiService>();
+            services.AddSingleton<IContentBlogSerivce, ContentBlogService>();
+            services.AddSingleton<IBlizzardAuthService, BlizzardAuthService>();
         }
 
         public void MapEndpoints(IEndpointRouteBuilder endpoints)

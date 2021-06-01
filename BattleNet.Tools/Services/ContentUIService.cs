@@ -13,14 +13,17 @@ namespace BattleNet.Tools.Services
 
     public class ContentUiService : IContentUiService
     {
+        private readonly IBlizzardAuthService _authService;
+
+        public ContentUiService(IBlizzardAuthService authService)
+        {
+            _authService = authService;
+        }
+        
         public async Task<dynamic> GetNextData()
         {
             using var wc = new HttpClient();
-            using var wcRes = await wc.GetAsync("https://content-ui.battle.net/en-us/browse/fenris");
-            var rsltContent = await wcRes.Content.ReadAsStringAsync();
-            var accessToken = rsltContent.Split("window.blizzard = {accessToken:").Last().Split("}").First().Trim().Replace("'", "");
-
-            wc.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            wc.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", await _authService.GetAuthToken());
             using var client = await wc.GetAsync("https://us.api.blizzard.com/content-api/v1/cxpProducts");
             var data = await client.Content.ReadAsStringAsync();
             

@@ -52,7 +52,7 @@ namespace Tooling.Tools
 
             var configs = await _dbContext.GameConfigs.ToListAsync();
 
-            int i = 1;
+            var i = 1;
             foreach (var version in versions)
             {
                 var cdn = cdns.FirstOrDefault(x => x.Code == version.Code);
@@ -63,13 +63,13 @@ namespace Tooling.Tools
                 var cdnRegion = cdn.Content.FirstOrDefault(x => x.Name == "us");
                 var gConfig = configs.FirstOrDefault(x => x.Code == version.Code);
 
-                var server = cdnRegion.Hosts.Split(" ").First();
+                var server = cdnRegion?.Hosts.Split(" ").First();
 
                 foreach (var region in version.Content)
                 {
                     var config = region.Buildconfig;
-                    var p = $"{server}/{cdnRegion.Path}/config";
-                    var dest = $"{cdnRegion.Path}/config/{string.Join("", config.Take(2))}/{string.Join("", config.Skip(2).Take(2))}/{config}";
+                    var p = $"{server}/{cdnRegion?.Path}/config";
+                    var dest = $"{cdnRegion?.Path}/config/{string.Join("", config.Take(2))}/{string.Join("", config.Skip(2).Take(2))}/{config}";
                     if (used.Contains(dest)) continue;
                     if (await ManifestExist(dest)) continue;
 
@@ -94,7 +94,7 @@ namespace Tooling.Tools
                         {
                             Content = gConfig != null && gConfig.Config.Encrypted ? Convert.ToBase64String(rootConfig) : System.Text.Encoding.Default.GetString(rootConfig),
                             URL = $"{server}/{dest}",
-                            Encrypted = gConfig.Config.Encrypted,
+                            Encrypted = gConfig != null && gConfig.Config.Encrypted,
                             Meta = new Dictionary<string, string> {
                                 { "hash", region.Buildconfig },
                                 { "code", version.Code },
@@ -180,24 +180,22 @@ namespace Tooling.Tools
 
                     try
                     {
-                        if (!await ManifestExist(region.Productconfig))
-                        {
-                            var rootConfig = await BNetLib.Http.ProductConfig.GetRaw(region.Productconfig);
-                            var json = JsonDocument.Parse(rootConfig);
+                        if (await ManifestExist(region.Productconfig)) continue;
+                        var rootConfig = await BNetLib.Http.ProductConfig.GetRaw(region.Productconfig);
+                        var json = JsonDocument.Parse(rootConfig);
 
-                            if (used.Contains(region.Productconfig)) continue;
+                        if (used.Contains(region.Productconfig)) continue;
                                 
-                            _dbContext.Add(new Core.Models.Catalog()
-                            {
-                                Payload = json,
-                                Hash = region.Productconfig,
-                                Name = $"product_config_{version.Code}",
-                                Type = CatalogType.ProductConfig,
-                            });
+                        _dbContext.Add(new Core.Models.Catalog()
+                        {
+                            Payload = json,
+                            Hash = region.Productconfig,
+                            Name = $"product_config_{version.Code}",
+                            Type = CatalogType.ProductConfig,
+                        });
 
-                            used.Add(region.Productconfig);
-                            i++;
-                        }
+                        used.Add(region.Productconfig);
+                        i++;
                     }
                     catch
                     {
@@ -367,8 +365,7 @@ namespace Tooling.Tools
         {
             var exist = await _dbContext.Catalogs.FirstOrDefaultAsync(x => x.Hash == hash);
 
-            if (exist == null) return false;
-            return true;
+            return exist != null;
         }
     }
 }

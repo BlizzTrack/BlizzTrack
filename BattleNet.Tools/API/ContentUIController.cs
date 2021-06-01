@@ -11,7 +11,7 @@ namespace BattleNet.Tools.API
 {
     [GameToolRoute(typeof(ContentUiController), "[Controller]")]
     [ApiController]
-    [ApiExplorerSettings(GroupName = "Battle.net Content UI")]
+    [ApiExplorerSettings(GroupName = "Battle.net Information")]
     [Produces("application/json")]
     public class ContentUiController : ControllerBase
     {

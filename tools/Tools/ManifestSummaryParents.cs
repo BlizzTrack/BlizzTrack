@@ -28,7 +28,7 @@ namespace Tooling.Tools
         {
             Console.Clear();
 
-            var summeries = await _dbContext.Summary.OrderByDescending(x => x.Seqn).ToListAsync();
+            var summaries = await _dbContext.Summary.OrderByDescending(x => x.Seqn).ToListAsync();
 
             var options = new ProgressBarOptions
             {
@@ -45,24 +45,24 @@ namespace Tooling.Tools
                 BackgroundCharacter = '\u2593'
             };
 
-            using var pbar = new ProgressBar(summeries.Count, "main progressbar", options);
+            using var pbar = new ProgressBar(summaries.Count, "main progressbar", options);
 
             var id = 1;
-            foreach (var summary in summeries)
+            foreach (var summary in summaries)
             {
                 pbar.Message = $"Processing Summary {summary.Seqn} {id}/{pbar.MaxTicks}";
                 using var child = pbar.Spawn(summary.Content.Length, "child actions", childOptions);
 
                 var gameId = 1;
-                foreach (var item in summary.Content)
+                foreach (var (product, seqn, flags) in summary.Content)
                 {
-                    child.Message = $"Processing Game {item.Product}({item.Seqn}) summary({summary.Seqn}) {gameId}/{child.MaxTicks}";
-                    switch (item.Flags)
+                    child.Message = $"Processing Game {product}({seqn}) summary({summary.Seqn}) {gameId}/{child.MaxTicks}";
+                    switch (flags)
                     {
                         case "version" or "versions":
                             {
 
-                                var c = await _dbContext.Versions.FirstOrDefaultAsync(x => x.Code == item.Product && x.Seqn == item.Seqn);
+                                var c = await _dbContext.Versions.FirstOrDefaultAsync(x => x.Code == product && x.Seqn == seqn);
                                 if(c != null)
                                 {
                                     c.Parent = summary.Seqn;
@@ -72,7 +72,7 @@ namespace Tooling.Tools
                             break;
                         case "cdn" or "cdns":
                             {
-                                var c = await _dbContext.CDN.FirstOrDefaultAsync(x => x.Code == item.Product && x.Seqn == item.Seqn);
+                                var c = await _dbContext.CDN.FirstOrDefaultAsync(x => x.Code == product && x.Seqn == seqn);
                                 if (c != null)
                                 {
                                     c.Parent = summary.Seqn;
@@ -82,7 +82,7 @@ namespace Tooling.Tools
                             break;
                         case "bgdl":
                             {
-                                var c = await _dbContext.BGDL.FirstOrDefaultAsync(x => x.Code == item.Product && x.Seqn == item.Seqn);
+                                var c = await _dbContext.BGDL.FirstOrDefaultAsync(x => x.Code == product && x.Seqn == seqn);
                                 if (c != null)
                                 {
                                     c.Parent = summary.Seqn;

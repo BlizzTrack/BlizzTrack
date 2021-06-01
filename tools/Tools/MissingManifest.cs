@@ -5,6 +5,7 @@ using MimeKit;
 using ShellProgressBar;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography.Pkcs;
@@ -36,7 +37,7 @@ namespace Tooling.Tools
             var files = Directory.EnumerateFiles("D:\\blizzard\\ribbit_data\\summary", "*.bmime", SearchOption.AllDirectories);
             using var eFiles = files.GetEnumerator();
 
-            int updateCycle = 1;
+            var updateCycle = 1;
 
             Console.Clear();
 
@@ -52,44 +53,47 @@ namespace Tooling.Tools
             {
                 var file = eFiles.Current;
 
-                var options = Path.GetFileNameWithoutExtension(file).Split("-");
+                var options = Path.GetFileNameWithoutExtension(file)?.Split("-");
 
                 pbar.Message = $"Reading: {Path.GetFileName(file)}";
 
-                (string code, string hashtash, int seqn) = (options[0], options[1], int.Parse(options[2]));
+                (var code, var hashtash, var seqn) = (options[0], options[1], int.Parse(options[2]));
 
-                var fileContent = File.ReadAllText(file);
+                var fileContent = await File.ReadAllTextAsync(file!);
                 var mail = await MimeMessage.LoadAsync(file);
 
                 var manifest = mail.BodyParts.OfType<MimePart>().LastOrDefault();
                 var body = mail.BodyParts.OfType<TextPart>().LastOrDefault();
 
-                using StreamReader reader = new StreamReader(manifest.Content.Stream);
-                string text = reader.ReadToEnd().Replace("\n", "");
-
-                var signDate = GetSignerCert(text);
-                var payload = body.Text.Split("\n").ToList();
-                payload.Insert(0, "## Nothing");
-                var (Value, Seqn) = BNetLib.Networking.BNetTools.Parse<BNetLib.Models.Summary>(payload);
-
-                var exist = await _dbContext.Summary.AsNoTracking().FirstOrDefaultAsync(x => x.Seqn == seqn);
-                if(exist != null)
+                if (manifest != null)
                 {
-                    updateCycle++;
-                    exist.Raw = fileContent;
-                    exist.Content = Value.ToArray();
+                    using var reader = new StreamReader(manifest.Content.Stream);
+                    var text = (await reader.ReadToEndAsync()).Replace("\n", "");
 
-                    _dbContext.Update(exist);
+                    var signDate = GetSignerCert(text);
+                    var payload = body.Text.Split("\n").ToList();
+                    payload.Insert(0, "## Nothing");
+                    var (Value, Seqn) = BNetLib.Networking.BNetTools.Parse<BNetLib.Models.Summary>(payload);
+
+                    var exist = await _dbContext.Summary.AsNoTracking().FirstOrDefaultAsync(x => x.Seqn == seqn);
+                    if(exist != null)
+                    {
+                        updateCycle++;
+                        exist.Raw = fileContent;
+                        exist.Content = Value.ToArray();
+
+                        _dbContext.Update(exist);
+                    }
+                    else
+                    {
+                        updateCycle++;
+                        var p = Manifest<BNetLib.Models.Summary[]>.Create(seqn, "summary", Value.ToArray());
+                        if (signDate != null)  p.Indexed = signDate.Value;
+                        p.Raw = fileContent;
+
+                        _dbContext.Add(p);
+                    }
                 }
-                else
-                {
-                    updateCycle++;
-                    var p = Manifest<BNetLib.Models.Summary[]>.Create(seqn, "summary", Value.ToArray());
-                    if (signDate != null)  p.Indexed = signDate.Value;
-                    p.Raw = fileContent;
-
-                    _dbContext.Add(p);
-                } 
 
                 if (updateCycle > 100)
                 {
@@ -125,7 +129,7 @@ namespace Tooling.Tools
             {
                 var file = eFiles.Current;
 
-                var options = Path.GetFileNameWithoutExtension(file).Split("-");
+                var options = Path.GetFileNameWithoutExtension(file)?.Split("-");
                 (string type, string code, int seqn) = (options[0], options[1], int.Parse(options[2]));
 
                 pbar.Message = $"Reading: {Path.GetFileName(file)}";
@@ -137,12 +141,13 @@ namespace Tooling.Tools
                 var manifest = mail.BodyParts.OfType<MimePart>().LastOrDefault();
                 var body = mail.BodyParts.OfType<TextPart>().LastOrDefault();
 
-                using StreamReader reader = new StreamReader(manifest.Content.Stream);
-                string text = reader.ReadToEnd().Replace("\n", "");
+                Debug.Assert(manifest != null, nameof(manifest) + " != null");
+                using var reader = new StreamReader(manifest.Content.Stream);
+                var text = (await reader.ReadToEndAsync()).Replace("\n", "");
 
                 var signDate = GetSignerCert(text);
-                var payload = body.Text.Split("\n").ToList();
-                payload.Insert(0, "## Nothing");
+                var payload = body?.Text.Split("\n").ToList();
+                payload?.Insert(0, "## Nothing");
 
                 switch(type)
                 {
@@ -232,30 +237,24 @@ namespace Tooling.Tools
             await _dbContext.SaveChangesAsync();
         }
 
-        private DateTime? GetSignerCert(String b64Signature)
+        private static DateTime? GetSignerCert(string b64Signature)
         {
-            byte[] binarySignature = Convert.FromBase64String(b64Signature);
+            var binarySignature = Convert.FromBase64String(b64Signature);
 
-            SignedCms cms = new SignedCms();
+            var cms = new SignedCms();
             cms.Decode(binarySignature);
 
-            SignerInfoCollection coll = cms.SignerInfos;
+            var coll = cms.SignerInfos;
 
             // Normally there is just the one signer certificate, which this will return
-            SignerInfoEnumerator siEnum = coll.GetEnumerator();
-            if (siEnum.MoveNext())
+            var siEnum = coll.GetEnumerator();
+            if (!siEnum.MoveNext()) return null;
+            var attributes = siEnum.Current.SignedAttributes.GetEnumerator();
+            while(attributes.MoveNext())
             {
-                var attriubtes = siEnum.Current.SignedAttributes.GetEnumerator();
-                while(attriubtes.MoveNext())
-                {
-                    if(attriubtes.Current.Oid.FriendlyName == "Signing Time")
-                    {
-                        var d = attriubtes.Current.Values.OfType<Pkcs9SigningTime>().FirstOrDefault();
-                        if (d == null) return null;
-                        return d.SigningTime;
-                    }
-                    
-                }
+                if (attributes.Current.Oid.FriendlyName != "Signing Time") continue;
+                var d = attributes.Current.Values.OfType<Pkcs9SigningTime>().FirstOrDefault();
+                return d?.SigningTime;
             }
 
             return null;
