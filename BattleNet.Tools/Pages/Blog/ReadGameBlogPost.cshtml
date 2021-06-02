@@ -16,10 +16,17 @@
 
         if (logo != null)
         {
-            <meta Name="twitter:image:src" Content="@logo.URL" />
-            <meta Name="og:image" Content="@logo.URL" />
-            <meta Name="twitter:url" Content="@logo.URL" />
-            <meta Name="og:url" Content="@logo.URL" />
+            <meta Name="twitter:image:src" Content="@Model.Post.Properties.StaticAsset.ImageUrl" />
+            <meta Name="og:image" Content="@Model.Post.Properties.StaticAsset.ImageUrl" />
+            <meta Name="twitter:url" Content="@Model.Post.Properties.StaticAsset.ImageUrl" />
+            <meta Name="twitter:card" Content="summary_large_image" />
+            <meta Name="twitter:title" Content="@Model.Post.Properties.Title" />
+            <meta Name="twitter:description" Content="@Model.Post.Properties.Summary" />
+            <meta Name="og:url" Content="@Model.Post.Properties.StaticAsset.ImageUrl" />
+            <meta property="og:image:width" content="1200" />
+            <meta property="og:image:height" content="600" />
+            <meta property="og:type" content="object" />
+            <meta property="og:image:alt" content="@Model.Post.Properties.Summary" />
         }
     }
 }
