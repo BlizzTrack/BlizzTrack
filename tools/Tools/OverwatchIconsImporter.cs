@@ -16,7 +16,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace Tooling.Tools
 {
-    [Tool(Name = "Overwatch Icon Importer", Order = 1, Disabled = false)]
+    [Tool(Name = "Overwatch Icon Importer", Order = 1, Disabled = true)]
     public class OverwatchIconsImporter : ITool
     {
         private readonly ILogger<OverwatchIconsImporter> _logger;

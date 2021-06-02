@@ -25,6 +25,7 @@ namespace Core.Services
                 .Include(x => x.Parents)
                 .ThenInclude(x => x.Children)
                 .ThenInclude(x => x.GameConfig)
+                .AsSplitQuery()
                 .ToListAsync();
         }
     }

@@ -25,7 +25,9 @@ namespace Core.Services
         {
             return await _dbContext.GameChildren
                 .Include(x => x.Parent)
-                .Include(x => x.GameConfig).ToListAsync();
+                .Include(x => x.GameConfig)
+                .AsSplitQuery()
+                .ToListAsync();
         }
 
         public async Task<Core.Models.GameChildren> Get(string code)
@@ -33,6 +35,7 @@ namespace Core.Services
             return await _dbContext.GameChildren
                 .Include(x => x.Parent)
                 .Include(x => x.GameConfig)
+                .AsSplitQuery()
                 .FirstOrDefaultAsync(x => x.Code.ToLower() == code.ToLower() || x.Slug.ToLower() == code.ToLower());
         }
 

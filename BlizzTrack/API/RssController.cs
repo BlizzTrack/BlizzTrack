@@ -37,9 +37,8 @@ namespace BlizzTrack.API
             if (parent == null || !parent.PatchNoteAreas.Contains(type.ToLower())) return NotFound();
 
             var notes = await _patchNotes.All(parent.Code, type);
-            if (notes == null || notes.Count <= 0) return NotFound();
-
-
+            if (notes is not {Count: > 0}) return NotFound();
+            
             var feed = new SyndicationFeed($"{parent.Name} {Helpers.GameTypeFixer.Fix(type)} Patch Notes", $"Patch notes for {parent.Name} {Helpers.GameTypeFixer.Fix(type)}", new Uri("https://blizztrack.com"), $"https://blizztrack.com/rss/{parent.Slug}/{type}", DateTime.Now);
 
             var items = new List<SyndicationItem>();

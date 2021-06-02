@@ -51,6 +51,7 @@ namespace BattleNet.Tools.Models
             [JsonProperty("context")] public SharedModels.Context Context { get; set; }
 
             [JsonProperty("feed")] public Feed Feed { get; set; }
+            [JsonProperty("contentItems")] public List<ContentItem> ContentItems { get; set; }
         }
     }
 }

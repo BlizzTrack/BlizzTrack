@@ -1,0 +1,74 @@
+﻿@page "/blog/{slug}/{post}"
+@model BattleNet.Tools.Pages.Blog.ReadGameBlogPost
+
+@{
+    ViewData["Title"] = $"{Model.Post.Properties.Title} // {Model.Parent?.Name}";
+    
+    ViewData["Description"] = Model.Post.Properties.Summary;
+
+}
+
+@if (Model.Parent?.Logos?.Count > 0)
+{
+@section Header {
+    @{
+        var logo = Model.Parent.Logos.FirstOrDefault(x => x.Type == "image/png");
+
+        if (logo != null)
+        {
+            <meta Name="twitter:image:src" Content="@logo.URL" />
+            <meta Name="og:image" Content="@logo.URL" />
+            <meta Name="twitter:url" Content="@logo.URL" />
+            <meta Name="og:url" Content="@logo.URL" />
+        }
+    }
+}
+}
+
+<div class="row">
+    <div class="col-12" aria-label="breadcrumb col-12" role="navigation">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a asp-page="/Index">
+                    All Games
+                </a>
+            </li>
+            <li class="breadcrumb-item" aria-current="page">
+                <a asp-page="/Blog/ViewGameBlog" asp-route-slug="@Model.Parent.Slug">
+                    @Model.Parent.Name Blog Post
+                </a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">
+                Reading Blog Post
+            </li>
+        </ol>
+    </div>
+    
+    <div class="col-3">
+        @foreach (var post in Model.Related)
+        {
+            <a asp-page="/Blog/ReadGameBlogPost" asp-route-slug="@Model.Parents.FirstOrDefault(x => x.CxpProductId == post.Properties.CxpProduct.Segment)?.CxpProductId" asp-route-post="@post.ContentId" class="card">
+                <img class="card-img-top" src="@post.Properties.StaticAsset.ImageUrl?corp=16:9" alt="@Model.Post.Properties.StaticAsset.ImageAltText">
+                <div class="card-body patch-notes">
+                    <h5 class="card-title font-weight-bold">@post.Properties.Title</h5>
+                    <p class="text-white" style="filter: brightness(0.75)">
+                        @post.Properties.Summary
+                    </p>
+                </div>
+            </a>
+        }
+    </div>
+    <div class="col-9">
+        <div class="card">
+            <img class="card-img-top" src="@Model.Post.Properties.StaticAsset.ImageUrl?corp=16:9" alt="@Model.Post.Properties.StaticAsset.ImageAltText">
+            <div class="card-body patch-notes">
+                <h3 class="card-title font-weight-bold text-center mb-3">
+                    @Model.Post.Properties.Title
+                    <br />
+                    <small class="text-white" style="filter: brightness(0.75); font-size: 0.8rem">@Model.Post.Properties.LastUpdated.ToString("D")</small>
+                </h3>
+                @Html.Raw(Model.Post.Properties.Content)
+            </div>
+        </div>
+    </div>
+</div>

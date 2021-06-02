@@ -42,7 +42,9 @@ namespace Core.Services
 
         public async Task<List<Models.GameConfig>> In(string[] codes)
         {
-            return await _dbContext.GameConfigs.Where(x => codes.Contains(x.Code)).Include(x => x.Owner).ToListAsync();
+            return await _dbContext.GameConfigs.Where(x => codes.Contains(x.Code)).Include(x => x.Owner) 
+                .AsSplitQuery()
+                .ToListAsync();
         }
 
         public async Task Update(Models.GameConfig config)

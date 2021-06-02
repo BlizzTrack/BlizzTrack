@@ -3,4 +3,53 @@
 
 @{
     ViewData["Title"] = $"{Model.Parent?.Name} Blog Viewer";
+    
+    ViewData["Description"] = "A powerful website which lets you view the versions of all the games that Blizzard Entertainment has on Battle.net!";
 }
+
+@if (Model.Parent?.Logos?.Count > 0)
+{
+    @section Header {
+        @{
+            var logo = Model.Parent.Logos.FirstOrDefault(x => x.Type == "image/png");
+
+            if (logo != null)
+            {
+                    <meta Name="twitter:image:src" Content="@logo.URL" />
+                    <meta Name="og:image" Content="@logo.URL" />
+                    <meta Name="twitter:url" Content="@logo.URL" />
+                    <meta Name="og:url" Content="@logo.URL" />
+            }
+        }
+    }
+}
+
+<div class="row">
+    <div class="col-12" aria-label="breadcrumb col-12" role="navigation">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a asp-page="/Index">
+                    All Games
+                </a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">@Model.Parent.Name</li>
+            <li class="breadcrumb-item active" aria-current="page">Blog Feed</li>
+        </ol>
+    </div>
+    
+    <div class="col-12">
+        @foreach (var post in Model.Items)
+        {
+            <div class="card flex-row flex-fill">
+                <div class="card-header border-0 p-0 w-25 h-100 col-3">
+                    <img src="@post.Properties.StaticAsset.ImageUrl?crop=16:9" alt="@post.Properties.StaticAsset.ImageAltText ">
+                </div>
+                <div class="card-block p-0 pl-4 py-4">
+                    <h3 class="card-title font-weight-bold">@post.Properties.Title</h3>
+                    <p class="card-text">@post.Properties.Summary</p>
+                    <a asp-page="/Blog/ReadGameBlogPost" asp-route-slug="@Model.Parent.Slug" asp-route-post="@post.ContentId" class="btn btn-dark">Read More...</a>
+                </div>
+            </div>
+        }
+    </div>
+</div>

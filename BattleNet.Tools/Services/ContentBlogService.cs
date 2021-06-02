@@ -13,6 +13,7 @@ namespace BattleNet.Tools.Services
     {
         Task<IEnumerable<ContentBlogModel.ContentItem>> GetBlog(string cxpProduct, int pageSize);
         Task<ContentBlogItemModel> GetPost(string postId);
+        Task<IEnumerable<ContentBlogModel.ContentItem>> GetRelatedPost(string postId);
     }
     
     public class ContentBlogService : IContentBlogSerivce
@@ -48,6 +49,19 @@ namespace BattleNet.Tools.Services
             var f = JsonConvert.DeserializeObject<ContentBlogItemModel>(data);
 
             return f;
+        }
+
+        public async Task<IEnumerable<ContentBlogModel.ContentItem>> GetRelatedPost(string postId)
+        {
+            var config = await _authService.GetAuthConfig();
+            
+            using var wc = new HttpClient();
+            wc.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", config.Bearer);
+            using var client = await wc.GetAsync($"{config.AssetHost}{config.AssetHostVersion}/content/blogs/{postId}/relatedContent?contentId={postId}");
+            var data = await client.Content.ReadAsStringAsync();
+            var f = JsonConvert.DeserializeObject<ContentBlogModel.Root>(data);
+
+            return f?.ContentItems;
         }
     }
 }

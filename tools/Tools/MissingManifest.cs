@@ -14,7 +14,7 @@ using Tooling.Attributes;
 
 namespace Tooling.Tools
 {
-    [Tool(Name = "Missing Manifest", Disabled = true)]
+    [Tool(Name = "Missing Manifest", Disabled = false)]
     public class MissingManifest : ITool
     {
         private readonly DBContext _dbContext;
@@ -34,7 +34,7 @@ namespace Tooling.Tools
 
         public async Task MissingSummary()
         {
-            var files = Directory.EnumerateFiles("D:\\blizzard\\ribbit_data\\summary", "*.bmime", SearchOption.AllDirectories);
+            var files = Directory.EnumerateFiles("D:\\git\\ribbit_data\\summary", "*.bmime", SearchOption.AllDirectories);
             using var eFiles = files.GetEnumerator();
 
             var updateCycle = 1;
@@ -49,8 +49,8 @@ namespace Tooling.Tools
                 BackgroundCharacter = '\u2593'
             });
 
-            while (eFiles.MoveNext())
-            {
+                while (eFiles.MoveNext())
+                {
                 var file = eFiles.Current;
 
                 var options = Path.GetFileNameWithoutExtension(file)?.Split("-");
@@ -110,7 +110,7 @@ namespace Tooling.Tools
 
         public async Task MissingGameManifest()
         {
-            var files = Directory.EnumerateFiles("D:\\blizzard\\ribbit_data\\products", "*.bmime", SearchOption.AllDirectories);
+            var files = Directory.EnumerateFiles("D:\\git\\ribbit_data\\products", "*.bmime", SearchOption.AllDirectories);
             var eFiles = files.GetEnumerator();
 
             int updateCycle = 1;

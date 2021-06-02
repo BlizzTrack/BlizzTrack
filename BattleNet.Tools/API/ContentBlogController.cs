@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
-using BattleNet.Tools.Models;
 using BattleNet.Tools.Services;
 using Core.Attributes;
 using Core.Models;

@@ -17835,7 +17835,7 @@ table.tablesorter thead tr .headerSortDown {
     }
 
         .main-panel[data="blue"] a:hover {
-            filter: brightness(1.5);
+            filter: brightness(1.1);
         }
 
     .main-panel[data="green"] a {
@@ -17843,7 +17843,7 @@ table.tablesorter thead tr .headerSortDown {
     }
 
         .main-panel[data="green"] a:hover {
-            filter: brightness(1.5);
+            filter: brightness(1.1);
         }
 
     .main-panel[data="primary"] a {
@@ -17851,7 +17851,7 @@ table.tablesorter thead tr .headerSortDown {
     }
 
         .main-panel[data="primary"] a:hover {
-            filter: brightness(1.5);
+            filter: brightness(1.1);
         }
 
     .main-panel > .content {

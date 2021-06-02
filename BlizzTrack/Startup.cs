@@ -85,7 +85,8 @@ namespace BlizzTrack
             {
                 options.SerializerSettings.Formatting = Newtonsoft.Json.Formatting.Indented;
                 options.SerializerSettings.Converters.Add(new StringEnumConverter());
-            });
+            }).AddRazorRuntimeCompilation();
+            
             services.AddRazorPages().AddNewtonsoftJson(options =>
                 options.SerializerSettings.Formatting = Newtonsoft.Json.Formatting.Indented);
             services.Configure<MvcNewtonsoftJsonOptions>(x =>
