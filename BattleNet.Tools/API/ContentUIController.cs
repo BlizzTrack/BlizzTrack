@@ -9,7 +9,7 @@ using Newtonsoft.Json;
 
 namespace BattleNet.Tools.API
 {
-    [GameToolRoute(typeof(ContentUiController), "[Controller]")]
+    [GameToolRoute(typeof(ContentUiController), "ui")]
     [ApiController]
     [ApiExplorerSettings(GroupName = "Battle.net Information")]
     [Produces("application/json")]
@@ -23,20 +23,20 @@ namespace BattleNet.Tools.API
         }
 
         /// <summary>
-        ///     All games on Battle.net
+        ///    List Games
         /// </summary>
         /// <returns>
-        ///     A list list of all games on the new Battle.net launcher including hidden/disabled games
+        ///     A list of all games on the new Battle.net launcher including hidden/disabled games
         /// </returns>
-        [HttpGet("list")]
+        [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<ContentUINextModel.Root>))]
         public async Task<IActionResult> ListGames()
         {
             var data = await _contentUiService.GetNextData();
-            var stringJson = JsonConvert.SerializeObject(data.products);
-            var exp = JsonConvert.DeserializeObject<List<ContentUINextModel.Root>>(stringJson);
+            //var stringJson = JsonConvert.SerializeObject(data.products);
+           // var exp = JsonConvert.DeserializeObject<List<ContentUINextModel.Root>>(stringJson);
 
-            return Ok(exp);
+            return Ok(data.products);
         }
     }
 }

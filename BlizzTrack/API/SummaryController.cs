@@ -46,7 +46,7 @@ namespace BlizzTrack.API
             var summaryDiff = new List<SummaryResults.SummaryItem>();
             var configs = await _gameConfig.In(latest.Content.Select(x => x.Product).ToArray());
             var parents = await _gameParents.All();
-           
+            
             foreach (var item in latest.Content)
             {
                 var config = configs.FirstOrDefault(f => f.Code == item.Product);

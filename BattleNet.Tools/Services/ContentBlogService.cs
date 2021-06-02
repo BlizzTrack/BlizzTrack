@@ -1,14 +1,18 @@
-﻿using System.Net.Http;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using BattleNet.Tools.Models;
+using Core.Models;
 using Newtonsoft.Json;
 
 namespace BattleNet.Tools.Services
 {
     public interface IContentBlogSerivce
     {
-        Task<ContentBlogModel.Root> GetBlog(string cxpProduct, int pageSize);
+        Task<IEnumerable<ContentBlogModel.ContentItem>> GetBlog(string cxpProduct, int pageSize);
+        Task<ContentBlogItemModel> GetPost(string postId);
     }
     
     public class ContentBlogService : IContentBlogSerivce
@@ -20,14 +24,30 @@ namespace BattleNet.Tools.Services
             _authService = authService;
         }
 
-        public async Task<ContentBlogModel.Root> GetBlog(string cxpProduct, int pageSize)
+        public async Task<IEnumerable<ContentBlogModel.ContentItem>> GetBlog(string cxpProduct, int pageSize)
         {
+            var config = await _authService.GetAuthConfig();
+            
             using var wc = new HttpClient();
-            wc.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", await _authService.GetAuthToken());
-            using var client = await wc.GetAsync($"https://us.api.blizzard.com/content-api/v1/layoutTemplates/blt387258f1fd825b72/layout?limit=10&offset=0&includeFeed=true&feedLimit={pageSize}&cxpProductId={cxpProduct}");
+            wc.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", config.Bearer);
+            using var client = await wc.GetAsync($"{config.AssetHost}{config.AssetHostVersion}/layoutTemplates/{config.LayoutCtsId}/layout?limit={pageSize}&offset=0&includeFeed=true&feedLimit={pageSize}&cxpProductId={cxpProduct}");
             var data = await client.Content.ReadAsStringAsync();
+            var f = JsonConvert.DeserializeObject<ContentBlogModel.Root>(data);
 
-            return JsonConvert.DeserializeObject<ContentBlogModel.Root>(data);
+            return f?.Feed.ContentItems;
+        }
+        
+        public async Task<ContentBlogItemModel> GetPost(string postId)
+        {
+            var config = await _authService.GetAuthConfig();
+            
+            using var wc = new HttpClient();
+            wc.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", config.Bearer);
+            using var client = await wc.GetAsync($"{config.AssetHost}{config.AssetHostVersion}/content/blogs/{postId}");
+            var data = await client.Content.ReadAsStringAsync();
+            var f = JsonConvert.DeserializeObject<ContentBlogItemModel>(data);
+
+            return f;
         }
     }
 }

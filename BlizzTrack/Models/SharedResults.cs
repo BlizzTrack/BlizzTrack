@@ -32,7 +32,8 @@ namespace BlizzTrack.Models
         {
             PatchNotes,
             View,
-            Seqn
+            Seqn,
+            BlogTracker
         }
 
     }

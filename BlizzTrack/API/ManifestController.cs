@@ -161,6 +161,8 @@ namespace BlizzTrack.API
                         }).ToList();
                     }
                     break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(filter), filter, null);
             }
 
             return Ok(res);
@@ -209,10 +211,18 @@ namespace BlizzTrack.API
             res.Indexed = versions.Indexed;
 
             var relations = new Dictionary<SharedResults.RelationTypes, string>();
-            if (parent.PatchNoteAreas != null && parent.PatchNoteAreas.Count > 0)
+            if (parent.PatchNoteAreas is {Count: > 0})
             {
                 relations[SharedResults.RelationTypes.PatchNotes] = Url.Action("List", "PatchNotes",
                     new { game = parent.Slug },
+                    Scheme()
+                );
+            }
+
+            if (!string.IsNullOrEmpty(parent.CxpProductId))
+            {
+                relations[SharedResults.RelationTypes.BlogTracker] = Url.Action("GameBlog", "ContentBlog",
+                    new { slug = parent.Slug },
                     Scheme()
                 );
             }
@@ -268,10 +278,18 @@ namespace BlizzTrack.API
             res.Indexed = versions.Indexed;
 
             var relations = new Dictionary<SharedResults.RelationTypes, string>();
-            if (parent.PatchNoteAreas != null && parent.PatchNoteAreas.Count > 0)
+            if (parent.PatchNoteAreas is {Count: > 0})
             {
                 relations[SharedResults.RelationTypes.PatchNotes] = Url.Action("List", "PatchNotes",
                     new { game = parent.Slug },
+                    Scheme()
+                );
+            }
+            
+            if (!string.IsNullOrEmpty(parent.CxpProductId))
+            {
+                relations[SharedResults.RelationTypes.BlogTracker] = Url.Action("GameBlog", "ContentBlog",
+                    new { slug = parent.Slug },
                     Scheme()
                 );
             }
@@ -325,10 +343,18 @@ namespace BlizzTrack.API
             res.Indexed = versions.Indexed;
 
             var relations = new Dictionary<SharedResults.RelationTypes, string>();
-            if(parent.PatchNoteAreas != null && parent.PatchNoteAreas.Count > 0)
+            if(parent.PatchNoteAreas is {Count: > 0})
             {
                 relations[SharedResults.RelationTypes.PatchNotes] = Url.Action("List", "PatchNotes",
                     new { game = parent.Slug },
+                    Scheme()
+                );
+            }
+            
+            if (!string.IsNullOrEmpty(parent.CxpProductId))
+            {
+                relations[SharedResults.RelationTypes.BlogTracker] = Url.Action("GameBlog", "ContentBlog",
+                    new { slug = parent.Slug },
                     Scheme()
                 );
             }
