@@ -1,5 +1,4 @@
-﻿using BNetLib.Networking.Commands;
-using Core.Services;
+﻿using Core.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -9,6 +8,7 @@ using System;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
+using BNetLib.Ribbit.Commands;
 
 namespace BlizzTrack.API
 {
@@ -203,7 +203,7 @@ namespace BlizzTrack.API
                         {
                             case "version" or "versions":
                                 {
-                                    var ver = await _versions.Seqn(code);
+                                    var ver = await _versions.SeqnList(code);
                                     if (ver == null) return NotFound(new { error = "Not found" });
                                     var config = await _gameConfig.Get(code);
 
@@ -252,7 +252,7 @@ namespace BlizzTrack.API
                                 }
                             case "bgdl":
                                 {
-                                    var bgdl = await _bgdl.Seqn(code);
+                                    var bgdl = await _bgdl.SeqnList(code);
                                     if (bgdl == null)
                                         return NotFound(new { error = "Not found" });
                                     var config = await _gameConfig.Get(code);

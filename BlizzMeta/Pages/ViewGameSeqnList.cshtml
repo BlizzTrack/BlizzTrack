@@ -6,7 +6,7 @@
     ViewData["Page_Title"] = "Viewing manifest history";
 }
 
-@using BNetLib.Models
+@using BNetLib.Ribbit.Models
 @using Core.Extensions
 @using Core.Models
 @using Newtonsoft.Json
@@ -101,8 +101,8 @@
                     var content = Model.Content switch {
                         Manifest<Versions[]> x => x.Raw,
                         Manifest<BGDL[]> x => x.Raw,
-                        Manifest<CDN[]> x => x.Raw
-                        };
+                        Manifest<CDN[]> x => x.Raw,
+                        _ => throw new ArgumentOutOfRangeException()};
 
                     <pre style = "border-radius: 6px; margin: 0; max-width: 100%" class="has-background-dark has-text-light p-3">
 @if (Model.View.ToLower() == "simple")
@@ -124,8 +124,8 @@ else
                     object content = Model.Content switch {
                         Manifest<Versions[]> x => x.Content,
                         Manifest<BGDL[]> x => x.Content,
-                        Manifest<CDN[]> x => x.Content
-                        };
+                        Manifest<CDN[]> x => x.Content,
+                        _ => throw new ArgumentOutOfRangeException()};
                     
                     <pre style = "border-radius: 6px; margin: 0; max-width: 100%" class="has-background-dark has-text-light p-3">@JsonConvert.SerializeObject(content, Formatting.Indented)</pre>
                 }

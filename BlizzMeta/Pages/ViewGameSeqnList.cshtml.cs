@@ -40,15 +40,15 @@ namespace BlizzMeta.Pages
 
         public List<SeqnType> Seqns;
 
-        public object Content;
+        public new object Content;
         
         public async Task<IActionResult> OnGetAsync()
         {
             Seqns = File.ToLower() switch
             {
-                "versions" or "version" => await _versions.Seqn(Code),
+                "versions" or "version" => await _versions.SeqnList(Code),
                 "cdns" or "cdn" => await _cdns.Seqn(Code),
-                "bgdl" => await _bgdl.Seqn(Code),
+                "bgdl" => await _bgdl.SeqnList(Code),
                 _ => null
             };
             if (Seqns == null) return NotFound();

@@ -1,4 +1,5 @@
 ﻿@page "/v/{code}/{file}"
+@using BNetLib.Ribbit.Models
 @model BlizzTrack.Pages.ViewGameModel
 
 @{
@@ -95,10 +96,10 @@
     @{
         switch (Model.Manifest)
         {
-            case List<Core.Models.Manifest<BNetLib.Models.Versions[]>> ver:
+            case List<Core.Models.Manifest<Versions[]>> ver:
                 await Html.RenderPartialAsync($"_view_{Model.Meta.Flags.ToLower()}", ver);
                 break;
-            case List<Core.Models.Manifest<BNetLib.Models.BGDL[]>> ver:
+            case List<Core.Models.Manifest<BGDL[]>> ver:
                 await Html.RenderPartialAsync($"_view_{Model.Meta.Flags.ToLower()}", ver);
                 break;
             default:

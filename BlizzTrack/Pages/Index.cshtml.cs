@@ -7,6 +7,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using BGDL = BNetLib.Ribbit.Models.BGDL;
+using Summary = BNetLib.Ribbit.Models.Summary;
+using Versions = BNetLib.Ribbit.Models.Versions;
 
 namespace BlizzTrack.Pages
 {
@@ -36,9 +39,9 @@ namespace BlizzTrack.Pages
             _gameCompanies = gameCompanies;
         }
 
-        public List<Manifest<BNetLib.Models.Summary[]>> Manifests;
+        public List<Manifest<Summary[]>> Manifests;
         
-        public readonly List<(BNetLib.Models.Summary newest, BNetLib.Models.Summary previous)> SummaryDiff = new();
+        public readonly List<(Summary newest, Summary previous)> SummaryDiff = new();
 
         [BindProperty(SupportsGet = true, Name = "search")]
         public string Search { get;  set; }
@@ -47,9 +50,9 @@ namespace BlizzTrack.Pages
 
         public List<GameCompany> Companies;
 
-        public List<Manifest<BNetLib.Models.Versions[]>> Versions;
+        public List<Manifest<Versions[]>> Versions;
 
-        public List<Manifest<BNetLib.Models.BGDL[]>> BgdLs;
+        public List<Manifest<BGDL[]>> BgdLs;
 
         public List<UpdateTimes> GameVersions { get; } = new();
         

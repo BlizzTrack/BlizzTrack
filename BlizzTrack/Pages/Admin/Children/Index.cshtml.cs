@@ -6,7 +6,7 @@ using Microsoft.FeatureManagement.Mvc;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Summary = BNetLib.Models.Summary;
+using Summary = BNetLib.Ribbit.Models.Summary;
 
 namespace BlizzTrack.Pages.Admin.Children
 {

@@ -11,6 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 using BlizzTrack.Services;
+using BNetLib.Ribbit.Commands;
 using Core.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.FeatureManagement.Mvc;
@@ -51,7 +52,7 @@ namespace BlizzTrack.API
                 {
                     latest.Indexed,
                     latest.Seqn,
-                    command = new BNetLib.Networking.Commands.VersionCommand(code).ToString(),
+                    command = new VersionCommand(code).ToString(),
                     Content = latest.Content.Select(x => new
                     {
                         region = x.GetName(),
@@ -66,7 +67,7 @@ namespace BlizzTrack.API
                 {
                     previous.Indexed,
                     previous.Seqn,
-                    command = new BNetLib.Networking.Commands.VersionCommand(code).ToString(),
+                    command = new VersionCommand(code).ToString(),
                     Content = previous.Content.Select(x => new
                     {
                         region = x.GetName(),

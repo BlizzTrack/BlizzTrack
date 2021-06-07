@@ -7,6 +7,8 @@ namespace Core.Services
     public interface ICatalog
     {
         Task<Models.Catalog> Get(string hash);
+
+        Task Put(Models.Catalog catalog);
     }
 
     public class Catalog : ICatalog
@@ -21,6 +23,12 @@ namespace Core.Services
         public async Task<Models.Catalog> Get(string hash)
         {
             return await _dbContext.Catalogs.FirstOrDefaultAsync(x => x.Hash == hash);
+        }
+
+        public async Task Put(Models.Catalog catalog)
+        {
+            await _dbContext.Catalogs.AddAsync(catalog);
+            await _dbContext.SaveChangesAsync();
         }
     }
 }

@@ -290,12 +290,12 @@ namespace BlizzTrack.API
             /// <summary>
             ///     Only used if set game is Overwatch
             /// </summary>
-            public List<BNetLib.Models.Patchnotes.Overwatch.HeroUpdate> HeroUpdates { get; set; } = null;
+            public List<BNetLib.PatchNotes.Models.Overwatch.HeroUpdate> HeroUpdates { get; set; } = null;
 
             /// <summary>
             ///     Only used if set game is Overwatch
             /// </summary>
-            public List<BNetLib.Models.Patchnotes.Overwatch.GenericUpdate> GenericUpdates { get; set; } = null;
+            public List<BNetLib.PatchNotes.Models.Overwatch.GenericUpdate> GenericUpdates { get; set; } = null;
         } 
     }
 }

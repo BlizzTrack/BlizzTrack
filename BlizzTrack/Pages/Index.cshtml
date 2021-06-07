@@ -180,15 +180,6 @@
                         case "cdn":
                             continue;
                         // Skip empty BGDL
-                        case "bgdl":
-                        {
-                            var ver = Model.BgdLs.FirstOrDefault(x => x.Code == product);
-                            if (ver?.Content?.Length <= 0)
-                            {
-                                continue;
-                            }
-                            break;
-                        }
                     }
 
                     var config = Model.Configs.FirstOrDefault(x => x.Code == product) ?? new Core.Models.GameConfig
@@ -296,7 +287,7 @@
 {
     var parents = company.Parents.OrderBy(x => x.Code).ToList();
     
-    // Storm as a CDN config even though it's depricated in battle.net so we need to check it exist
+    // Storm as a CDN config even though it's deprecated in battle.net so we need to check it exist
     if (parents.Select(x => x.Children.ToList()).ToList().Exists(x => x.Exists(x => x.Code == "storm")))
     {
         continue;
@@ -346,18 +337,29 @@
                     {
                         <img src="~/images/logos/bt.svg" class="mr-3" width="45" height="45" alt="@parent.Name Logo">
                     }
-                    <div>
-                        <h2 class="card-title mb-0">
-                            @parent.Name
-                            <small style="font-size: x-small">
-                                <a href="#@parent.Slug" aria-label="@parent.Name">
-                                    <i class="fas fa-anchor"></i>
-                                </a>
-                            </small>
-                        </h2>
-                        @if (!string.IsNullOrEmpty(parent.About))
+                    <div class="d-flex w-100">
+                        <div class="d-block">
+                            <h2 class="card-title mb-0 w-100">
+                                @parent.Name
+                                <small class="d-none d-lg-inline" style="font-size: x-small">
+                                    <a href="#@parent.Slug" aria-label="@parent.Name">
+                                        <i class="fas fa-anchor"></i>
+                                    </a>
+                                </small>
+                            </h2>
+                            @if (!string.IsNullOrEmpty(parent.About))
+                            {
+                                <h5 class="card-category mb-0 mt-1 text-white d-none d-lg-inline" style="filter: brightness(0.75)">@parent.About</h5>
+                            }
+                            
+                        </div>
+                        @if (!string.IsNullOrEmpty(parent.CxpProductId))
                         {
-                            <h5 class="card-category mb-0 mt-1">@parent.About</h5>
+                            <div class="ml-auto p-0 d-none d-lg-inline w-auto">
+                                <a class="btn btn-sm btn-dark" asp-page="/Blog/ViewGameBlog" asp-route-slug="@parent.Slug">
+                                    <i class="fa fa-blog mr-1"></i> View Blog Feed
+                                </a>
+                            </div>
                         }
                     </div>
                 </div>
@@ -415,7 +417,7 @@
                             }
                         }
 
-                        config ??= new Core.Models.GameConfig()
+                        config ??= new Core.Models.GameConfig
                         {
                             Config = new Core.Models.ConfigItems(true, string.Empty),
                             Code = product

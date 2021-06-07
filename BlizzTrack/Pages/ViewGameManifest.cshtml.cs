@@ -6,6 +6,9 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using BGDL = BNetLib.Ribbit.Models.BGDL;
+using Summary = BNetLib.Ribbit.Models.Summary;
+using Versions = BNetLib.Ribbit.Models.Versions;
 
 namespace BlizzTrack.Pages
 {
@@ -43,7 +46,7 @@ namespace BlizzTrack.Pages
         [BindProperty(SupportsGet = true, Name = "previous-seqn")]
         public int? PreviousSeqn { get; set; } = null;
 
-        public BNetLib.Models.Summary Meta { get; set; }
+        public Summary Meta { get; set; }
 
         public object Manifest { get; set; }
 
@@ -89,7 +92,7 @@ namespace BlizzTrack.Pages
             return Page();
         }
 
-        private async Task<List<Manifest<BNetLib.Models.Versions[]>>> GetVersions(string product)
+        private async Task<List<Manifest<Versions[]>>> GetVersions(string product)
         {
             var data = await _versions.Take(product, 2);
             if (LatestSeqn != null)
@@ -113,7 +116,7 @@ namespace BlizzTrack.Pages
             return data;
         }
 
-        private async Task<List<Manifest<BNetLib.Models.BGDL[]>>> GetBgdl(string product)
+        private async Task<List<Manifest<BGDL[]>>> GetBgdl(string product)
         {
             var data = await _bgdl.Take(product, 2);
             if (LatestSeqn != null)

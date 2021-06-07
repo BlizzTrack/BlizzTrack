@@ -1,7 +1,7 @@
-﻿using BNetLib.Models;
-using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using System;
+using BNetLib.Ribbit.Models;
 
 namespace Core.Migrations
 {

@@ -1,5 +1,4 @@
 ﻿using BlizzTrack.Models;
-using BNetLib.Networking.Commands;
 using Core.Models;
 using Core.Services;
 using Microsoft.AspNetCore.Http;
@@ -9,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using BNetLib.Ribbit.Commands;
 
 namespace BlizzTrack.API
 {
@@ -162,7 +162,7 @@ namespace BlizzTrack.API
          ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ReponseTypes.NotFound))]
         public async Task<IActionResult> SummarySeqn()
         {
-            var summary = await _summary.Seqn();
+            var summary = await _summary.SeqnList();
             if (summary == null) return NotFound(new ReponseTypes.NotFound());
 
             var f = summary.Select(data => new SharedResults.SeqnItem

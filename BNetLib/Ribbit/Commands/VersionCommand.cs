@@ -1,4 +1,4 @@
-﻿namespace BNetLib.Networking.Commands
+﻿namespace BNetLib.Ribbit.Commands
 {
     public class VersionCommand : AbstractCommand
     {

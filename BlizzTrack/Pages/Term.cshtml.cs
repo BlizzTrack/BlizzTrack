@@ -1,11 +1,11 @@
-using BNetLib.Networking;
-using BNetLib.Networking.Commands;
 using Core.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BNetLib.Ribbit;
+using BNetLib.Ribbit.Commands;
 
 namespace BlizzTrack.Pages
 {

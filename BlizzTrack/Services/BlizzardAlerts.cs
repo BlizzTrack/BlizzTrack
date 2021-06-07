@@ -58,7 +58,7 @@ namespace BlizzTrack.Services
                     { "access_token", "cs10ce60130ad4ae4fcacf3344" }
                 };
 
-            var (item1, _) = await BNetLib.Http.RemoteJson.Get<BNetLib.Models.Patchnotes.Overwatch.Root>(url, headers);
+            var (item1, _) = await BNetLib.Http.RemoteJson.Get<BNetLib.PatchNotes.Models.Overwatch.Root>(url, headers);
 
             await _redisDatabase.AddAsync("alert_pro_experimental_status", item1.Entries.Count, TimeSpan.FromSeconds(30));
 

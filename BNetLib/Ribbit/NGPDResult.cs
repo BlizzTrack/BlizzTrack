@@ -1,8 +1,9 @@
 ﻿using System.Collections.Generic;
+using BNetLib.Ribbit.Models;
 
-namespace BNetLib.Models
+namespace BNetLib.Ribbit
 {
-    public class ClientResult<T> where T : NGPD, new()
+    public class NgpdResult<T> where T : NGPD, new()
     {
         public int Seqn { get; set; }
 

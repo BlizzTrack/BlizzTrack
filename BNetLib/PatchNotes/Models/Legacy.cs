@@ -1,7 +1,7 @@
-﻿using Newtonsoft.Json;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using Newtonsoft.Json;
 
-namespace BNetLib.Models.Patchnotes
+namespace BNetLib.PatchNotes.Models
 {
     public class Legacy
     {

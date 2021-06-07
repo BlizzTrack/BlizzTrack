@@ -5,6 +5,8 @@ using MimeKit;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using BNetLib.Ribbit;
+using BNetLib.Ribbit.Models;
 using Tooling.Attributes;
 
 namespace Tooling.Tools
@@ -52,7 +54,7 @@ namespace Tooling.Tools
 
                 var payload = body?.Text.Split("\n").ToList();
                 payload?.Insert(0, "## Nothing");
-                var (value, Seqn) = BNetLib.Networking.BNetTools.Parse<BNetLib.Models.Summary>(payload);
+                var (value, Seqn) = BNetTools.Parse<Summary>(payload);
 
                 updateCycle++;
                 summary.Content = value.ToArray();

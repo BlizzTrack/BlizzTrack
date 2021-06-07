@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
 using System.IO;
 using System.Threading.Tasks;
+using BNetLib.Ribbit;
 using StackExchange.Redis.Extensions.Core.Configuration;
 using StackExchange.Redis.Extensions.Newtonsoft;
 using Worker.Events;
@@ -47,7 +48,7 @@ namespace Worker
                     };
                     services.AddStackExchangeRedisExtensions<NewtonsoftSerializer>(conf);
 
-                    services.AddSingleton(_ => new BNetLib.Networking.BNetClient());
+                    services.AddSingleton(_ => new BNetClient());
                     services.AddSingleton<BNetLib.Http.ProductConfig>();
 
                     services.AddScoped<Core.Services.ISummary, Core.Services.Summary>();
@@ -56,6 +57,7 @@ namespace Worker
                     services.AddScoped<Core.Services.IBGDL, Core.Services.BGDL>();
                     services.AddScoped<Core.Services.IGameParents, Core.Services.GameParents>();
                     services.AddScoped<Core.Services.IVersions, Core.Services.Versions>();
+                    services.AddScoped<BNetLib.PatchNotes.IPatchNotes, BNetLib.PatchNotes.PatchNotes>();
                     
                     services.AddSingleton(x => new ConcurrentQueue<ConfigUpdate>());
 

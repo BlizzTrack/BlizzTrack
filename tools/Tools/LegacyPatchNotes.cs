@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using BNetLib.PatchNotes.Models;
 using Tooling.Attributes;
 
 namespace Tooling.Tools
@@ -126,7 +127,7 @@ namespace Tooling.Tools
                     { "access_token", "cs10ce60130ad4ae4fcacf3344" }
                 };
 
-                var data = await BNetLib.Http.RemoteJson.Get<BNetLib.Models.Patchnotes.Overwatch.Root>(url, headers);
+                var data = await BNetLib.Http.RemoteJson.Get<Overwatch.Root>(url, headers);
 
                 if (data.Item1.Entries.Count > 0)
                 {
@@ -164,7 +165,7 @@ namespace Tooling.Tools
 
                 Console.WriteLine(url);
                 
-                var (item1, item2) = await BNetLib.Http.RemoteJson.Get<BNetLib.Models.Patchnotes.Legacy.Root>(url);
+                var (item1, item2) = await BNetLib.Http.RemoteJson.Get<Legacy.Root>(url);
             
                 if(item1.PatchNotes == null || item2 == null)
                 {

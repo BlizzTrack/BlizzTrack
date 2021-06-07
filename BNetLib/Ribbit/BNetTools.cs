@@ -1,10 +1,10 @@
-﻿using BNetLib.Extensions;
-using BNetLib.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using BNetLib.Extensions;
+using BNetLib.Ribbit.Models;
 
-namespace BNetLib.Networking
+namespace BNetLib.Ribbit
 {
     internal enum KeyTypeEnum
     {
@@ -61,9 +61,9 @@ namespace BNetLib.Networking
 
             foreach (var line in enumerable.Skip(2))
             {
-                if (line.StartsWith("## seqn ="))
+                if (line.StartsWith("## seqn =", StringComparison.OrdinalIgnoreCase))
                 {
-                    var f = line.Replace("## seqn =", "").Trim();
+                    var f = string.Join("", line.Where(char.IsDigit));
                     _ = int.TryParse(f, out seqn);
                     continue;
                 }

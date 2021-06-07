@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text.Json;
-using BNetLib.Models;
+using BNetLib.Ribbit.Models;
 using Core.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;

@@ -1,4 +1,4 @@
-﻿namespace BNetLib.Networking
+﻿namespace BNetLib.Ribbit
 {
     public enum ServerRegion
     {

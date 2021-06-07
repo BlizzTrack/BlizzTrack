@@ -10,6 +10,8 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using BNetLib.PatchNotes;
+using BNetLib.PatchNotes.Models;
 using StackExchange.Redis.Extensions.Core.Abstractions;
 
 namespace Worker.Workers
@@ -62,6 +64,7 @@ namespace Worker.Workers
                 using var sc = _serviceScope.CreateScope();
                 var gameParents = sc.ServiceProvider.GetRequiredService<Core.Services.IGameParents>();
                 var dbContext = sc.ServiceProvider.GetRequiredService<DBContext>();
+                var patchNotes = sc.ServiceProvider.GetRequiredService<IPatchNotes>();
 
                 var parents = await gameParents.All();
 
@@ -72,8 +75,8 @@ namespace Worker.Workers
                     {
                         var data = parent.PatchNoteTool switch
                         {
-                            "overwatch" => await OverwatchPatchNotes(parent, language),
-                            "legacy" => await LegacyPatchNotes(parent, language),
+                            "overwatch" => await OverwatchPatchNotes(parent, patchNotes, language),
+                            "legacy" => await LegacyPatchNotes(parent, patchNotes, language),
                             _ => null
                         };
 
@@ -136,54 +139,52 @@ namespace Worker.Workers
             }
         }
 
-        private static async Task<List<PatchNote>> OverwatchPatchNotes(GameParents parent, string locale = "en-us")
+        private static async Task<List<PatchNote>> OverwatchPatchNotes(GameParents parent, IPatchNotes patchNotes, string locale = "en-us")
         {
             var res = new List<PatchNote>();
-
+            var headers = new Dictionary<string, string>
+            {
+                { "api_key", "blt43efdd4acc4bdcb2" },
+                { "access_token", "cs10ce60130ad4ae4fcacf3344" }
+            };
+            
             foreach (var code in parent.PatchNoteAreas)
             {
-                var url = $"https://cdn.blz-contentstack.com/v3/content_types/game_update/entries?desc=post_date&environment=prod&query={{\"type\":\"{code}\", \"expired\":false}}&limit=1&locale={locale}";
+                var url =
+                    $"https://cdn.blz-contentstack.com/v3/content_types/game_update/entries?desc=post_date&environment=prod&query={{\"type\":\"{code}\", \"expired\":false}}&limit=1&locale={locale}";
 
-                var headers = new Dictionary<string, string>()
-                {
-                    { "api_key", "blt43efdd4acc4bdcb2" },
-                    { "access_token", "cs10ce60130ad4ae4fcacf3344" }
-                };
+                var (parsed, _) = await patchNotes.Get<Overwatch.Root>(url, headers);
 
-                var data = await BNetLib.Http.RemoteJson.Get<BNetLib.Models.Patchnotes.Overwatch.Root>(url, headers);
+                if (parsed.Entries.Count <= 0) continue;
+                var f = parsed.Entries.First();
 
-                if (data.Item1.Entries.Count > 0)
-                {
-                    var f = data.Item1.Entries.First();
+                var note = PatchNote.Create(JsonConvert.SerializeObject(f));
+                note.Created = f.PostDate;
+                note.Updated = f.UpdatedAt;
 
-                    var note = PatchNote.Create(JsonConvert.SerializeObject(f));
-                    note.Created = f.PostDate;
-                    note.Updated = f.UpdatedAt;
+                note.Type = code;
+                note.Code = parent.Code;
+                note.Language = locale;
 
-                    note.Type = code;
-                    note.Code = parent.Code;
-                    note.Language = locale;
-
-                    res.Add(note);
-                }
+                res.Add(note);
             }
 
             return res;
         }
 
-        private static async Task<List<PatchNote>> LegacyPatchNotes(GameParents parent, string locale = "en-us")
+        private static async Task<List<PatchNote>> LegacyPatchNotes(GameParents parent, IPatchNotes patchNotes, string locale = "en-us")
         {
             var res = new List<PatchNote>();
 
             foreach (var code in parent.PatchNoteAreas)
             {
                 var url = $"https://cache-cms-ext-us.battle.net/system/cms/oauth/api/patchnote/list?program={(parent.PatchNoteCode ?? parent.Code)}&region=us&locale={locale}&type={code}&page=1&pageSize=1&orderBy=buildNumber";
+                
+                var (parsed, _) = await patchNotes.Get<Legacy.Root>(url);
+                
+                if (parsed.PatchNotes == null) continue;
 
-                var data = await BNetLib.Http.RemoteJson.Get<BNetLib.Models.Patchnotes.Legacy.Root>(url);
-
-                if (data.Item1.PatchNotes == null) continue;
-
-                var f = data.Item1.PatchNotes.First();
+                var f = parsed.PatchNotes.First();
 
                 var note = PatchNote.Create(JsonConvert.SerializeObject(f));
                 note.Created = DateTimeOffset.FromUnixTimeMilliseconds(f.Publish).UtcDateTime;

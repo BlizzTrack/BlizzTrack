@@ -10,6 +10,8 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography.Pkcs;
 using System.Threading.Tasks;
+using BNetLib.Ribbit;
+using BNetLib.Ribbit.Models;
 using Tooling.Attributes;
 
 namespace Tooling.Tools
@@ -73,7 +75,7 @@ namespace Tooling.Tools
                     var signDate = GetSignerCert(text);
                     var payload = body.Text.Split("\n").ToList();
                     payload.Insert(0, "## Nothing");
-                    var (Value, Seqn) = BNetLib.Networking.BNetTools.Parse<BNetLib.Models.Summary>(payload);
+                    var (Value, Seqn) = BNetTools.Parse<Summary>(payload);
 
                     var exist = await _dbContext.Summary.AsNoTracking().FirstOrDefaultAsync(x => x.Seqn == seqn);
                     if(exist != null)
@@ -87,7 +89,7 @@ namespace Tooling.Tools
                     else
                     {
                         updateCycle++;
-                        var p = Manifest<BNetLib.Models.Summary[]>.Create(seqn, "summary", Value.ToArray());
+                        var p = Manifest<Summary[]>.Create(seqn, "summary", Value.ToArray());
                         if (signDate != null)  p.Indexed = signDate.Value;
                         p.Raw = fileContent;
 
@@ -157,8 +159,8 @@ namespace Tooling.Tools
 
                             if (exist == null)
                             {
-                                var (Value, Seqn) = BNetLib.Networking.BNetTools.Parse<BNetLib.Models.Versions> (payload);
-                                var p = Manifest<BNetLib.Models.Versions[]>.Create(seqn, code, Value.ToArray());
+                                var (Value, Seqn) = BNetTools.Parse<Versions> (payload);
+                                var p = Manifest<Versions[]>.Create(seqn, code, Value.ToArray());
                                 if (signDate != null) p.Indexed = signDate.Value;
                                 p.Raw = fileContent;
 
@@ -181,8 +183,8 @@ namespace Tooling.Tools
 
                             if (exist == null)
                             {
-                                var (Value, Seqn) = BNetLib.Networking.BNetTools.Parse<BNetLib.Models.CDN>(payload);
-                                var p = Manifest<BNetLib.Models.CDN[]>.Create(seqn, code, Value.ToArray());
+                                var (Value, Seqn) = BNetTools.Parse<CDN>(payload);
+                                var p = Manifest<CDN[]>.Create(seqn, code, Value.ToArray());
                                 if (signDate != null) p.Indexed = signDate.Value;
                                 p.Raw = fileContent;
 
@@ -205,8 +207,8 @@ namespace Tooling.Tools
 
                             if (exist == null)
                             {
-                                var (Value, Seqn) = BNetLib.Networking.BNetTools.Parse<BNetLib.Models.BGDL>(payload);
-                                var p = Manifest<BNetLib.Models.BGDL[]>.Create(seqn, code, Value.ToArray());
+                                var (Value, Seqn) = BNetTools.Parse<BGDL>(payload);
+                                var p = Manifest<BGDL[]>.Create(seqn, code, Value.ToArray());
                                 if (signDate != null) p.Indexed = signDate.Value;
                                 p.Raw = fileContent;
 

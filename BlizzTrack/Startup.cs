@@ -27,6 +27,7 @@ using System.Linq;
 using System.Reflection;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using BNetLib.Ribbit;
 using Microsoft.AspNetCore.DataProtection;
 
 namespace BlizzTrack
@@ -173,7 +174,7 @@ namespace BlizzTrack
             });
 
             // Blizzard services
-            services.AddSingleton(_ => new BNetLib.Networking.BNetClient());
+            services.AddSingleton(_ => new BNetClient());
             services.AddSingleton(_ => new BNetLib.Http.ProductConfig());
 
             // System Services

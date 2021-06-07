@@ -1,8 +1,8 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 
-namespace BNetLib.Models.Patchnotes
+namespace BNetLib.PatchNotes.Models
 {
     public class Overwatch
     {

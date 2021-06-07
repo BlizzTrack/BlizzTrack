@@ -1,11 +1,15 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using BNetLib.Ribbit.Models;
 using Core.Extensions;
 using Core.Models;
 using Core.Services;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
+using BGDL = BNetLib.Ribbit.Models.BGDL;
+using Summary = BNetLib.Ribbit.Models.Summary;
+using Versions = BNetLib.Ribbit.Models.Versions;
 
 namespace BlizzMeta.Pages
 {
@@ -30,13 +34,13 @@ namespace BlizzMeta.Pages
 
         public List<Core.Models.GameChildren> Children;
         
-        public List<Manifest<BNetLib.Models.Versions[]>> Versions;
+        public List<Manifest<Versions[]>> Versions;
 
-        public List<Manifest<BNetLib.Models.BGDL[]>> Bgdls;
+        public List<Manifest<BGDL[]>> Bgdls;
         
-        public List<Manifest<BNetLib.Models.CDN[]>> Cdns;
+        public List<Manifest<CDN[]>> Cdns;
 
-        public Manifest<BNetLib.Models.Summary[]> Manifests;
+        public Manifest<Summary[]> Manifests;
 
         public async Task OnGetAsync()
         {

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
+﻿using BNetLib.Ribbit.Models;
+using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
@@ -6,10 +7,10 @@ namespace Core.Models
 {
     public class DBContext : IdentityDbContext<User>, IDataProtectionKeyContext
     {
-        public DbSet<Manifest<BNetLib.Models.Versions[]>> Versions { get; set; }
-        public DbSet<Manifest<BNetLib.Models.BGDL[]>> BGDL { get; set; }
-        public DbSet<Manifest<BNetLib.Models.CDN[]>> CDN { get; set; }
-        public DbSet<Manifest<BNetLib.Models.Summary[]>> Summary { get; set; }
+        public DbSet<Manifest<Versions[]>> Versions { get; set; }
+        public DbSet<Manifest<BGDL[]>> BGDL { get; set; }
+        public DbSet<Manifest<CDN[]>> CDN { get; set; }
+        public DbSet<Manifest<Summary[]>> Summary { get; set; }
         public DbSet<GameConfig> GameConfigs { get; set; }
         public DbSet<GameParents> GameParents { get; set; }
         public DbSet<GameChildren> GameChildren { get; set; }
@@ -33,44 +34,44 @@ namespace Core.Models
 
             builder.Entity<GameConfig>().ToTable("game_configs");
 
-            builder.Entity<Manifest<BNetLib.Models.Versions[]>>().Property(x => x.Indexed).HasDefaultValueSql("CURRENT_TIMESTAMP");
-            builder.Entity<Manifest<BNetLib.Models.Versions[]>>().HasKey(x => new {x.Code, x.Seqn});
-            builder.Entity<Manifest<BNetLib.Models.Versions[]>>()
+            builder.Entity<Manifest<Versions[]>>().Property(x => x.Indexed).HasDefaultValueSql("CURRENT_TIMESTAMP");
+            builder.Entity<Manifest<Versions[]>>().HasKey(x => new {x.Code, x.Seqn});
+            builder.Entity<Manifest<Versions[]>>()
                 .HasIndex(x => x.ConfigId)
                 .IsUnique(false);
-            builder.Entity<Manifest<BNetLib.Models.Versions[]>>()
+            builder.Entity<Manifest<Versions[]>>()
                 .HasOne(x => x.Config)
                 .WithOne()
                 .OnDelete(DeleteBehavior.SetNull);
-            builder.Entity<Manifest<BNetLib.Models.Versions[]>>().ToTable("versions");
+            builder.Entity<Manifest<Versions[]>>().ToTable("versions");
 
-            builder.Entity<Manifest<BNetLib.Models.BGDL[]>>().Property(x => x.Indexed).HasDefaultValueSql("CURRENT_TIMESTAMP");
-            builder.Entity<Manifest<BNetLib.Models.BGDL[]>>().HasKey(x => new { x.Code, x.Seqn });
-            builder.Entity<Manifest<BNetLib.Models.BGDL[]>>()
+            builder.Entity<Manifest<BGDL[]>>().Property(x => x.Indexed).HasDefaultValueSql("CURRENT_TIMESTAMP");
+            builder.Entity<Manifest<BGDL[]>>().HasKey(x => new { x.Code, x.Seqn });
+            builder.Entity<Manifest<BGDL[]>>()
                 .HasIndex(x => x.ConfigId)
                 .IsUnique(false);
-            builder.Entity<Manifest<BNetLib.Models.BGDL[]>>()
+            builder.Entity<Manifest<BGDL[]>>()
                 .HasOne(x => x.Config)
                 .WithOne()
                 .OnDelete(DeleteBehavior.SetNull);
-            builder.Entity<Manifest<BNetLib.Models.BGDL[]>>().ToTable("bgdl");
+            builder.Entity<Manifest<BGDL[]>>().ToTable("bgdl");
 
-            builder.Entity<Manifest<BNetLib.Models.CDN[]>>().Property(x => x.Indexed).HasDefaultValueSql("CURRENT_TIMESTAMP");
-            builder.Entity<Manifest<BNetLib.Models.CDN[]>>().HasKey(x => new { x.Code, x.Seqn });
-            builder.Entity<Manifest<BNetLib.Models.CDN[]>>()
+            builder.Entity<Manifest<CDN[]>>().Property(x => x.Indexed).HasDefaultValueSql("CURRENT_TIMESTAMP");
+            builder.Entity<Manifest<CDN[]>>().HasKey(x => new { x.Code, x.Seqn });
+            builder.Entity<Manifest<CDN[]>>()
                 .HasIndex(x => x.ConfigId)
                 .IsUnique(false);
-            builder.Entity<Manifest<BNetLib.Models.CDN[]>>()
+            builder.Entity<Manifest<CDN[]>>()
                 .HasOne(x => x.Config)
                 .WithOne()
                 .OnDelete(DeleteBehavior.SetNull);
-            builder.Entity<Manifest<BNetLib.Models.CDN[]>>().ToTable("cdns");
+            builder.Entity<Manifest<CDN[]>>().ToTable("cdns");
 
-            builder.Entity<Manifest<BNetLib.Models.Summary[]>>().Property(x => x.Indexed).HasDefaultValueSql("CURRENT_TIMESTAMP");
-            builder.Entity<Manifest<BNetLib.Models.Summary[]>>().HasKey(x => x.Seqn);
-            builder.Entity<Manifest<BNetLib.Models.Summary[]>>().Ignore(x => x.Parent);
-            builder.Entity<Manifest<BNetLib.Models.Summary[]>>().Ignore(x => x.Config);
-            builder.Entity<Manifest<BNetLib.Models.Summary[]>>().ToTable("summary");
+            builder.Entity<Manifest<Summary[]>>().Property(x => x.Indexed).HasDefaultValueSql("CURRENT_TIMESTAMP");
+            builder.Entity<Manifest<Summary[]>>().HasKey(x => x.Seqn);
+            builder.Entity<Manifest<Summary[]>>().Ignore(x => x.Parent);
+            builder.Entity<Manifest<Summary[]>>().Ignore(x => x.Config);
+            builder.Entity<Manifest<Summary[]>>().ToTable("summary");
 
             builder.Entity<Catalog>().Property(x => x.Indexed).HasDefaultValueSql("CURRENT_TIMESTAMP");
 

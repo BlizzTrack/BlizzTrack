@@ -1,5 +1,4 @@
 ﻿using BNetLib.Http;
-using BNetLib.Networking;
 using Core.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,6 +12,8 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using BNetLib.Ribbit;
+using BNetLib.Ribbit.Models;
 using Core.Extensions;
 using StackExchange.Redis.Extensions.Core.Abstractions;
 using Worker.Events;
@@ -140,7 +141,7 @@ namespace Worker.Workers
                 var res = await _bNetClient.Summary();
                 if (latest?.Seqn < res.Seqn)
                 {
-                    latest = Manifest<BNetLib.Models.Summary[]>.Create(res.Seqn, "summary", res.Payload.ToArray());
+                    latest = Manifest<BNetLib.Ribbit.Models.Summary[]>.Create(res.Seqn, "summary", res.Payload.ToArray());
                     try
                     {
                         latest.Raw = res.Raw;
@@ -216,7 +217,7 @@ namespace Worker.Workers
             }
         }
 
-        private async Task<bool> AddItemToData(BNetLib.Models.Summary msg, int parentSeqn, DBContext db, CancellationToken cancellationToken, GameChildren owner)
+        private async Task<bool> AddItemToData(BNetLib.Ribbit.Models.Summary msg, int parentSeqn, DBContext db, CancellationToken cancellationToken, GameChildren owner)
         {
             var code = msg.Product;
 
@@ -236,7 +237,7 @@ namespace Worker.Workers
                             return false;
                         }
 
-                        var (value, s, r) = await GetMetaData<BNetLib.Models.Versions>(msg);
+                        var (value, s, r) = await GetMetaData<Versions>(msg);
 
                         data = value;
                         seqn = s;
@@ -254,7 +255,7 @@ namespace Worker.Workers
                             return false;
                         }
 
-                        var (value, s, r) = await GetMetaData<BNetLib.Models.CDN>(msg);
+                        var (value, s, r) = await GetMetaData<CDN>(msg);
 
                         data = value;
                         seqn = s;
@@ -271,7 +272,7 @@ namespace Worker.Workers
                             return false;
                         }
 
-                        var (value, s, r) = await GetMetaData<BNetLib.Models.BGDL>(msg);
+                        var (value, s, r) = await GetMetaData<BGDL>(msg);
 
                         data = value;
                         seqn = s;
@@ -291,7 +292,7 @@ namespace Worker.Workers
 
             switch (data)
             {
-                case List<BNetLib.Models.Versions> ver:
+                case List<Versions> ver:
                     {
                         if(ver.Count > 0) {
                             if (msg.Product == "catalogs")
@@ -326,7 +327,7 @@ namespace Worker.Workers
                                 await CheckIfEncrypted(msg, config.Productconfig, db, _logger, cancellationToken, owner);
                         }
 
-                        var f = Manifest<BNetLib.Models.Versions[]>.Create(seqn, code, ver.ToArray());
+                        var f = Manifest<Versions[]>.Create(seqn, code, ver.ToArray());
                         f.Raw = raw;
                         f.Parent = parentSeqn;
                         var cfg = await db.GameConfigs.FirstOrDefaultAsync(x => x.Code == f.Code, cancellationToken);
@@ -337,9 +338,9 @@ namespace Worker.Workers
 
                         break;
                     }
-                case List<BNetLib.Models.CDN> cdn:
+                case List<CDN> cdn:
                     {
-                        var f = Manifest<BNetLib.Models.CDN[]>.Create(seqn, code, cdn.ToArray());
+                        var f = Manifest<CDN[]>.Create(seqn, code, cdn.ToArray());
                         f.Raw = raw;
                         f.Parent = parentSeqn;
                         
@@ -350,9 +351,9 @@ namespace Worker.Workers
                         await db.CDN.AddAsync(f, cancellationToken);
                         break;
                     }
-                case List<BNetLib.Models.BGDL> bgdl:
+                case List<BGDL> bgdl:
                     {
-                        var f = Manifest<BNetLib.Models.BGDL[]>.Create(seqn, code, bgdl.ToArray());
+                        var f = Manifest<BGDL[]>.Create(seqn, code, bgdl.ToArray());
                         f.Raw = raw;
                         f.Parent = parentSeqn;
                         
@@ -372,7 +373,7 @@ namespace Worker.Workers
             return true;
         }
 
-        private async Task<(object Value, int Seqn, string Raw)> GetMetaData<T>(BNetLib.Models.Summary msg) where T : class, new()
+        private async Task<(object Value, int Seqn, string Raw)> GetMetaData<T>(BNetLib.Ribbit.Models.Summary msg) where T : class, new()
         {
             while (true)
             {
@@ -382,7 +383,7 @@ namespace Worker.Workers
 
                 switch (typeof(T))
                 {
-                    case { } versionType when versionType == typeof(BNetLib.Models.Versions):
+                    case { } versionType when versionType == typeof(Versions):
                     {
                         var payload = await _bNetClient.Versions(msg.Product);
                         data = (IList<T>) payload.Payload;
@@ -391,7 +392,7 @@ namespace Worker.Workers
                     }
                         break;
 
-                    case { } bgdlType when bgdlType == typeof(BNetLib.Models.BGDL):
+                    case { } bgdlType when bgdlType == typeof(BGDL):
                     {
                         var payload = await _bNetClient.Bgdl(msg.Product);
                         data = (IList<T>) payload.Payload;
@@ -400,7 +401,7 @@ namespace Worker.Workers
                     }
                         break;
 
-                    case { } cdnType when cdnType == typeof(BNetLib.Models.CDN):
+                    case { } cdnType when cdnType == typeof(CDN):
                     {
                         var payload = await _bNetClient.Cdn(msg.Product);
                         data = (IList<T>) payload.Payload;
@@ -418,7 +419,7 @@ namespace Worker.Workers
             }
         }
 
-        private static async Task CheckIfEncrypted(BNetLib.Models.Summary msg, string productConfig, DBContext dbContext, ILogger<Summary> logger, CancellationToken cancellationToken, GameChildren owner)
+        private static async Task CheckIfEncrypted(BNetLib.Ribbit.Models.Summary msg, string productConfig, DBContext dbContext, ILogger<Summary> logger, CancellationToken cancellationToken, GameChildren owner)
         {
             var (product, _, flags) = msg;
             if (flags == "cdn" || flags == "bgdl") return;

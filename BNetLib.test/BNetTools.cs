@@ -1,6 +1,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using System.Linq;
+using BNetLib.Ribbit.Models;
 
 namespace BNetLib.test
 {
@@ -16,9 +17,9 @@ eu|b3585b8f0cbf9040ffb68d313a59c2c4|fb5eb6011c94e9d32e5e7c4124e416f5||8408002|bo
 kr|20745522b883e9616743d5092e479fae|fb5eb6011c94e9d32e5e7c4124e416f5||8408002|bo5_TU7_8408002J_signed_dev|a9d8e0ab0615fcc2a919bbe840493de4")]
         public void VersionParse(string data)
         {
-            var res = BNetLib.Networking.BNetTools.Parse<BNetLib.Models.Versions>(data.Split("\n"));
+            var res = Ribbit.BNetTools.Parse<Versions>(data.Split("\n"));
 
-            Assert.IsTrue(res.Value.GetType() == typeof(List<BNetLib.Models.Versions>), $"Failed got type {res.Value.GetType()}");
+            Assert.IsTrue(res.Value.GetType() == typeof(List<Versions>), $"Failed got type {res.Value.GetType()}");
         }
 
         [TestMethod]
@@ -30,7 +31,7 @@ eu|b3585b8f0cbf9040ffb68d313a59c2c4|fb5eb6011c94e9d32e5e7c4124e416f5||8408002|bo
 kr|20745522b883e9616743d5092e479fae|fb5eb6011c94e9d32e5e7c4124e416f5||8408002|bo5_TU7_8408002J_signed_dev|a9d8e0ab0615fcc2a919bbe840493de4")]
         public void VersionBuildId(string data)
         {
-            var res = BNetLib.Networking.BNetTools.Parse<BNetLib.Models.Versions>(data.Split("\n"));
+            var res = Ribbit.BNetTools.Parse<Versions>(data.Split("\n"));
 
             var first = res.Value.FirstOrDefault(x => x.Region == "us");
             Assert.IsTrue(first.Buildid == 8512817, $"Failed {nameof(first.Buildid)} got {first.Buildid} wanted 8512817");
@@ -47,7 +48,7 @@ us|tpr/ovw|level3.blizzard.com us.cdn.blizzard.com|http://level3.blizzard.com/?m
 tw|tpr/ovw|level3.blizzard.com us.cdn.blizzard.com|http://level3.blizzard.com/?maxhosts=4 http://us.cdn.blizzard.com/?maxhosts=4 https://blzddist1-a.akamaihd.net/?fallback=1&maxhosts=4 https://level3.ssl.blizzard.com/?fallback=1&maxhosts=4 https://us.cdn.blizzard.com/?fallback=1&maxhosts=4|tpr/configs/data")]
         public void CDNParse(string data)
         {
-            var res = BNetLib.Networking.BNetTools.Parse<BNetLib.Models.CDN>(data.Split("\n"));
+            var res = Ribbit.BNetTools.Parse<CDN>(data.Split("\n"));
 
             var first = res.Value.FirstOrDefault(x => x.Name == "us");
             Assert.IsTrue(first.Hosts == "level3.blizzard.com us.cdn.blizzard.com", $"Failed {nameof(first.Hosts)} got {first.Hosts} wanted level3.blizzard.com us.cdn.blizzard.com");
@@ -64,7 +65,7 @@ us|tpr/ovw|level3.blizzard.com us.cdn.blizzard.com|http://level3.blizzard.com/?m
 tw|tpr/ovw|level3.blizzard.com us.cdn.blizzard.com|http://level3.blizzard.com/?maxhosts=4 http://us.cdn.blizzard.com/?maxhosts=4 https://blzddist1-a.akamaihd.net/?fallback=1&maxhosts=4 https://level3.ssl.blizzard.com/?fallback=1&maxhosts=4 https://us.cdn.blizzard.com/?fallback=1&maxhosts=4|tpr/configs/data")]
         public void CDNSeqnParse(string data)
         {
-            var res = BNetLib.Networking.BNetTools.Parse<BNetLib.Models.CDN>(data.Split("\n"));
+            var res = Ribbit.BNetTools.Parse<CDN>(data.Split("\n"));
 
             Assert.IsTrue(res.Seqn == 384642, $"Failed {nameof(res.Seqn)} got {res.Seqn} wanted 384642");
         }

@@ -47,7 +47,7 @@ namespace Core.Services
             return await _dbContext.GameParents
                 .Include(x => x.Children)
                 .ThenInclude(x => x.GameConfig)
-                .AsSplitQuery()
+                // .AsSplitQuery()
                 .FirstOrDefaultAsync(x => code == x.Code || x.Slug == code.ToLower() || code.StartsWith(x.Code) || x.ChildrenOverride.Contains(code.ToLower()));
         }
 

@@ -1,13 +1,13 @@
-﻿using BNetLib.Models;
-using BNetLib.Networking.Commands;
-using System;   
+﻿using System;
 using System.IO;
 using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
+using BNetLib.Ribbit.Commands;
+using BNetLib.Ribbit.Models;
 
-namespace BNetLib.Networking
+namespace BNetLib.Ribbit
 {
     public class BNetClient
     {
@@ -18,29 +18,29 @@ namespace BNetLib.Networking
             _serverUrl = $"{region.ToString().ToLower()}.version.battle.net";
         }
 
-        public async Task<ClientResult<Versions>> Versions(string code)
+        public async Task<NgpdResult<Versions>> Versions(string code)
         {
             return await Do<Versions>(new VersionCommand(code));
         }
 
-        public async Task<ClientResult<BGDL>> Bgdl(string code)
+        public async Task<NgpdResult<BGDL>> Bgdl(string code)
         {
             return await Do<BGDL>(new BGDLCommand(code));
         }
 
-        public async Task<ClientResult<CDN>> Cdn(string code)
+        public async Task<NgpdResult<CDN>> Cdn(string code)
         {
             return await Do<CDN>(new CDNCommand(code));
         }
 
-        public async Task<ClientResult<Summary>> Summary()
+        public async Task<NgpdResult<Summary>> Summary()
         {
             return await Do<Summary>(new SummaryCommand());
         }
 
-        private async Task<ClientResult<T>> Do<T>(AbstractCommand command) where T : NGPD, new() => await Do<T>(command.ToString());
+        private async Task<NgpdResult<T>> Do<T>(AbstractCommand command) where T : NGPD, new() => await Do<T>(command.ToString());
 
-        private async Task<ClientResult<T>> Do<T>(string command) where T : NGPD, new()
+        private async Task<NgpdResult<T>> Do<T>(string command) where T : NGPD, new()
         {
             try
             {
@@ -66,7 +66,7 @@ namespace BNetLib.Networking
 
                         var (value, seqn) = BNetTools.Parse<T>(data);
 
-                        return new ClientResult<T>()
+                        return new NgpdResult<T>()
                         {
                             Payload = value,
                             Seqn = seqn,

@@ -1,5 +1,4 @@
 ﻿using BlizzTrack.Models;
-using BNetLib.Networking.Commands;
 using Core.Models;
 using Core.Services;
 using Microsoft.AspNetCore.Http;
@@ -13,6 +12,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
+using BNetLib.Ribbit.Commands;
 
 namespace BlizzTrack.API
 {
@@ -118,7 +118,7 @@ namespace BlizzTrack.API
             {
                 case Results.SeqnType.Versions:
                     {
-                        var seqns = await _versions.Seqn(code);
+                        var seqns = await _versions.SeqnList(code);
                         res.Data = seqns.Select(x => new SharedResults.SeqnItem
                         {
                             Seqn = x.Seqn,
@@ -133,7 +133,7 @@ namespace BlizzTrack.API
                     break;
                 case Results.SeqnType.BGDL:
                     {
-                        var seqns = await _bgdl.Seqn(code);
+                        var seqns = await _bgdl.SeqnList(code);
                         res.Data = seqns.Select(x => new SharedResults.SeqnItem
                         {
                             Seqn = x.Seqn,

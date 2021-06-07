@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using BNetLib.Ribbit;
 using Core.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -85,7 +86,7 @@ namespace Tooling
                                 o.UseTrigrams();
                             }).EnableSensitiveDataLogging());
 
-                    services.AddSingleton(_ => new BNetLib.Networking.BNetClient());
+                    services.AddSingleton(_ => new BNetClient());
                     services.AddSingleton<BNetLib.Http.ProductConfig>();
 
                     services.AddScoped<Core.Services.ISummary, Core.Services.Summary>();

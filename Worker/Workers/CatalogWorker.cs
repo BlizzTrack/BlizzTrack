@@ -11,6 +11,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using BNetLib.Ribbit.Models;
 using Worker.Events;
 
 namespace Worker.Workers
@@ -250,7 +251,7 @@ namespace Worker.Workers
             }
         }
 
-        private static async Task<BNetLib.Models.CDN> GetCdnUrl(ICDNs cdns, string code)
+        private static async Task<CDN> GetCdnUrl(ICDNs cdns, string code)
         {
             var latestCatalogCdn = await cdns.Latest(code);
 

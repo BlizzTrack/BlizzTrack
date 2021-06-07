@@ -9,19 +9,19 @@
 
 @if (Model.Parent?.Logos?.Count > 0)
 {
-    @section Header {
-        @{
-            var logo = Model.Parent.Logos.FirstOrDefault(x => x.Type == "image/png");
+@section Header {
+    @{
+        var logo = Model.Parent.Logos.FirstOrDefault(x => x.Type == "image/png");
 
-            if (logo != null)
-            {
-                    <meta Name="twitter:image:src" Content="@logo.URL" />
-                    <meta Name="og:image" Content="@logo.URL" />
-                    <meta Name="twitter:url" Content="@logo.URL" />
-                    <meta Name="og:url" Content="@logo.URL" />
-            }
+        if (logo != null)
+        {
+            <meta Name="twitter:image:src" Content="@logo.URL"/>
+            <meta Name="og:image" Content="@logo.URL"/>
+            <meta Name="twitter:url" Content="@logo.URL"/>
+            <meta Name="og:url" Content="@logo.URL"/>
         }
     }
+}
 }
 
 <div class="row">
@@ -42,7 +42,7 @@
         {
             <div class="card flex-row flex-fill">
                 <div class="card-header border-0 p-0 w-25 h-100 col-3">
-                    <img src="@post.Properties.StaticAsset.ImageUrl?crop=16:9" alt="@post.Properties.StaticAsset.ImageAltText ">
+                    <img style="width: 100%" src="@post.Properties.StaticAsset.ImageUrl?crop=16:9" alt="@post.Properties.StaticAsset.ImageAltText ">
                 </div>
                 <div class="card-block p-0 pl-4 py-4">
                     <h3 class="card-title font-weight-bold">@post.Properties.Title</h3>
