@@ -154,7 +154,9 @@
                         }
                         else
                         {
-                            <a asp-page="/ViewGameConfigs" asp-route-hash="@item.Productconfig" class="d-flex">
+                            var dest = $"tpr/configs/data/{string.Join("", (item.Productconfig ?? string.Empty).Take(2))}/{string.Join("", (item.Productconfig ?? string.Empty).Skip(2).Take(2))}/{item.Productconfig}";
+
+                            <a href="@($"http://level3.blizzard.com/{dest}")" target="_blank" rel="nofollow"  class="d-flex">
                                 <div class="flex-fill">
                                     <h3 class="mt-0 mb-1">
                                         @item.Productconfig
