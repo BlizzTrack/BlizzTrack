@@ -108,7 +108,7 @@ namespace BNetLib.Helpers
             {"fenris", "Diablo IV"},
             {"orbis", "Orbis (Unknown)"},
             {"auks", "Auks (Unknown)"},
-            {"fore", "Call of Duty: 2021"},
+            {"fore", "Call of Duty: Slipstream"},
             {"unknown", "Unknown"},
             { "wlby", "Crash Bandicoot 4: It's About Time" },
             { "rtro", "Blizzard Arcade Collection" },
