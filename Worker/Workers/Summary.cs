@@ -82,13 +82,17 @@ namespace Worker.Workers
                 var latest = await summary.Latest();
                 if (firstRun)
                 {
+                    int id = 0;
                     foreach (var item in latest.Content)
                     {
+                        id++;
+                        _logger.LogDebug($"{id} {latest.Content.Length} {item.Product} {item.Seqn} {item.Flags}");
+                        
                         var parent = await parents.Get(item.Product) ?? await parents.Get("unknown");
 
                         var gameChildData =
                             await dbContext.GameChildren.FirstOrDefaultAsync(x => x.Code == item.Product,
-                                cancellationToken);
+                                CancellationToken.None);
                         
                         /*
                         if (await AddItemToData(item, latest.Seqn, dbContext, cancellationToken, gameChildData))
@@ -101,13 +105,13 @@ namespace Worker.Workers
                         {
 
                             var config = await dbContext.GameConfigs.FirstOrDefaultAsync(
-                                x => x.Code == item.Product, cancellationToken);
+                                x => x.Code == item.Product, CancellationToken.None);
                             var name = string.IsNullOrEmpty(config?.Name)
                                 ? BNetLib.Helpers.GameName.Get(item.Product)
                                 : config?.Name;
 
                             var slugInUse = await dbContext.GameChildren.Where(x => x.Slug == name.Slugify())
-                                .FirstOrDefaultAsync(cancellationToken);
+                                .FirstOrDefaultAsync(CancellationToken.None);
 
                             gameChildData = new GameChildren
                             {
@@ -118,17 +122,19 @@ namespace Worker.Workers
                                 Slug = slugInUse == null ? name.Slugify() : item.Product
                             };
                             
-                            await dbContext.GameChildren.AddAsync(gameChildData, cancellationToken);
+                            await dbContext.GameChildren.AddAsync(gameChildData, CancellationToken.None);
                         }
                         
-                        if (await AddItemToData(item, latest.Seqn, dbContext, cancellationToken, gameChildData))
+                        if (await AddItemToData(item, latest.Seqn, dbContext, CancellationToken.None, gameChildData))
                         {
+                            _logger.LogDebug("Trying to update game");
                             if(!updated.Exists(x => x.code == item.Product && x.seqn == item.Seqn && x.file == item.Flags))
                                 updated.Add((item.Product, item.Flags, item.Seqn));
                         }
                     }
-
-                    await dbContext.SaveChangesAsync(cancellationToken);
+                    
+                    if(dbContext.ChangeTracker.HasChanges())
+                        await dbContext.SaveChangesAsync(CancellationToken.None);
 
                     foreach (var (code, file, seqn) in updated)
                     {
@@ -145,8 +151,8 @@ namespace Worker.Workers
                     try
                     {
                         latest.Raw = res.Raw;
-                        await dbContext.Summary.AddAsync(latest, cancellationToken);
-                        await dbContext.SaveChangesAsync(cancellationToken);
+                        await dbContext.Summary.AddAsync(latest, CancellationToken.None);
+                        await dbContext.SaveChangesAsync(CancellationToken.None);
                     }
                     catch (Exception ex)
                     {
@@ -162,16 +168,16 @@ namespace Worker.Workers
                                 var parent = await parents.Get(item.Product) ?? await parents.Get("unknown");
 
                                 var gameChildData =
-                                    await dbContext.GameChildren.FirstOrDefaultAsync(x => x.Code == item.Product, cancellationToken);
+                                    await dbContext.GameChildren.FirstOrDefaultAsync(x => x.Code == item.Product, CancellationToken.None);
                                 
                                 if (gameChildData == null)
                                 {
                                     var config = await dbContext.GameConfigs.FirstOrDefaultAsync(
-                                        x => x.Code == item.Product, cancellationToken);
+                                        x => x.Code == item.Product, CancellationToken.None);
                                     var name = string.IsNullOrEmpty(config?.Name) ? BNetLib.Helpers.GameName.Get(item.Product) : config?.Name;
 
                                     var slugInUse = await dbContext.GameChildren.Where(x => x.Slug == name.Slugify())
-                                        .FirstOrDefaultAsync(cancellationToken);
+                                        .FirstOrDefaultAsync(CancellationToken.None);
 
                                     gameChildData = new GameChildren
                                     {
@@ -182,17 +188,17 @@ namespace Worker.Workers
                                         Slug = slugInUse == null ? name.Slugify() : item.Product
                                     };
 
-                                    await dbContext.GameChildren.AddAsync(gameChildData, cancellationToken);
+                                    await dbContext.GameChildren.AddAsync(gameChildData, CancellationToken.None);
                                 }
                                 
-                                if (await AddItemToData(item, latest.Seqn, dbContext, cancellationToken, gameChildData))
+                                if (await AddItemToData(item, latest.Seqn, dbContext, CancellationToken.None, gameChildData))
                                 {
                                     if(!updated.Exists(x => x.code == item.Product && x.seqn == item.Seqn && x.file == item.Flags))
                                         updated.Add((item.Product, item.Flags, item.Seqn));
                                 }
                             }
                             
-                            await dbContext.SaveChangesAsync(cancellationToken);
+                            await dbContext.SaveChangesAsync(CancellationToken.None);
                             
                             foreach (var (code, file, seqn) in updated)
                             {
@@ -213,7 +219,7 @@ namespace Worker.Workers
                 // Check every 5 seconds, at some point this might need to be proxied again, but until this i realllllllllllllllllllllllllly don't care
                 updated.Clear();
                 
-                await Task.Delay(TimeSpan.FromSeconds(5), cancellationToken);
+                await Task.Delay(TimeSpan.FromSeconds(5), CancellationToken.None);
             }
         }
 
@@ -375,6 +381,9 @@ namespace Worker.Workers
 
         private async Task<(object Value, int Seqn, string Raw)> GetMetaData<T>(BNetLib.Ribbit.Models.Summary msg) where T : class, new()
         {
+            if(msg.Product == "odinv7" && msg.Flags == "versions")
+                Debugger.Break();
+            
             while (true)
             {
                 IList<T> data;
@@ -414,7 +423,7 @@ namespace Worker.Workers
                         return (null, -1, null);
                 }
 
-                if (seqn == msg.Seqn) return (data, seqn, raw);
+                if (seqn >= msg.Seqn) return (data, seqn, raw);
                 await Task.Delay(TimeSpan.FromSeconds(1));
             }
         }
