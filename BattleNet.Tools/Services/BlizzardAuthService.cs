@@ -18,7 +18,7 @@ namespace BattleNet.Tools.Services
             using var wcRes = await wc.GetAsync("https://content-ui.battle.net/en-us/browse/fenris");
             var rsltContent = await wcRes.Content.ReadAsStringAsync();
             
-            var bearer = rsltContent.Split("window.blizzard = {accessToken:").Last().Split("}").First().Trim().Replace("'", "");
+            var bearer = rsltContent.Split("\"accessToken\":\"").Last().Split("\"").First().Trim().Replace("'", "");
             var layoutCtsId = rsltContent.Split("\"CTS_DEFAULT_LAYOUT_TEMPLATE_ID\":\"").Last().Split("\"").First().Trim();
             var ctsUrl = rsltContent.Split("\"CTS_URL\":\"").Last().Split("\"").First().Trim();
             var ctsVersion = rsltContent.Split("\"CTS_VERSION\":\"").Last().Split("\"").First().Trim();
