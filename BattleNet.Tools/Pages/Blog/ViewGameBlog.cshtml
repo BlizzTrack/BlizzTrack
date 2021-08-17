@@ -9,19 +9,19 @@
 
 @if (Model.Parent?.Logos?.Count > 0)
 {
-@section Header {
-    @{
-        var logo = Model.Parent.Logos.FirstOrDefault(x => x.Type == "image/png");
+    @section Header {
+        @{
+            var logo = Model.Parent.Logos.FirstOrDefault(x => x.Type == "image/png");
 
-        if (logo != null)
-        {
-            <meta Name="twitter:image:src" Content="@logo.URL"/>
-            <meta Name="og:image" Content="@logo.URL"/>
-            <meta Name="twitter:url" Content="@logo.URL"/>
-            <meta Name="og:url" Content="@logo.URL"/>
+            if (logo != null)
+            {
+                <meta Name="twitter:image:src" Content="@logo.URL"/>
+                <meta Name="og:image" Content="@logo.URL"/>
+                <meta Name="twitter:url" Content="@logo.URL"/>
+                <meta Name="og:url" Content="@logo.URL"/>
+            }
         }
     }
-}
 }
 
 <div class="row">

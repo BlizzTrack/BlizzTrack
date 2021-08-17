@@ -34,6 +34,7 @@ kr|20745522b883e9616743d5092e479fae|fb5eb6011c94e9d32e5e7c4124e416f5||8408002|bo
             var res = Ribbit.BNetTools.Parse<Versions>(data.Split("\n"));
 
             var first = res.Value.FirstOrDefault(x => x.Region == "us");
+            Assert.IsTrue(first != null, "first == null");
             Assert.IsTrue(first.Buildid == 8512817, $"Failed {nameof(first.Buildid)} got {first.Buildid} wanted 8512817");
         }
 
