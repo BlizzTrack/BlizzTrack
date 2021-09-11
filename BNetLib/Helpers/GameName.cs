@@ -87,7 +87,8 @@ namespace BNetLib.Helpers
         private static Dictionary<string, string> Prefix { get; } = new()
         {
             {"pro", "Overwatch"},
-            {"wowclassic", "World of Warcraft Classic"},
+            {"wowclassicera", "World of Warcraft: ERA Classic"},
+            {"wowclassic", "World of Warcraft: BCC Classic"},
             {"wow", "World of Warcraft"},
             {"d3", "Diablo III"},
             {"hero", "Heroes of the Storm"},

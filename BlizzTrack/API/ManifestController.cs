@@ -16,10 +16,8 @@ using BNetLib.Ribbit.Commands;
 
 namespace BlizzTrack.API
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    [ApiExplorerSettings(GroupName = "Game Versions")]
-    [Produces("application/json")]
+    [Route("api/[controller]"), ApiController, ApiExplorerSettings(GroupName = "Game Versions"),
+     Produces("application/json")]
     public class ManifestController : ControllerBase
     {
         private readonly IVersions _versions;
