@@ -18,6 +18,9 @@ namespace BNetLib.Helpers
             {"dev", "Dev"},
             {"a", "Alpha"},
             {"demo", "Demo"},
+            {"demo2", "Demo"},
+            {"demo3", "Demo"},
+            {"demo4", "Demo"},
             {"c", "Tournament"},
             {"ceu", "Tournament (EU)"},
             {"ckr", "Tournament (KR)"},
@@ -27,6 +30,8 @@ namespace BNetLib.Helpers
             {"c2kr", "Tournament 2 (KR)"},
             {"c2cn", "Tournament 2 (CN)"},
             {"c3", "Tournament 3"},
+            {"c4", "Tournament 4"},
+            {"c5", "Tournament 5"},
             {"c3eu", "Tournament 3 (EU)"},
             {"c3kr", "Tournament 3 (KR)"},
             {"c3cn", "Tournament 3 (CN)"},
@@ -34,6 +39,8 @@ namespace BNetLib.Helpers
             {"cr1", "Tournament Viewer 1"},
             {"cr2", "Tournament Viewer 2"},
             {"cr3", "Tournament Viewer 3"},
+            {"cr4", "Tournament Viewer 4"},
+            {"cr5", "Tournament Viewer 5"},
             {"v", "Vendor"},
             {"v1", "Vendor 1"},
             {"v2", "Vendor 2"},
@@ -77,7 +84,9 @@ namespace BNetLib.Helpers
             {"livetest", "Live Test"},
             {"locv1", "Localization 1"},
             {"locv2", "Localization 2"},
-            {"utr", "User Test Realm" },
+            {"locv3", "Localization 3"},
+            {"locv4", "Localization 4"},
+            { "utr", "User Test Realm" },
             {"ev", "Esports" },
             {"usr", "BOCW Event" },
             {"cdlevent", "League" },
@@ -87,7 +96,8 @@ namespace BNetLib.Helpers
         private static Dictionary<string, string> Prefix { get; } = new()
         {
             {"pro", "Overwatch"},
-            {"wowclassic", "World of Warcraft Classic"},
+            {"wowclassicera", "World of Warcraft: ERA Classic"},
+            {"wowclassic", "World of Warcraft: BCC Classic"},
             {"wow", "World of Warcraft"},
             {"d3", "Diablo III"},
             {"hero", "Heroes of the Storm"},
@@ -109,10 +119,11 @@ namespace BNetLib.Helpers
             {"orbis", "Orbis (Unknown)"},
             {"auks", "Auks (Unknown)"},
             {"fore", "Call of Duty: Vanguard"},
+            {"spot", "Spot (Unknown)"},
             {"unknown", "Unknown"},
-            { "wlby", "Crash Bandicoot 4: It's About Time" },
-            { "rtro", "Blizzard Arcade Collection" },
-            { "osi", "Diablo II: Resurrected" }
+            {"wlby", "Crash Bandicoot 4: It's About Time" },
+            {"rtro", "Blizzard Arcade Collection" },
+            {"osi", "Diablo II: Resurrected" }
         };
 
         public static string Get(string code)

@@ -14,7 +14,7 @@ using Tooling.Attributes;
 
 namespace Tooling.Tools
 {
-    [Tool(Name = "Legacy Patch Notes", Disabled = true)]
+    [Tool(Name = "Legacy Patch Notes", Disabled = false)]
     public class LegacyPatchNotes : ITool
     {
         private readonly IGameParents _gameParents;

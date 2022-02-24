@@ -10,6 +10,7 @@ using System.ServiceModel.Syndication;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
+using BlizzTrack.Attributes;
 using BlizzTrack.Services;
 using BNetLib.Ribbit.Commands;
 using Core.Models;

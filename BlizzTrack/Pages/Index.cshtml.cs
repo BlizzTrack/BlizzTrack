@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using BGDL = BNetLib.Ribbit.Models.BGDL;
+using GameChildren = Core.Models.GameChildren;
 using Summary = BNetLib.Ribbit.Models.Summary;
 using Versions = BNetLib.Ribbit.Models.Versions;
 
@@ -54,6 +55,8 @@ namespace BlizzTrack.Pages
 
         public List<Manifest<BGDL[]>> BgdLs;
 
+        public List<GameChildren> GameChildrenList;
+
         public List<UpdateTimes> GameVersions { get; } = new();
         
         public async Task OnGetAsync()
@@ -88,6 +91,8 @@ namespace BlizzTrack.Pages
 
             Versions = await _versions.MultiBySeqn(latest.Where(x => x.Flags == "versions").Select(x => x.Seqn).ToList());
             BgdLs = await _bgdl.MultiBySeqn(latest.Where(x => x.Flags == "bgdl").Select(x => x.Seqn).ToList());
+
+            GameChildrenList = await _dbContext.GameChildren.ToListAsync();
             
             foreach (var item in latest)
             {

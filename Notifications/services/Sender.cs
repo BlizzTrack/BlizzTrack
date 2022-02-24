@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Core.Models;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 
 namespace Notifications.services
 {
@@ -33,13 +34,12 @@ namespace Notifications.services
                     continue;
                 }
                 
-                _logger.LogInformation($"Got channel event: {arg.NotificationType}");
+                _logger.LogInformation($"Got channel event: {arg.NotificationType} {JsonConvert.SerializeObject(arg.Payload)}");
                 
                 switch (arg.NotificationType)
                 {
                     case NotificationType.Versions:
-                        // For sake of twitter lets not send versions, this is causing to much tweet spam
-                        // await _twitter.Publish(arg.Payload);
+                        await _twitter.Publish(arg.Payload);
                         break;
                     case NotificationType.PatchNotes:
                         await _twitter.PublishPatchNotes(arg.Payload);

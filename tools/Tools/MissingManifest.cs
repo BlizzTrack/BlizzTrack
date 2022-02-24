@@ -16,7 +16,7 @@ using Tooling.Attributes;
 
 namespace Tooling.Tools
 {
-    [Tool(Name = "Missing Manifest", Disabled = false)]
+    [Tool(Name = "Missing Manifest", Disabled = true)]
     public class MissingManifest : ITool
     {
         private readonly DBContext _dbContext;
