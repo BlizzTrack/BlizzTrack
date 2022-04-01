@@ -66,16 +66,15 @@ namespace Worker.Workers
 
         public async void Run(CancellationToken cancellationToken)
         {
+            using var sc = _serviceScope.CreateScope();
+            var summary = sc.ServiceProvider.GetRequiredService<Core.Services.ISummary>();
+            var parents = sc.ServiceProvider.GetRequiredService<Core.Services.IGameParents>();
+            var dbContext = sc.ServiceProvider.GetRequiredService<DBContext>();
+
             var firstRun = true;
             while (!cancellationToken.IsCancellationRequested)
             {
                 var stopWatch = Stopwatch.StartNew();
-
-                using var sc = _serviceScope.CreateScope();
-                var summary = sc.ServiceProvider.GetRequiredService<Core.Services.ISummary>();
-                var parents = sc.ServiceProvider.GetRequiredService<Core.Services.IGameParents>();
-                
-                var dbContext = sc.ServiceProvider.GetRequiredService<DBContext>();
 
                 var updated = new List<(string code, string file, int seqn)>();
                 

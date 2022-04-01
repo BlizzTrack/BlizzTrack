@@ -57,14 +57,14 @@ namespace Worker.Workers
 
         internal async void Run(CancellationToken cancellationToken)
         {
+            using var sc = _serviceScope.CreateScope();
+            var gameParents = sc.ServiceProvider.GetRequiredService<Core.Services.IGameParents>();
+            var dbContext = sc.ServiceProvider.GetRequiredService<DBContext>();
+            var patchNotes = sc.ServiceProvider.GetRequiredService<IPatchNotes>();
+
             while (!cancellationToken.IsCancellationRequested)
             {
                 var stopWatch = Stopwatch.StartNew();
-
-                using var sc = _serviceScope.CreateScope();
-                var gameParents = sc.ServiceProvider.GetRequiredService<Core.Services.IGameParents>();
-                var dbContext = sc.ServiceProvider.GetRequiredService<DBContext>();
-                var patchNotes = sc.ServiceProvider.GetRequiredService<IPatchNotes>();
 
                 var parents = await gameParents.All();
 

@@ -55,12 +55,15 @@ namespace Worker.Workers
         }
         internal async void Run(CancellationToken cancellationToken)
         {
-          
-            while(!cancellationToken.IsCancellationRequested)
+            using var sc = _serviceScope.CreateScope();
+            var cdn = sc.ServiceProvider.GetRequiredService<ICDNs>();
+            var ctx = sc.ServiceProvider.GetRequiredService<DBContext>();
+
+            while (!cancellationToken.IsCancellationRequested)
             {
                 if(_channel.TryDequeue(out var item))
                 {
-                    using var sc = _serviceScope.CreateScope();
+
                     _logger.LogInformation($"Build Manfest Catalog: {item.Code} {item.Hash}");
 
                     if (item.Code == "catalogs")
@@ -68,8 +71,8 @@ namespace Worker.Workers
                         _logger.LogInformation($"Build Config: {item.Code} {item.Hash}");
 
                         await CatalogsConfig(item,
-                            sc.ServiceProvider.GetRequiredService<ICDNs>(),
-                            sc.ServiceProvider.GetRequiredService<DBContext>()
+                            cdn,
+                            ctx
                         );
                     }
                     else
