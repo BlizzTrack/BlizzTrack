@@ -26,21 +26,21 @@ build-blizzmeta:
   only:
     - main
   script:
-    - docker build --pull -t "$CI_REGISTRY_IMAGE:latest" . -f "./BlizzMeta/Dockerfile"
-    - docker push "$CI_REGISTRY_IMAGE:latest"
+    - docker build --pull -t "$CI_REGISTRY_IMAGE/meta:latest" . -f "./BlizzMeta/Dockerfile"
+    - docker push "$CI_REGISTRY_IMAGE/meta:latest"
 
 build-worker:
   stage: build
   only:
     - main
   script:
-    - docker build --pull -t "$CI_REGISTRY_IMAGE/manager:latest" . -f "./Worker/Dockerfile"
-    - docker push "$CI_REGISTRY_IMAGE/manager:latest"
+    - docker build --pull -t "$CI_REGISTRY_IMAGE/worker:latest" . -f "./Worker/Dockerfile"
+    - docker push "$CI_REGISTRY_IMAGE/worker:latest"
 
 build-nofitications:
   stage: build
   only:
     - main
   script:
-    - docker build --pull -t "$CI_REGISTRY_IMAGE/manager:latest" . -f "./Notifications/Dockerfile"
-    - docker push "$CI_REGISTRY_IMAGE/manager:latest"
+    - docker build --pull -t "$CI_REGISTRY_IMAGE/notify:latest" . -f "./Notifications/Dockerfile"
+    - docker push "$CI_REGISTRY_IMAGE/notify:latest"
