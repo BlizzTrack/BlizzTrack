@@ -1,0 +1,23 @@
+ include:
+     template: Auto-DevOps.gitlab-ci.yml
+
+ variables:
+     # KUBE_INGRESS_BASE_DOMAIN is the application deployment domain and should be set as a variable at the group or project level.
+     KUBE_INGRESS_BASE_DOMAIN: blizztrack.dev
+     KUBE_NAMESPACE: "blizztrack"
+
+     # Feel free to enable any of these
+     TEST_DISABLED: "true"
+     CODE_QUALITY_DISABLED: "true"
+     LICENSE_MANAGEMENT_DISABLED: "true"
+     BROWSER_PERFORMANCE_DISABLED: "true"
+     LOAD_PERFORMANCE_DISABLED: "true"
+     SAST_DISABLED: "true"
+     SECRET_DETECTION_DISABLED: "true"
+     DEPENDENCY_SCANNING_DISABLED: "true"
+     CONTAINER_SCANNING_DISABLED: "true"
+     DAST_DISABLED: "true"
+     REVIEW_DISABLED: "true"
+     CODE_INTELLIGENCE_DISABLED: "true"
+     CLUSTER_IMAGE_SCANNING_DISABLED: "true"
+     POSTGRES_ENABLED: "false"
