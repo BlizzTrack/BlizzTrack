@@ -1,23 +1,46 @@
- include:
-     template: Auto-DevOps.gitlab-ci.yml
+image: docker:latest
+variables:
+  DOCKER_DRIVER: overlay2
+  DOCKER_TLS_CERTDIR: ""
+  GIT_SUBMODULE_STRATEGY: recursive
 
- variables:
-     # KUBE_INGRESS_BASE_DOMAIN is the application deployment domain and should be set as a variable at the group or project level.
-     KUBE_INGRESS_BASE_DOMAIN: blizztrack.dev
-     KUBE_NAMESPACE: "blizztrack"
+services:
+  - docker:dind
 
-     # Feel free to enable any of these
-     TEST_DISABLED: "true"
-     CODE_QUALITY_DISABLED: "true"
-     LICENSE_MANAGEMENT_DISABLED: "true"
-     BROWSER_PERFORMANCE_DISABLED: "true"
-     LOAD_PERFORMANCE_DISABLED: "true"
-     SAST_DISABLED: "true"
-     SECRET_DETECTION_DISABLED: "true"
-     DEPENDENCY_SCANNING_DISABLED: "true"
-     CONTAINER_SCANNING_DISABLED: "true"
-     DAST_DISABLED: "true"
-     REVIEW_DISABLED: "true"
-     CODE_INTELLIGENCE_DISABLED: "true"
-     CLUSTER_IMAGE_SCANNING_DISABLED: "true"
-     POSTGRES_ENABLED: "false"
+stages:
+  - build
+
+before_script:
+  - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+
+build-blizztrack:
+  stage: build
+  only:
+    - main
+  script:
+    - docker build --pull -t "$CI_REGISTRY_IMAGE:latest" . -f "./BlizzTrack/Dockerfile"
+    - docker push "$CI_REGISTRY_IMAGE:latest"
+
+build-blizzmeta:
+  stage: build
+  only:
+    - main
+  script:
+    - docker build --pull -t "$CI_REGISTRY_IMAGE:latest" . -f "./BlizzMeta/Dockerfile"
+    - docker push "$CI_REGISTRY_IMAGE:latest"
+
+build-worker:
+  stage: build
+  only:
+    - main
+  script:
+    - docker build --pull -t "$CI_REGISTRY_IMAGE/manager:latest" . -f "./Worker/Dockerfile"
+    - docker push "$CI_REGISTRY_IMAGE/manager:latest"
+
+build-nofitications:
+  stage: build
+  only:
+    - main
+  script:
+    - docker build --pull -t "$CI_REGISTRY_IMAGE/manager:latest" . -f "./Notifications/Dockerfile"
+    - docker push "$CI_REGISTRY_IMAGE/manager:latest"
