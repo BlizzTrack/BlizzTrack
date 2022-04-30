@@ -125,7 +125,8 @@ namespace BNetLib.Helpers
             {"unknown", "Unknown"},
             {"wlby", "Crash Bandicoot 4: It's About Time" },
             {"rtro", "Blizzard Arcade Collection" },
-            {"osi", "Diablo II: Resurrected" }
+            {"osi", "Diablo II: Resurrected" },
+            {"anbs", "Diablo: Immortal" },
         };
 
         public static string Get(string code)
