@@ -98,6 +98,7 @@ namespace Worker.Workers
             if(!await ManifestExist(config.Hash, dbContext))
             {
                 var json = await GetRaw(config.Hash);
+                if (json == null) return;
 
                 dbContext.Add(new Core.Models.Catalog()
                 {

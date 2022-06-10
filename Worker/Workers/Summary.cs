@@ -234,9 +234,9 @@ namespace Worker.Workers
             {
                 case "versions" or "version":
                     {
-                        var exist = await db.Versions.AsNoTracking().OrderByDescending(x => x.Seqn).FirstOrDefaultAsync(x => x.Code == code && x.Seqn == msg.Seqn, cancellationToken: cancellationToken);
+                        var exist = await db.Versions.AsNoTracking().OrderByDescending(x => x.Seqn).FirstOrDefaultAsync(x => x.Code == code, cancellationToken: cancellationToken);
 
-                        if (exist != null)
+                        if (exist?.Seqn > msg.Seqn)
                         {
                             _logger.LogDebug($"Skipping {code}:{msg.Seqn}:{msg.Flags}");
                             return false;
@@ -252,9 +252,9 @@ namespace Worker.Workers
                     }
                 case "cdn" or "cdns":
                     {
-                        var exist = await db.CDN.AsNoTracking().OrderByDescending(x => x.Seqn).FirstOrDefaultAsync(x => x.Code == code && x.Seqn == msg.Seqn, cancellationToken: cancellationToken);
+                        var exist = await db.CDN.AsNoTracking().OrderByDescending(x => x.Seqn).FirstOrDefaultAsync(x => x.Code == code, cancellationToken: cancellationToken);
 
-                        if (exist != null)
+                        if (exist?.Seqn > msg.Seqn)
                         {
                             _logger.LogDebug($"Skipping {code}:{msg.Seqn}:{msg.Flags}");
                             return false;
@@ -269,9 +269,9 @@ namespace Worker.Workers
                     }
                 case "bgdl":
                     {
-                        var exist = await db.BGDL.AsNoTracking().OrderByDescending(x => x.Seqn).FirstOrDefaultAsync(x => x.Code == code && x.Seqn == msg.Seqn, cancellationToken: cancellationToken);
+                        var exist = await db.BGDL.AsNoTracking().OrderByDescending(x => x.Seqn).FirstOrDefaultAsync(x => x.Code == code, cancellationToken: cancellationToken);
 
-                        if (exist != null)
+                        if (exist?.Seqn > msg.Seqn)
                         {
                             _logger.LogDebug($"Skipping {code}:{msg.Seqn}:{msg.Flags}");
                             return false;
