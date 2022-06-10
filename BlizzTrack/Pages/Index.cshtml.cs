@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using BGDL = BNetLib.Ribbit.Models.BGDL;
@@ -70,7 +71,8 @@ namespace BlizzTrack.Pages
 
             Configs = await _gameConfig.In(latest.Where(x => x.Flags == "versions").Select(x => x.Product).ToArray());
 
-            var verSeqn = latest.Where(x => x.Flags == "versions").Select(x => x.Seqn).ToList();
+            /*
+            var verSeqn = latest.Where(x => x.Flags == "versions").Where(x => !previous.Any(z => z.Flags == "versions" && z.Seqn < x.Seqn && z.Product == x.Product)).Select(x => x.Seqn).ToList();
             var vers = await _dbContext.Versions.OrderByDescending(x => x.Seqn).Where(s => verSeqn.Contains(s.Seqn)).Select(x => new UpdateTimes
             {
                 Type = "versions",
@@ -78,7 +80,7 @@ namespace BlizzTrack.Pages
                 Updated = x.Indexed
             }).Distinct().ToListAsync();
 
-            var bgdlCodes = latest.Where(x => x.Flags == "bgdl").Select(x => x.Seqn).ToList();
+            var bgdlCodes = latest.Where(x => x.Flags == "bgdl").Where(x => !previous.Any(z => z.Flags == "versions" && z.Seqn < x.Seqn && z.Product == x.Product)).Select(x => x.Seqn).ToList();
             var bgdl = await _dbContext.BGDL.OrderByDescending(x => x.Seqn).Where(s => bgdlCodes.Contains(s.Seqn)).Select(x => new UpdateTimes
             {
                 Type = "bgdl",
@@ -87,11 +89,88 @@ namespace BlizzTrack.Pages
             }).Distinct().ToListAsync();
 
             GameVersions.AddRange(vers);
-            GameVersions.AddRange(bgdl);
+            GameVersions.AddRange(bgdl);*/
 
-            Versions = await _versions.MultiBySeqn(latest.Where(x => x.Flags == "versions").Select(x => x.Seqn).ToList());
-            BgdLs = await _bgdl.MultiBySeqn(latest.Where(x => x.Flags == "bgdl").Select(x => x.Seqn).ToList());
+            Versions = new List<Manifest<Versions[]>>();
+            BgdLs = new List<Manifest<BGDL[]>>();
+            
+            foreach (var current in latest.Where(x => x.Flags is "bgdl" or "versions"))
+            {
+                UpdateTimes update;
+                var prev = previous.FirstOrDefault(x => x.Product == current.Product && x.Flags == current.Flags);
+                if (prev == null)
+                {
+                    switch (current.Flags)
+                    {
+                        case "versions":
+                            var ver = await _dbContext.Versions
+                                .Where(x => x.Code == current.Product && x.Seqn == current.Seqn)
+                                .FirstOrDefaultAsync();
+                            
+                            Versions.Add(ver);
+                            update = new UpdateTimes
+                            {
+                                Type = "versions", 
+                                Code = ver.Code, Updated = 
+                                    ver.Indexed,
+                            };
+                            break;
+                        case "bgdl":
+                            var bgdl = await _dbContext.BGDL
+                                .Where(x => x.Code == current.Product && x.Seqn == current.Seqn)
+                                .FirstOrDefaultAsync();
+                            
+                            BgdLs.Add(bgdl);
+                            update = new UpdateTimes
+                            {
+                                Type = "bgdl", 
+                                Code = bgdl.Code, 
+                                Updated = bgdl.Indexed,
+                            };
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException();
+                    }
+                }
+                else
+                {
+                    switch (prev.Flags)
+                    {
+                        case "versions":
+                            var ver = await _dbContext.Versions
+                                .Where(x => x.Code == prev.Product && x.Seqn == prev.Seqn)
+                                .FirstOrDefaultAsync();
 
+                            Versions.Add(ver);
+                            update = new UpdateTimes
+                            {
+                                Type = "versions", 
+                                Code = ver.Code, Updated = 
+                                    ver.Indexed,
+                            };
+                            break;
+                        case "bgdl":
+                            var bgdl = await _dbContext.BGDL
+                                .Where(x => x.Code == prev.Product && x.Seqn == prev.Seqn)
+                                .FirstOrDefaultAsync();
+                            
+                            BgdLs.Add(bgdl);
+                            update = new UpdateTimes
+                            {
+                                Type = "bgdl", 
+                                Code = bgdl.Code, 
+                                Updated = bgdl.Indexed,
+                            };
+                            
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException();
+                    }
+                }
+                
+                GameVersions.Add(update);
+            }
+            
             GameChildrenList = await _dbContext.GameChildren.ToListAsync();
             
             foreach (var item in latest)
@@ -102,7 +181,7 @@ namespace BlizzTrack.Pages
                     SummaryDiff.Add((item, null));
                     continue;
                 }
-                if (exist.Seqn != item.Seqn)
+                if (exist.Seqn < item.Seqn)
                 {
                     SummaryDiff.Add((item, exist));
                 }
