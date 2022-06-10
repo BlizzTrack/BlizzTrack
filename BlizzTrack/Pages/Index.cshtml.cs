@@ -96,6 +96,39 @@ namespace BlizzTrack.Pages
             
             foreach (var current in latest.Where(x => x.Flags is "bgdl" or "versions"))
             {
+                switch (current.Flags)
+                {
+                    case "versions":
+                        var ver = await _dbContext.Versions
+                            .Where(x => x.Code == current.Product)
+                            .OrderByDescending(x => x.Seqn)
+                            .FirstOrDefaultAsync();
+                            
+                        Versions.Add(ver);
+                        GameVersions.Add(new UpdateTimes
+                        {
+                            Type = "versions", 
+                            Code = ver.Code, Updated = 
+                                ver.Indexed,
+                        });
+                        break;
+                    case "bgdl":
+                        var bgdl = await _dbContext.BGDL
+                            .Where(x => x.Code == current.Product)
+                            .OrderByDescending(x => x.Seqn)
+                            .FirstOrDefaultAsync();
+                            
+                        BgdLs.Add(bgdl);
+                        GameVersions.Add(new UpdateTimes
+                        {
+                            Type = "bgdl", 
+                            Code = bgdl.Code, Updated = 
+                                bgdl.Indexed,
+                        });
+                        break;
+                }
+                
+                /*
                 UpdateTimes update;
                 var prev = previous.FirstOrDefault(x => x.Product == current.Product && x.Flags == current.Flags);
                 if (prev == null)
@@ -145,8 +178,8 @@ namespace BlizzTrack.Pages
                             update = new UpdateTimes
                             {
                                 Type = "versions", 
-                                Code = ver.Code, Updated = 
-                                    ver.Indexed,
+                                Code = ver.Code, 
+                                Updated = ver.Indexed,
                             };
                             break;
                         case "bgdl":
@@ -168,7 +201,7 @@ namespace BlizzTrack.Pages
                     }
                 }
                 
-                GameVersions.Add(update);
+                GameVersions.Add(update);*/
             }
             
             GameChildrenList = await _dbContext.GameChildren.ToListAsync();

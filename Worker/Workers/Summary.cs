@@ -85,7 +85,7 @@ namespace Worker.Workers
                     foreach (var item in latest.Content)
                     {
                         id++;
-                        _logger.LogDebug($"{id} {latest.Content.Length} {item.Product} {item.Seqn} {item.Flags}");
+                        // _logger.LogDebug($"{id} {latest.Content.Length} {item.Product} {item.Seqn} {item.Flags}");
                         
                         var parent = await parents.Get(item.Product) ?? await parents.Get("unknown");
 
@@ -146,11 +146,11 @@ namespace Worker.Workers
                 var res = await _bNetClient.Summary();
                 if (latest?.Seqn < res.Seqn)
                 {
-                    latest = Manifest<BNetLib.Ribbit.Models.Summary[]>.Create(res.Seqn, "summary", res.Payload.ToArray());
+                    var l = Manifest<BNetLib.Ribbit.Models.Summary[]>.Create(res.Seqn, "summary", res.Payload.ToArray());
                     try
                     {
-                        latest.Raw = res.Raw;
-                        await dbContext.Summary.AddAsync(latest, CancellationToken.None);
+                        l.Raw = res.Raw;
+                        await dbContext.Summary.AddAsync(l, CancellationToken.None);
                         await dbContext.SaveChangesAsync(CancellationToken.None);
                     }
                     catch (Exception ex)
@@ -164,6 +164,14 @@ namespace Worker.Workers
                         {
                             if (latest is not null)
                             {
+                                var prevItem = latest.Content.FirstOrDefault(x =>
+                                    x.Product == item.Product && item.Flags == x.Flags && x.Seqn == item.Seqn);
+                                if (prevItem != null)
+                                {
+                                    // _logger.LogInformation($"Skipping {prevItem.Seqn}:{prevItem.Flags}:{prevItem.Product}");
+                                    continue;
+                                }
+                                
                                 var parent = await parents.Get(item.Product) ?? await parents.Get("unknown");
 
                                 var gameChildData =
@@ -190,7 +198,7 @@ namespace Worker.Workers
                                     await dbContext.GameChildren.AddAsync(gameChildData, CancellationToken.None);
                                 }
                                 
-                                if (await AddItemToData(item, latest.Seqn, dbContext, CancellationToken.None, gameChildData))
+                                if (await AddItemToData(item, l.Seqn, dbContext, CancellationToken.None, gameChildData))
                                 {
                                     if(!updated.Exists(x => x.code == item.Product && x.seqn == item.Seqn && x.file == item.Flags))
                                         updated.Add((item.Product, item.Flags, item.Seqn));
@@ -235,14 +243,19 @@ namespace Worker.Workers
                 case "versions" or "version":
                     {
                         var exist = await db.Versions.AsNoTracking().OrderByDescending(x => x.Seqn).FirstOrDefaultAsync(x => x.Code == code, cancellationToken: cancellationToken);
-
-                        if (exist?.Seqn > msg.Seqn)
+                        if (exist.GivenSeqn == msg.Seqn)
                         {
-                            _logger.LogDebug($"Skipping {code}:{msg.Seqn}:{msg.Flags}");
+                            return false;
+                        }
+                        
+                        var (value, s, r) = await GetMetaData<Versions>(msg);
+
+                        if (exist?.Seqn >= s)
+                        {
+                            // _logger.LogDebug($"Skipping {code}:{msg.Seqn}:{msg.Flags}");
                             return false;
                         }
 
-                        var (value, s, r) = await GetMetaData<Versions>(msg);
 
                         data = value;
                         seqn = s;
@@ -253,14 +266,18 @@ namespace Worker.Workers
                 case "cdn" or "cdns":
                     {
                         var exist = await db.CDN.AsNoTracking().OrderByDescending(x => x.Seqn).FirstOrDefaultAsync(x => x.Code == code, cancellationToken: cancellationToken);
-
-                        if (exist?.Seqn > msg.Seqn)
+                        if (exist.GivenSeqn == msg.Seqn)
                         {
-                            _logger.LogDebug($"Skipping {code}:{msg.Seqn}:{msg.Flags}");
                             return false;
                         }
-
+                        
                         var (value, s, r) = await GetMetaData<CDN>(msg);
+                        
+                        if (exist?.Seqn >= s)
+                        {
+                            //_logger.LogDebug($"Skipping {code}:{msg.Seqn}:{msg.Flags}");
+                            return false;
+                        }
 
                         data = value;
                         seqn = s;
@@ -270,14 +287,19 @@ namespace Worker.Workers
                 case "bgdl":
                     {
                         var exist = await db.BGDL.AsNoTracking().OrderByDescending(x => x.Seqn).FirstOrDefaultAsync(x => x.Code == code, cancellationToken: cancellationToken);
-
-                        if (exist?.Seqn > msg.Seqn)
+                        if (exist.GivenSeqn == msg.Seqn)
                         {
-                            _logger.LogDebug($"Skipping {code}:{msg.Seqn}:{msg.Flags}");
+                            return false;
+                        }
+                        
+                        var (value, s, r) = await GetMetaData<BGDL>(msg);
+
+                        if (exist?.Seqn >= s)
+                        {
+                            // _logger.LogDebug($"Skipping {code}:{msg.Seqn}:{msg.Flags}");
                             return false;
                         }
 
-                        var (value, s, r) = await GetMetaData<BGDL>(msg);
 
                         data = value;
                         seqn = s;
@@ -335,6 +357,8 @@ namespace Worker.Workers
                         var f = Manifest<Versions[]>.Create(seqn, code, ver.ToArray());
                         f.Raw = raw;
                         f.Parent = parentSeqn;
+                        f.GivenSeqn = msg.Seqn;
+
                         var cfg = await db.GameConfigs.FirstOrDefaultAsync(x => x.Code == f.Code, cancellationToken);
                         if(cfg != null)
                             f.ConfigId = cfg.Code;
@@ -348,7 +372,8 @@ namespace Worker.Workers
                         var f = Manifest<CDN[]>.Create(seqn, code, cdn.ToArray());
                         f.Raw = raw;
                         f.Parent = parentSeqn;
-                        
+                        f.GivenSeqn = msg.Seqn;
+
                         var cfg = await db.GameConfigs.FirstOrDefaultAsync(x => x.Code == f.Code, cancellationToken);
                         if(cfg != null)
                             f.ConfigId = cfg.Code;
@@ -361,6 +386,7 @@ namespace Worker.Workers
                         var f = Manifest<BGDL[]>.Create(seqn, code, bgdl.ToArray());
                         f.Raw = raw;
                         f.Parent = parentSeqn;
+                        f.GivenSeqn = msg.Seqn;
                         
                         var cfg = await db.GameConfigs.FirstOrDefaultAsync(x => x.Code == f.Code, cancellationToken);
                         if(cfg != null)
@@ -378,53 +404,50 @@ namespace Worker.Workers
             return true;
         }
 
-        private async Task<(object Value, int Seqn, string Raw)> GetMetaData<T>(BNetLib.Ribbit.Models.Summary msg) where T : class, new()
+        private async Task<(object Value, int Seqn, string Raw)> GetMetaData<T>(BNetLib.Ribbit.Models.Summary msg)
+            where T : class, new()
         {
-            if(msg.Product == "odinv7" && msg.Flags == "versions")
+            if (msg.Product == "odinv7" && msg.Flags == "versions")
                 Debugger.Break();
-            
-            while (true)
+
+            IList<T> data;
+            int seqn;
+            string raw;
+
+            switch (typeof(T))
             {
-                IList<T> data;
-                int seqn;
-                string raw;
-
-                switch (typeof(T))
+                case { } versionType when versionType == typeof(Versions):
                 {
-                    case { } versionType when versionType == typeof(Versions):
-                    {
-                        var payload = await _bNetClient.Versions(msg.Product);
-                        data = (IList<T>) payload.Payload;
-                        seqn = payload.Seqn;
-                        raw = payload.Raw;
-                    }
-                        break;
-
-                    case { } bgdlType when bgdlType == typeof(BGDL):
-                    {
-                        var payload = await _bNetClient.Bgdl(msg.Product);
-                        data = (IList<T>) payload.Payload;
-                        seqn = payload.Seqn;
-                        raw = payload.Raw;
-                    }
-                        break;
-
-                    case { } cdnType when cdnType == typeof(CDN):
-                    {
-                        var payload = await _bNetClient.Cdn(msg.Product);
-                        data = (IList<T>) payload.Payload;
-                        seqn = payload.Seqn;
-                        raw = payload.Raw;
-                    }
-                        break;
-
-                    default:
-                        return (null, -1, null);
+                    var payload = await _bNetClient.Versions(msg.Product);
+                    data = (IList<T>) payload.Payload;
+                    seqn = payload.Seqn;
+                    raw = payload.Raw;
                 }
+                    break;
 
-                if (seqn >= msg.Seqn) return (data, seqn, raw);
-                await Task.Delay(TimeSpan.FromSeconds(1));
+                case { } bgdlType when bgdlType == typeof(BGDL):
+                {
+                    var payload = await _bNetClient.Bgdl(msg.Product);
+                    data = (IList<T>) payload.Payload;
+                    seqn = payload.Seqn;
+                    raw = payload.Raw;
+                }
+                    break;
+
+                case { } cdnType when cdnType == typeof(CDN):
+                {
+                    var payload = await _bNetClient.Cdn(msg.Product);
+                    data = (IList<T>) payload.Payload;
+                    seqn = payload.Seqn;
+                    raw = payload.Raw;
+                }
+                    break;
+
+                default:
+                    return (null, -1, null);
             }
+
+            return (data, seqn, raw);
         }
 
         private static async Task CheckIfEncrypted(BNetLib.Ribbit.Models.Summary msg, string productConfig, DBContext dbContext, ILogger<Summary> logger, CancellationToken cancellationToken, GameChildren owner)

@@ -22,6 +22,8 @@ namespace Core.Models
         
         [ForeignKey("ConfigId ")]
         public GameConfig Config { get; set; }
+        
+        public int GivenSeqn { get; set; }
 
         [NotMapped]
         public string Name => BNetLib.Helpers.GameName.Get(Code);
